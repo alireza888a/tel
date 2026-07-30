@@ -1,17 +1,25 @@
 import React from 'react';
 import { GlassCard } from '../GlassCard';
-import { HardDrive, Download, Upload, FileJson, AlertTriangle } from 'lucide-react';
+import { HardDrive, Download, Upload, FileJson, AlertTriangle, RefreshCw, Calendar } from 'lucide-react';
 
 interface BackupRestoreCardProps {
   handleBackup: () => void;
   handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleFactoryReset: () => void;
+  autoBackupEnabled: boolean;
+  onToggleAutoBackup: () => void;
+  autoBackupFrequency: 'daily' | 'weekly';
+  onChangeAutoBackupFrequency: (freq: 'daily' | 'weekly') => void;
 }
 
 export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
   handleBackup,
   handleFileSelect,
   handleFactoryReset,
+  autoBackupEnabled,
+  onToggleAutoBackup,
+  autoBackupFrequency,
+  onChangeAutoBackupFrequency,
 }) => {
   return (
     <GlassCard className="border-t-4 border-t-blue-500">
@@ -52,10 +60,69 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
         </label>
       </div>
 
-      <div className="mt-8 pt-6 border-t border-white/5">
+      {/* Auto Backup Section */}
+      <div className="mt-6 pt-5 border-t border-white/5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <RefreshCw size={18} className="text-blue-400" />
+            <h4 className="font-bold text-sm dark:text-white text-slate-800">بکاپ خودکار</h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">فعال باشد</span>
+            <button
+              type="button"
+              onClick={onToggleAutoBackup}
+              className={`w-11 h-6 rounded-full p-1 transition-colors flex items-center cursor-pointer ${
+                autoBackupEnabled ? 'bg-blue-600 justify-end' : 'bg-slate-700 justify-start'
+              }`}
+            >
+              <span className="w-4 h-4 rounded-full bg-white shadow-md" />
+            </button>
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-400 leading-relaxed">
+          هر روز یا هفته، یه نسخه کامل از داده‌های ربات به‌صورت خودکار برای مدیرها (و کارمندهایی که تو تیم اضافه کردید) تو تلگرام فرستاده میشه.
+        </p>
+
+        {autoBackupEnabled && (
+          <div className="flex items-center justify-between pt-2 border-t border-white/5">
+            <span className="text-xs text-slate-300 flex items-center gap-1">
+              <Calendar size={14} className="text-blue-400" />
+              بازه زمانی ارسال:
+            </span>
+            <div className="flex items-center gap-1.5 bg-slate-900/60 p-1 rounded-xl border border-white/10">
+              <button
+                type="button"
+                onClick={() => onChangeAutoBackupFrequency('daily')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  autoBackupFrequency === 'daily'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                روزانه
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeAutoBackupFrequency('weekly')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  autoBackupFrequency === 'weekly'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                هفتگی
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-6 pt-5 border-t border-white/5">
         <button
           onClick={handleFactoryReset}
-          className="w-full py-3 border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors"
+          className="w-full py-3 border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
         >
           <AlertTriangle size={16} />
           بازگشت به تنظیمات کارخانه (پاکسازی کامل)

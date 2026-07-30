@@ -59,6 +59,23 @@ export const Settings: React.FC = () => {
         syncNow();
     };
 
+    // Auto Backup State
+    const [autoBackupEnabled, setAutoBackupEnabled] = useState(() => localStorage.getItem('auto_backup_enabled') === 'true');
+    const [autoBackupFrequency, setAutoBackupFrequency] = useState<'daily' | 'weekly'>(() => (localStorage.getItem('auto_backup_frequency') as 'daily' | 'weekly') || 'daily');
+
+    const handleToggleAutoBackup = () => {
+        const newVal = !autoBackupEnabled;
+        setAutoBackupEnabled(newVal);
+        localStorage.setItem('auto_backup_enabled', String(newVal));
+        syncNow();
+    };
+
+    const handleChangeAutoBackupFrequency = (freq: 'daily' | 'weekly') => {
+        setAutoBackupFrequency(freq);
+        localStorage.setItem('auto_backup_frequency', freq);
+        syncNow();
+    };
+
     // Post Confirm Menu State
     const [postConfirmMenuId, setPostConfirmMenuId] = useState(localStorage.getItem('post_confirm_menu_id') || '');
 
@@ -491,6 +508,10 @@ export const Settings: React.FC = () => {
                     handleBackup={handleBackup}
                     handleFileSelect={handleFileSelect}
                     handleFactoryReset={handleFactoryReset}
+                    autoBackupEnabled={autoBackupEnabled}
+                    onToggleAutoBackup={handleToggleAutoBackup}
+                    autoBackupFrequency={autoBackupFrequency}
+                    onChangeAutoBackupFrequency={handleChangeAutoBackupFrequency}
                 />
 
                 {/* 3. CARD PAYMENT SETTINGS */}

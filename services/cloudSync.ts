@@ -21,7 +21,9 @@ export const saveToCloud = async (code: string): Promise<boolean> => {
         post_confirm_menu_id: localStorage.getItem('post_confirm_menu_id'),
         miniapp_modules: JSON.parse(localStorage.getItem('miniapp_modules') || '["shop"]'),
         booking_hours: JSON.parse(localStorage.getItem('booking_hours') || '{}'),
-        admins: JSON.parse(localStorage.getItem('bot_admins') || '[]')
+        admins: JSON.parse(localStorage.getItem('bot_admins') || '[]'),
+        auto_backup_enabled: localStorage.getItem('auto_backup_enabled') === 'true',
+        auto_backup_frequency: localStorage.getItem('auto_backup_frequency') || 'daily'
       },
       data: {
         menus: JSON.parse(localStorage.getItem('kb_menus') || '{}'),
@@ -90,6 +92,8 @@ export const loadFromCloud = async (code: string): Promise<boolean> => {
         if (json.config.miniapp_modules) localStorage.setItem('miniapp_modules', JSON.stringify(json.config.miniapp_modules));
         if (json.config.booking_hours) localStorage.setItem('booking_hours', JSON.stringify(json.config.booking_hours));
         if (json.config.admins) localStorage.setItem('bot_admins', JSON.stringify(json.config.admins));
+        if (json.config.auto_backup_enabled !== undefined) localStorage.setItem('auto_backup_enabled', String(json.config.auto_backup_enabled));
+        if (json.config.auto_backup_frequency) localStorage.setItem('auto_backup_frequency', json.config.auto_backup_frequency);
       }
 
       // Restore Data

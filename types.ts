@@ -274,3 +274,16 @@ export interface AutomationRule {
   messageText?: string;     // اختیاری — یه متن ثابت اضافه (می‌تونه با بقیه ترکیب بشه)
 }
 
+export interface Coupon {
+  code: string;                          // یکتا، حروف بزرگ، مثل "WELCOME10"
+  discountType: 'percent' | 'fixed';
+  discountValue: number;                 // درصد (0-100) یا مبلغ ثابت به تومان
+  active: boolean;
+  maxUses?: number;                      // سقف کل استفاده (همه‌ی خریدارها با هم)
+  perUserLimit?: number;                 // سقف استفاده برای هر خریدار (مثلاً 1 = فقط یکبار)
+  minOrderAmount?: number;               // حداقل مبلغ سفارش برای اعمال کد
+  expiresAt?: number;                    // timestamp میلی‌ثانیه، اختیاری
+  createdAt: number;
+}
+
+

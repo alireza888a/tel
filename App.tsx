@@ -16,6 +16,7 @@ import { CustomerTickets } from './pages/CustomerTickets';
 import { Automations } from './pages/Automations';
 import { MiniShop } from './pages/MiniShop';
 import { BookingPage } from './pages/Booking';
+import { CouponsPage } from './pages/Coupons';
 import { useCloudAutoSave } from './hooks/useCloudAutoSave';
 
 const App: React.FC = () => {
@@ -83,6 +84,8 @@ const App: React.FC = () => {
         return <Products />;
       case 'orders':
         return <Orders />;
+      case 'coupons':
+        return <CouponsPage />;
       case 'booking':
         return <BookingPage />;
       case 'customer-tickets':

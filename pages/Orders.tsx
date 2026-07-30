@@ -320,11 +320,11 @@ export const Orders: React.FC = () => {
                           className="flex justify-between items-center text-xs py-1.5 px-2.5 bg-black/10 dark:bg-black/20 rounded-xl"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                            <div className="w-12 h-12 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
                               {imgUrl ? (
                                 <img src={imgUrl} alt={item.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                               ) : (
-                                <span className="text-[10px] text-slate-500">📦</span>
+                                <span className="text-sm text-slate-500">📦</span>
                               )}
                             </div>
                             <span className="dark:text-white text-slate-800 font-medium truncate">{item.name}</span>

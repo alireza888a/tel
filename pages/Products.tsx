@@ -30,6 +30,7 @@ export const Products: React.FC = () => {
   const [postOrderFormId, setPostOrderFormId] = useState('');
   const [trackStock, setTrackStock] = useState(false);
   const [stockValue, setStockValue] = useState<number | ''>('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('همه');
 
   // Stock levels from D1 server
   const [stockLevels, setStockLevels] = useState<Record<string, number>>({});
@@ -299,6 +300,11 @@ export const Products: React.FC = () => {
     }
   };
 
+  const allCategories = ['همه', ...Array.from(new Set(products.map(p => p.category || 'عمومی')))];
+  const filteredProducts = categoryFilter === 'همه'
+    ? products
+    : products.filter(p => (p.category || 'عمومی') === categoryFilter);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in pb-10">
       <div className="flex justify-between items-center">
@@ -364,123 +370,142 @@ export const Products: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map(product => (
-            <GlassCard key={product.id} className="relative flex flex-col justify-between overflow-hidden group">
-              <div>
-                {/* Product Image */}
-                <div className="relative h-48 -mx-6 -mt-6 mb-4 bg-slate-900/40 border-b dark:border-white/5 border-black/5 flex items-center justify-center p-4 overflow-hidden text-center">
-                  {(() => {
-                    const displayUrl = getDisplayableImageUrl(product.imageUrl);
-                    if (displayUrl) {
+        <>
+          {/* Category Filter Bar */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {allCategories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                  categoryFilter === cat
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+            {filteredProducts.map(product => (
+              <GlassCard key={product.id} className="relative flex flex-col justify-between overflow-hidden group">
+                <div>
+                  {/* Product Image */}
+                  <div className="relative h-36 -mx-6 -mt-6 mb-3 bg-slate-900/40 border-b dark:border-white/5 border-black/5 flex items-center justify-center p-3 overflow-hidden text-center">
+                    {(() => {
+                      const displayUrl = getDisplayableImageUrl(product.imageUrl);
+                      if (displayUrl) {
+                        return (
+                          <img
+                            src={displayUrl}
+                            alt={product.name}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        );
+                      }
+                      if (product.imageUrl && product.imageUrl.trim() !== '') {
+                        return (
+                          <div className="flex flex-col items-center gap-1 text-blue-400 p-2">
+                            <ImageIcon size={26} className="animate-pulse" />
+                            <span className="text-[10px] font-medium leading-relaxed">📷 عکس آپلودشده (کد لایسنس برای دریافت عکس یافت نشد)</span>
+                            <span className="text-[9px] text-slate-500 font-mono break-all line-clamp-1">{product.imageUrl}</span>
+                          </div>
+                        );
+                      }
                       return (
-                        <img
-                          src={displayUrl}
-                          alt={product.name}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      );
-                    }
-                    if (product.imageUrl && product.imageUrl.trim() !== '') {
-                      return (
-                        <div className="flex flex-col items-center gap-2 text-blue-400 p-4">
-                          <ImageIcon size={32} className="animate-pulse" />
-                          <span className="text-xs font-medium leading-relaxed">📷 عکس آپلودشده (کد لایسنس برای دریافت عکس یافت نشد)</span>
-                          <span className="text-[10px] text-slate-500 font-mono break-all line-clamp-1">{product.imageUrl}</span>
+                        <div className="flex flex-col items-center gap-1 text-slate-500">
+                          <ImageIcon size={28} />
+                          <span className="text-[10px]">بدون تصویر</span>
                         </div>
                       );
-                    }
-                    return (
-                      <div className="flex flex-col items-center gap-2 text-slate-500">
-                        <ImageIcon size={36} />
-                        <span className="text-xs">بدون تصویر</span>
-                      </div>
-                    );
-                  })()}
-                  {/* Status Badge */}
-                  <span
-                    className={`absolute top-4 right-4 px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                      product.active
-                        ? 'bg-green-500/10 text-green-500 border border-green-500/20'
-                        : 'bg-red-500/10 text-red-500 border border-red-500/20'
-                    }`}
-                  >
-                    {product.active ? 'فعال' : 'غیرفعال'}
-                  </span>
-                  {/* Category Badge */}
-                  <span className="absolute top-4 left-4 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                    {product.category || 'عمومی'}
-                  </span>
-                  {/* Image count badge if > 1 */}
-                  {product.imageUrls && product.imageUrls.length > 1 && (
-                    <span className="absolute bottom-3 left-3 px-2 py-0.5 rounded-lg text-[10px] font-medium bg-black/60 text-white border border-white/10 backdrop-blur-sm flex items-center gap-1">
-                      <ImageIcon size={12} />
-                      {product.imageUrls.length} عکس
+                    })()}
+                    {/* Status Badge */}
+                    <span
+                      className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                        product.active
+                          ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                          : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                      }`}
+                    >
+                      {product.active ? 'فعال' : 'غیرفعال'}
                     </span>
-                  )}
-                </div>
-
-                {/* Product Metadata */}
-                <div className="space-y-2">
-                  <h3 className="text-lg font-bold dark:text-white text-slate-800 line-clamp-1">{product.name}</h3>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm">
-                      <DollarSign size={16} />
-                      <span>{product.price.toLocaleString('fa-IR')} تومان</span>
-                    </div>
-                    {product.trackStock && (
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
-                        (stockLevels[product.id] ?? 0) > 0
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                          : 'bg-red-500/10 text-red-400 border-red-500/20'
-                      }`}>
-                        {(stockLevels[product.id] ?? 0) > 0
-                          ? `📦 موجودی: ${stockLevels[product.id]}`
-                          : '❌ ناموجود'}
+                    {/* Category Badge */}
+                    <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      {product.category || 'عمومی'}
+                    </span>
+                    {/* Image count badge if > 1 */}
+                    {product.imageUrls && product.imageUrls.length > 1 && (
+                      <span className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded-lg text-[9px] font-medium bg-black/60 text-white border border-white/10 backdrop-blur-sm flex items-center gap-1">
+                        <ImageIcon size={11} />
+                        {product.imageUrls.length} عکس
                       </span>
                     )}
                   </div>
-                  <p className="text-xs dark:text-slate-400 text-slate-600 line-clamp-3 min-h-[48px]">
-                    {product.description || 'بدون توضیحات.'}
-                  </p>
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className="mt-6 pt-4 border-t dark:border-white/5 border-black/5 flex items-center justify-between">
-                <button
-                  onClick={() => toggleActiveStatus(product)}
-                  className={`flex items-center gap-1.5 text-xs transition-colors py-1.5 px-2.5 rounded-lg border ${
-                    product.active
-                      ? 'text-green-500 bg-green-500/5 hover:bg-green-500/10 border-green-500/20'
-                      : 'text-slate-400 bg-slate-400/5 hover:bg-slate-400/10 border-slate-400/10'
-                  }`}
-                >
-                  {product.active ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-                  <span>{product.active ? 'فعال' : 'غیرفعال'}</span>
-                </button>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => openEditModal(product)}
-                    className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border border-yellow-500/20 transition-colors"
-                    title="ویرایش محصول"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-colors"
-                    title="حذف محصول"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {/* Product Metadata */}
+                  <div className="space-y-1.5">
+                    <h3 className="text-base font-bold dark:text-white text-slate-800 line-clamp-1">{product.name}</h3>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1 text-blue-500 font-bold text-xs">
+                        <DollarSign size={14} />
+                        <span>{product.price.toLocaleString('fa-IR')} تومان</span>
+                      </div>
+                      {product.trackStock && (
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border shrink-0 ${
+                          (stockLevels[product.id] ?? 0) > 0
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                            : 'bg-red-500/10 text-red-400 border-red-500/20'
+                        }`}>
+                          {(stockLevels[product.id] ?? 0) > 0
+                            ? `📦 موجودی: ${stockLevels[product.id]}`
+                            : '❌ ناموجود'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs dark:text-slate-400 text-slate-600 line-clamp-2 min-h-[36px]">
+                      {product.description || 'بدون توضیحات.'}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </GlassCard>
-          ))}
-        </div>
+
+                {/* Actions */}
+                <div className="mt-4 pt-3 border-t dark:border-white/5 border-black/5 flex items-center justify-between">
+                  <button
+                    onClick={() => toggleActiveStatus(product)}
+                    className={`flex items-center gap-1.5 text-xs transition-colors py-1.5 px-2.5 rounded-lg border ${
+                      product.active
+                        ? 'text-green-500 bg-green-500/5 hover:bg-green-500/10 border-green-500/20'
+                        : 'text-slate-400 bg-slate-400/5 hover:bg-slate-400/10 border-slate-400/10'
+                    }`}
+                  >
+                    {product.active ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
+                    <span>{product.active ? 'فعال' : 'غیرفعال'}</span>
+                  </button>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => openEditModal(product)}
+                      className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border border-yellow-500/20 transition-colors"
+                      title="ویرایش محصول"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-colors"
+                      title="حذف محصول"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Add / Edit Modal */}

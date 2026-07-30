@@ -180,6 +180,7 @@ export interface WorkingHours {
   thu?: { start: string; end: string } | null;
   fri?: { start: string; end: string } | null;
   sat?: { start: string; end: string } | null;
+  maxPerDay?: number;
 }
 
 export interface Provider {
@@ -188,6 +189,12 @@ export interface Provider {
   active: boolean;
   workingHours: WorkingHours;
   description?: string;
+  maxBookingsPerDay?: number;
+  exceptions?: {
+    date: string;
+    closed: boolean;
+    hours?: { start: string; end: string };
+  }[];
 }
 
 export interface Booking {

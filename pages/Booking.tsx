@@ -39,6 +39,17 @@ export const BookingPage: React.FC = () => {
   const [providerName, setProviderName] = useState('');
   const [providerActive, setProviderActive] = useState(true);
   const [providerDescription, setProviderDescription] = useState('');
+  const [providerMaxBookingsPerDay, setProviderMaxBookingsPerDay] = useState<string>('');
+  const [providerExceptions, setProviderExceptions] = useState<{
+    date: string;
+    closed: boolean;
+    hours?: { start: string; end: string };
+  }[]>([]);
+  const [newExcDate, setNewExcDate] = useState<string>('');
+  const [newExcClosed, setNewExcClosed] = useState<boolean>(true);
+  const [newExcStart, setNewExcStart] = useState<string>('09:00');
+  const [newExcEnd, setNewExcEnd] = useState<string>('18:00');
+
   const [providerHours, setProviderHours] = useState<WorkingHours>({
     sat: { start: '09:00', end: '18:00' },
     sun: { start: '09:00', end: '18:00' },
@@ -66,6 +77,20 @@ export const BookingPage: React.FC = () => {
       return saved ? JSON.parse(saved) : defaultHours;
     } catch {
       return defaultHours;
+    }
+  });
+  const [hoursMaxPerDay, setHoursMaxPerDay] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('booking_hours');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.maxPerDay !== undefined && parsed.maxPerDay !== null) {
+          return String(parsed.maxPerDay);
+        }
+      }
+      return localStorage.getItem('booking_max_per_day') || '';
+    } catch {
+      return '';
     }
   });
   const [hoursSavedSuccess, setHoursSavedSuccess] = useState(false);
@@ -273,14 +298,49 @@ export const BookingPage: React.FC = () => {
       setProviderActive(provider.active);
       setProviderHours(provider.workingHours || defaultHours);
       setProviderDescription(provider.description || '');
+      setProviderMaxBookingsPerDay(provider.maxBookingsPerDay !== undefined && provider.maxBookingsPerDay !== null ? String(provider.maxBookingsPerDay) : '');
+      setProviderExceptions(provider.exceptions || []);
     } else {
       setEditingProvider(null);
       setProviderName('');
       setProviderActive(true);
       setProviderHours(defaultHours);
       setProviderDescription('');
+      setProviderMaxBookingsPerDay('');
+      setProviderExceptions([]);
     }
+    setNewExcDate('');
+    setNewExcClosed(true);
+    setNewExcStart('09:00');
+    setNewExcEnd('18:00');
     setIsProviderModalOpen(true);
+  };
+
+  const handleAddException = () => {
+    if (!newExcDate) {
+      alert('لطفاً تاریخ استثنا را انتخاب کنید.');
+      return;
+    }
+    const excObj: {
+      date: string;
+      closed: boolean;
+      hours?: { start: string; end: string };
+    } = {
+      date: newExcDate,
+      closed: newExcClosed,
+      hours: !newExcClosed ? { start: newExcStart || '09:00', end: newExcEnd || '18:00' } : undefined
+    };
+
+    const updated = [...providerExceptions.filter(e => e.date !== newExcDate), excObj];
+    setProviderExceptions(updated);
+    setNewExcDate('');
+    setNewExcClosed(true);
+    setNewExcStart('09:00');
+    setNewExcEnd('18:00');
+  };
+
+  const handleDeleteException = (dateToDelete: string) => {
+    setProviderExceptions(prev => prev.filter(e => e.date !== dateToDelete));
   };
 
   const handleSaveProvider = (e: React.FormEvent) => {
@@ -288,6 +348,8 @@ export const BookingPage: React.FC = () => {
     if (!providerName.trim()) return;
 
     const pDesc = providerDescription.trim() || undefined;
+    const maxBookings = providerMaxBookingsPerDay.trim() !== '' ? Number(providerMaxBookingsPerDay) : undefined;
+    const excs = providerExceptions.length > 0 ? providerExceptions : undefined;
 
     let updated: Provider[];
     if (editingProvider) {
@@ -296,7 +358,9 @@ export const BookingPage: React.FC = () => {
         name: providerName.trim(),
         active: providerActive,
         workingHours: providerHours,
-        description: pDesc
+        description: pDesc,
+        maxBookingsPerDay: maxBookings,
+        exceptions: excs
       } : p);
     } else {
       const newProv: Provider = {
@@ -304,7 +368,9 @@ export const BookingPage: React.FC = () => {
         name: providerName.trim(),
         active: providerActive,
         workingHours: providerHours,
-        description: pDesc
+        description: pDesc,
+        maxBookingsPerDay: maxBookings,
+        exceptions: excs
       };
       updated = [...providers, newProv];
     }
@@ -382,7 +448,18 @@ export const BookingPage: React.FC = () => {
   };
 
   const handleSaveWorkingHours = () => {
-    localStorage.setItem('booking_hours', JSON.stringify(workingHours));
+    const maxVal = hoursMaxPerDay.trim() !== '' ? Number(hoursMaxPerDay) : undefined;
+    const updatedWorkingHours: WorkingHours = {
+      ...workingHours,
+      maxPerDay: maxVal
+    };
+    setWorkingHours(updatedWorkingHours);
+    localStorage.setItem('booking_hours', JSON.stringify(updatedWorkingHours));
+    if (maxVal !== undefined) {
+      localStorage.setItem('booking_max_per_day', String(maxVal));
+    } else {
+      localStorage.removeItem('booking_max_per_day');
+    }
     syncNow();
     setHoursSavedSuccess(true);
     setTimeout(() => setHoursSavedSuccess(false), 3000);
@@ -860,9 +937,25 @@ export const BookingPage: React.FC = () => {
                     </button>
                   </div>
 
-                  <div className="text-xs text-slate-400 flex items-center gap-1.5 bg-black/20 p-2.5 rounded-xl border border-white/5">
-                    <Clock size={14} className="text-blue-400 shrink-0" />
-                    <span>دارای تقویم و ساعات کاری اختصاصی</span>
+                  <div className="space-y-1.5">
+                    <div className="text-xs text-slate-400 flex items-center gap-1.5 bg-black/20 p-2.5 rounded-xl border border-white/5">
+                      <Clock size={14} className="text-blue-400 shrink-0" />
+                      <span>دارای تقویم و ساعات کاری اختصاصی</span>
+                    </div>
+
+                    {p.maxBookingsPerDay !== undefined && p.maxBookingsPerDay !== null && (
+                      <div className="text-[11px] text-amber-300 bg-amber-500/10 px-2.5 py-1.5 rounded-xl border border-amber-500/20 flex items-center justify-between">
+                        <span>سقف نوبت روزانه:</span>
+                        <span className="font-bold font-mono">{p.maxBookingsPerDay} نوبت</span>
+                      </div>
+                    )}
+
+                    {p.exceptions && p.exceptions.length > 0 && (
+                      <div className="text-[11px] text-cyan-300 bg-cyan-500/10 px-2.5 py-1.5 rounded-xl border border-cyan-500/20 flex items-center justify-between">
+                        <span>روزهای استثنا / مرخصی:</span>
+                        <span className="font-bold font-mono">{p.exceptions.length} روز</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
@@ -914,6 +1007,23 @@ export const BookingPage: React.FC = () => {
               ✅ ساعات کاری با موفقیت ذخیره و همگام‌سازی شد.
             </div>
           )}
+
+          <div className="bg-black/20 border border-white/10 rounded-xl p-4 space-y-2">
+            <label className="block text-xs font-bold text-white">
+              حداکثر تعداد نوبت در روز برای این تقویم (اختیاری)
+            </label>
+            <p className="text-[11px] text-slate-400">
+              سقف تعداد نوبت‌های قابل رزرو در یک روز برای خدمات عمومی (بدون کارمند). خالی بذارید یعنی محدودیتی نیست.
+            </p>
+            <input
+              type="number"
+              value={hoursMaxPerDay}
+              onChange={(e) => setHoursMaxPerDay(e.target.value)}
+              placeholder="مثلاً: 10"
+              min="1"
+              className="w-full md:w-48 bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
+            />
+          </div>
 
           <div className="space-y-3">
             {daysList.map(({ key, label }) => {
@@ -1147,6 +1257,23 @@ export const BookingPage: React.FC = () => {
               </div>
 
               <div>
+                <label className="block text-xs text-slate-300 font-medium mb-1">
+                  حداکثر تعداد نوبت در روز (اختیاری)
+                </label>
+                <p className="text-[11px] text-slate-400 mb-1.5">
+                  خالی بذارید یعنی محدودیتی نیست
+                </p>
+                <input
+                  type="number"
+                  value={providerMaxBookingsPerDay}
+                  onChange={(e) => setProviderMaxBookingsPerDay(e.target.value)}
+                  placeholder="مثلاً: 5"
+                  min="1"
+                  className="w-full bg-black/30 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
+                />
+              </div>
+
+              <div>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -1207,6 +1334,131 @@ export const BookingPage: React.FC = () => {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Provider Exceptions / Days off */}
+              <div className="pt-3 border-t border-white/5 space-y-3">
+                <div>
+                  <label className="block text-xs text-slate-300 font-bold mb-1">
+                    مرخصی‌ها و روزهای استثنا
+                  </label>
+                  <p className="text-[11px] text-slate-400">
+                    تعیین روزهای خاصی که کارمند مرخصی است یا ساعت کاری متفاوتی دارد
+                  </p>
+                </div>
+
+                {/* Form to add exception */}
+                <div className="bg-black/30 p-3.5 rounded-xl border border-white/10 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] text-slate-400 mb-1">تاریخ استثنا</label>
+                      <input
+                        type="date"
+                        value={newExcDate}
+                        onChange={(e) => setNewExcDate(e.target.value)}
+                        className="w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] text-slate-400 mb-1">وضعیت کاری</label>
+                      <div className="flex items-center gap-2 pt-1">
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-200">
+                          <input
+                            type="radio"
+                            name="excClosed"
+                            checked={newExcClosed}
+                            onChange={() => setNewExcClosed(true)}
+                            className="text-blue-600 bg-slate-900 border-white/20"
+                          />
+                          <span>کلاً تعطیل</span>
+                        </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-200">
+                          <input
+                            type="radio"
+                            name="excClosed"
+                            checked={!newExcClosed}
+                            onChange={() => setNewExcClosed(false)}
+                            className="text-blue-600 bg-slate-900 border-white/20"
+                          />
+                          <span>ساعت متفاوت</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {!newExcClosed && (
+                    <div className="flex items-center gap-2 text-xs" dir="ltr">
+                      <span className="text-slate-400 text-[11px]">از:</span>
+                      <input
+                        type="time"
+                        value={newExcStart}
+                        onChange={(e) => setNewExcStart(e.target.value)}
+                        className="bg-slate-900 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
+                      />
+                      <span className="text-slate-400 text-[11px]">تا:</span>
+                      <input
+                        type="time"
+                        value={newExcEnd}
+                        onChange={(e) => setNewExcEnd(e.target.value)}
+                        className="bg-slate-900 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleAddException}
+                    className="w-full py-2 bg-white/10 hover:bg-white/15 text-white font-bold text-xs rounded-lg transition-all border border-white/10 flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <Plus size={14} />
+                    <span>افزودن استثنا</span>
+                  </button>
+                </div>
+
+                {/* List of exceptions */}
+                {providerExceptions.length > 0 && (
+                  <div className="space-y-1.5">
+                    {providerExceptions.map((exc) => {
+                      let faDate = exc.date;
+                      try {
+                        const parts = exc.date.split('-');
+                        if (parts.length === 3) {
+                          const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+                          faDate = d.toLocaleDateString('fa-IR');
+                        }
+                      } catch {}
+
+                      return (
+                        <div
+                          key={exc.date}
+                          className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5 text-xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-cyan-300 font-bold">{faDate}</span>
+                            <span className="text-slate-500">—</span>
+                            {exc.closed ? (
+                              <span className="text-red-400 font-bold px-2 py-0.5 rounded-md bg-red-500/10">تعطیل</span>
+                            ) : (
+                              <span className="text-amber-300 font-mono font-bold px-2 py-0.5 rounded-md bg-amber-500/10" dir="ltr">
+                                {exc.hours?.start} تا {exc.hours?.end}
+                              </span>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteException(exc.date)}
+                            className="text-slate-400 hover:text-red-400 p-1 font-bold transition-colors cursor-pointer"
+                            title="حذف استثنا"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2 pt-4 border-t border-white/5">

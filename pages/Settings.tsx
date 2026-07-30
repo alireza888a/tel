@@ -8,6 +8,7 @@ import { DatabaseChannelCard } from '../components/settings/DatabaseChannelCard'
 import { BackupRestoreCard } from '../components/settings/BackupRestoreCard';
 import { PaymentSettingsCard } from '../components/settings/PaymentSettingsCard';
 import { AdminSupportCard } from '../components/settings/AdminSupportCard';
+import { TeamAccessCard } from '../components/settings/TeamAccessCard';
 import { PostConfirmMenuCard } from '../components/settings/PostConfirmMenuCard';
 import { MiniAppModulesCard } from '../components/settings/MiniAppModulesCard';
 import { GalleryManagementCard } from '../components/settings/GalleryManagementCard';
@@ -28,6 +29,35 @@ export const Settings: React.FC = () => {
 
     // Support Chat ID State
     const [supportChatId, setSupportChatId] = useState(localStorage.getItem('support_chat_id') || '');
+
+    // Staff Admins (Team Access) State
+    const [admins, setAdmins] = useState<{ chatId: string; name: string; role: 'staff' }[]>(() => {
+        try {
+            return JSON.parse(localStorage.getItem('bot_admins') || '[]');
+        } catch {
+            return [];
+        }
+    });
+
+    const handleAddAdmin = (chatId: string, name: string) => {
+        const trimmedId = chatId.trim();
+        if (!trimmedId) return;
+        if (admins.some(a => a.chatId === trimmedId)) {
+            alert('این آیدی قبلاً اضافه شده.');
+            return;
+        }
+        const updated = [...admins, { chatId: trimmedId, name: name.trim() || trimmedId, role: 'staff' as const }];
+        setAdmins(updated);
+        localStorage.setItem('bot_admins', JSON.stringify(updated));
+        syncNow();
+    };
+
+    const handleRemoveAdmin = (chatId: string) => {
+        const updated = admins.filter(a => a.chatId !== chatId);
+        setAdmins(updated);
+        localStorage.setItem('bot_admins', JSON.stringify(updated));
+        syncNow();
+    };
 
     // Post Confirm Menu State
     const [postConfirmMenuId, setPostConfirmMenuId] = useState(localStorage.getItem('post_confirm_menu_id') || '');
@@ -478,6 +508,13 @@ export const Settings: React.FC = () => {
                     supportChatId={supportChatId}
                     setSupportChatId={setSupportChatId}
                     addSupportButtonToRootMenu={addSupportButtonToRootMenu}
+                />
+
+                {/* 4.5. TEAM ACCESS (STAFF) SETTINGS */}
+                <TeamAccessCard
+                    admins={admins}
+                    onAddAdmin={handleAddAdmin}
+                    onRemoveAdmin={handleRemoveAdmin}
                 />
 
                 {/* 5. POST CONFIRM MENU SETTINGS */}

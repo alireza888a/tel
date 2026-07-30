@@ -20,7 +20,8 @@ export const saveToCloud = async (code: string): Promise<boolean> => {
         support_chat_id: localStorage.getItem('support_chat_id'),
         post_confirm_menu_id: localStorage.getItem('post_confirm_menu_id'),
         miniapp_modules: JSON.parse(localStorage.getItem('miniapp_modules') || '["shop"]'),
-        booking_hours: JSON.parse(localStorage.getItem('booking_hours') || '{}')
+        booking_hours: JSON.parse(localStorage.getItem('booking_hours') || '{}'),
+        admins: JSON.parse(localStorage.getItem('bot_admins') || '[]')
       },
       data: {
         menus: JSON.parse(localStorage.getItem('kb_menus') || '{}'),
@@ -88,6 +89,7 @@ export const loadFromCloud = async (code: string): Promise<boolean> => {
         if (json.config.post_confirm_menu_id) localStorage.setItem('post_confirm_menu_id', json.config.post_confirm_menu_id);
         if (json.config.miniapp_modules) localStorage.setItem('miniapp_modules', JSON.stringify(json.config.miniapp_modules));
         if (json.config.booking_hours) localStorage.setItem('booking_hours', JSON.stringify(json.config.booking_hours));
+        if (json.config.admins) localStorage.setItem('bot_admins', JSON.stringify(json.config.admins));
       }
 
       // Restore Data

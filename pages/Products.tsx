@@ -28,6 +28,48 @@ export const Products: React.FC = () => {
   const [category, setCategory] = useState('');
   const [postConfirmMenuId, setPostConfirmMenuId] = useState('');
   const [postOrderFormId, setPostOrderFormId] = useState('');
+  const [trackStock, setTrackStock] = useState(false);
+  const [stockValue, setStockValue] = useState<number | ''>('');
+
+  // Stock levels from D1 server
+  const [stockLevels, setStockLevels] = useState<Record<string, number>>({});
+
+  const fetchStockLevels = async () => {
+    try {
+      const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
+      const code = JSON.parse(licenseCacheStr).code;
+      if (!code) return;
+      const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/products/stock/list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const result = await res.json();
+      if (result.ok) setStockLevels(result.stock || {});
+    } catch (e) {
+      console.warn('Failed to load stock levels:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchStockLevels();
+  }, []);
+
+  const saveStockToServer = async (productId: string, stock: number) => {
+    try {
+      const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
+      const code = JSON.parse(licenseCacheStr).code;
+      if (!code) return;
+      await fetch('https://corepanel-api.tajikr450.workers.dev/api/products/stock/set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, productId, stock })
+      });
+      setStockLevels(prev => ({ ...prev, [productId]: stock }));
+    } catch (e) {
+      console.warn('Failed to save stock:', e);
+    }
+  };
 
   const getKbMenus = (): Record<string, { id?: string; title?: string; content?: string }> => {
     try {
@@ -131,6 +173,8 @@ export const Products: React.FC = () => {
     setCategory('');
     setPostConfirmMenuId('');
     setPostOrderFormId('');
+    setTrackStock(false);
+    setStockValue('');
     setIsModalOpen(true);
   };
 
@@ -149,6 +193,8 @@ export const Products: React.FC = () => {
     setCategory(product.category || '');
     setPostConfirmMenuId(product.post_confirm_menu_id || '');
     setPostOrderFormId(product.post_order_form_id || '');
+    setTrackStock(!!product.trackStock);
+    setStockValue(product.trackStock ? (stockLevels[product.id] ?? 0) : '');
     setIsModalOpen(true);
   };
 
@@ -164,7 +210,8 @@ export const Products: React.FC = () => {
 
     if (editingProduct) {
       // Edit existing
-      setProducts(products.map(p => p.id === editingProduct.id ? {
+      const productId = editingProduct.id;
+      setProducts(products.map(p => p.id === productId ? {
         ...p,
         name,
         price: Number(price),
@@ -174,12 +221,18 @@ export const Products: React.FC = () => {
         active,
         category: category.trim() || 'عمومی',
         post_confirm_menu_id: postConfirmMenuId || undefined,
-        post_order_form_id: postOrderFormId || undefined
+        post_order_form_id: postOrderFormId || undefined,
+        trackStock
       } : p));
+
+      if (trackStock) {
+        saveStockToServer(productId, Number(stockValue) || 0);
+      }
     } else {
       // Create new
+      const newId = 'prod_' + Math.random().toString(36).substr(2, 9);
       const newProduct: Product = {
-        id: 'prod_' + Math.random().toString(36).substr(2, 9),
+        id: newId,
         name,
         price: Number(price),
         description,
@@ -188,9 +241,14 @@ export const Products: React.FC = () => {
         active,
         category: category.trim() || 'عمومی',
         post_confirm_menu_id: postConfirmMenuId || undefined,
-        post_order_form_id: postOrderFormId || undefined
+        post_order_form_id: postOrderFormId || undefined,
+        trackStock
       };
       setProducts([...products, newProduct]);
+
+      if (trackStock) {
+        saveStockToServer(newId, Number(stockValue) || 0);
+      }
     }
     setIsModalOpen(false);
   };
@@ -366,9 +424,22 @@ export const Products: React.FC = () => {
                 {/* Product Metadata */}
                 <div className="space-y-2">
                   <h3 className="text-lg font-bold dark:text-white text-slate-800 line-clamp-1">{product.name}</h3>
-                  <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm">
-                    <DollarSign size={16} />
-                    <span>{product.price.toLocaleString('fa-IR')} تومان</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm">
+                      <DollarSign size={16} />
+                      <span>{product.price.toLocaleString('fa-IR')} تومان</span>
+                    </div>
+                    {product.trackStock && (
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
+                        (stockLevels[product.id] ?? 0) > 0
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          : 'bg-red-500/10 text-red-400 border-red-500/20'
+                      }`}>
+                        {(stockLevels[product.id] ?? 0) > 0
+                          ? `📦 موجودی: ${stockLevels[product.id]}`
+                          : '❌ ناموجود'}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs dark:text-slate-400 text-slate-600 line-clamp-3 min-h-[48px]">
                     {product.description || 'بدون توضیحات.'}
@@ -561,6 +632,44 @@ export const Products: React.FC = () => {
                   placeholder="مثال: اشتراک‌ها، فیزیکی، عمومی"
                   className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
                 />
+              </div>
+
+              {/* Stock Management */}
+              <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white">مدیریت موجودی برای این محصول فعال باشد</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">در صورت فعال بودن، موجودی با هر خرید آنلاین کاهش می‌یابد.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTrackStock(!trackStock)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      trackStock ? 'bg-blue-600' : 'bg-slate-700'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        trackStock ? '-translate-x-6' : '-translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {trackStock && (
+                  <div className="pt-2 border-t border-white/5">
+                    <label className="block text-xs text-slate-400 mb-1.5">تعداد موجودی فعلی <span className="text-red-500">*</span></label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={stockValue}
+                      onChange={e => setStockValue(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="مثال: ۱۰"
+                      className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors text-right"
+                      dir="ltr"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>

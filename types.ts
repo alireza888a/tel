@@ -233,6 +233,7 @@ export interface Product {
   stock?: number;
   post_confirm_menu_id?: string;
   post_order_form_id?: string;
+  trackStock?: boolean;
 }
 
 export interface CartItem {

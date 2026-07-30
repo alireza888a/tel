@@ -416,9 +416,9 @@ export const Products: React.FC = () => {
                         );
                       }
                       return (
-                        <div className="flex flex-col items-center gap-1 text-slate-500">
-                          <ImageIcon size={28} />
-                          <span className="text-[10px]">بدون تصویر</span>
+                        <div className="flex flex-col items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                          <ImageIcon size={30} className="opacity-60" />
+                          <span className="text-[10px] opacity-80">بدون تصویر</span>
                         </div>
                       );
                     })()}

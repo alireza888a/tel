@@ -312,31 +312,31 @@ export const Orders: React.FC = () => {
                   {/* Order Items */}
                   <div className="space-y-1.5">
                     <h4 className="text-xs font-bold text-slate-400 mb-1.5">لیست اقلام سفارش:</h4>
-                    {order.items.map((item, idx) => {
-                      const imgUrl = getProductImage(item.productId);
-                      return (
-                        <div
-                          key={idx}
-                          className="flex justify-between items-center text-xs py-1.5 px-2.5 bg-black/10 dark:bg-black/20 rounded-xl"
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-12 h-12 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {order.items.map((item, idx) => {
+                        const imgUrl = getProductImage(item.productId);
+                        return (
+                          <div
+                            key={idx}
+                            className="bg-black/10 dark:bg-black/20 rounded-xl overflow-hidden border dark:border-white/5 border-black/5"
+                          >
+                            <div className="h-20 bg-slate-900/40 flex items-center justify-center overflow-hidden">
                               {imgUrl ? (
                                 <img src={imgUrl} alt={item.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                               ) : (
-                                <span className="text-sm text-slate-500">📦</span>
+                                <span className="text-xl text-slate-600">📦</span>
                               )}
                             </div>
-                            <span className="dark:text-white text-slate-800 font-medium truncate">{item.name}</span>
-                            <span className="text-[10px] text-slate-400 shrink-0">×{item.qty}</span>
+                            <div className="p-2 text-center">
+                              <div className="text-[11px] dark:text-white text-slate-800 font-medium truncate">{item.name}</div>
+                              <div className="text-[10px] text-slate-400 mt-0.5">
+                                ×{item.qty} — {(item.price * item.qty).toLocaleString('fa-IR')} تومان
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1 text-slate-400 shrink-0">
-                            <span>{(item.price * item.qty).toLocaleString('fa-IR')}</span>
-                            <span className="text-[9px]">تومان</span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Fulfillment / Extra Info */}

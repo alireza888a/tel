@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Plus, Trash2, Edit3, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Loader2, Save, User, Tag, Phone, Zap, Users } from 'lucide-react';
 import { BookableService, WorkingHours, Booking, Provider } from '../types';
 import { syncNow } from '../services/cloudSync';
+import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
 
 export const BookingPage: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<'bookings' | 'services' | 'providers' | 'hours'>('bookings');
@@ -46,6 +47,7 @@ export const BookingPage: React.FC = () => {
     hours?: { start: string; end: string };
   }[]>([]);
   const [newExcDate, setNewExcDate] = useState<string>('');
+  const [showExcDatePicker, setShowExcDatePicker] = useState(false);
   const [newExcClosed, setNewExcClosed] = useState<boolean>(true);
   const [newExcStart, setNewExcStart] = useState<string>('09:00');
   const [newExcEnd, setNewExcEnd] = useState<string>('18:00');
@@ -1352,12 +1354,15 @@ export const BookingPage: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
                       <label className="block text-[11px] text-slate-400 mb-1">تاریخ استثنا</label>
-                      <input
-                        type="date"
-                        value={newExcDate}
-                        onChange={(e) => setNewExcDate(e.target.value)}
-                        className="w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowExcDatePicker(true)}
+                        className="w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-blue-500 text-right hover:border-blue-500/50 transition-colors"
+                      >
+                        {newExcDate
+                          ? new Date(newExcDate + 'T00:00:00').toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })
+                          : <span className="text-slate-500">انتخاب تاریخ...</span>}
+                      </button>
                     </div>
 
                     <div>
@@ -1480,6 +1485,20 @@ export const BookingPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Persian Date Picker for Exception Date */}
+      <PersianDatePicker
+        isOpen={showExcDatePicker}
+        onClose={() => setShowExcDatePicker(false)}
+        initialDate={newExcDate ? new Date(newExcDate + 'T00:00:00') : new Date()}
+        onSelect={(d) => {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          setNewExcDate(`${y}-${m}-${day}`);
+          setShowExcDatePicker(false);
+        }}
+      />
     </div>
   );
 };

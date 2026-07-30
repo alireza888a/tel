@@ -1,0 +1,6 @@
+{
+  "name": "AdminGlass Bot Panel",
+  "description": "A high-performance, Glassmorphism-styled Telegram Bot Admin Dashboard with RTL support and Gemini AI integration for content generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

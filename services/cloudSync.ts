@@ -1,0 +1,137 @@
+export const saveToCloud = async (code: string): Promise<boolean> => {
+  try {
+    if (!code) return false;
+    
+    const backupData = {
+      meta: {
+        version: "2.5.3",
+        exported_at: new Date().toISOString(),
+        type: "full_backup"
+      },
+      config: {
+        token: localStorage.getItem('bot_token'),
+        db_channel: localStorage.getItem('bot_db_channel'),
+        webhook_url: localStorage.getItem('bot_webhook_url'),
+        theme: localStorage.getItem('theme'),
+        force_join: localStorage.getItem('force_join_enabled'),
+        payment_card_number: localStorage.getItem('payment_card_number'),
+        payment_card_owner: localStorage.getItem('payment_card_owner'),
+        admin_chat_id: localStorage.getItem('admin_chat_id'),
+        support_chat_id: localStorage.getItem('support_chat_id'),
+        post_confirm_menu_id: localStorage.getItem('post_confirm_menu_id'),
+        miniapp_modules: JSON.parse(localStorage.getItem('miniapp_modules') || '["shop"]'),
+        booking_hours: JSON.parse(localStorage.getItem('booking_hours') || '{}')
+      },
+      data: {
+        menus: JSON.parse(localStorage.getItem('kb_menus') || '{}'),
+        forms: JSON.parse(localStorage.getItem('kb_forms') || '{}'),
+        commands: JSON.parse(localStorage.getItem('bot_commands') || '[]'),
+        channels: JSON.parse(localStorage.getItem('saved_channels') || '[]'),
+        templates: JSON.parse(localStorage.getItem('broadcast_templates') || '[]'),
+        users: JSON.parse(localStorage.getItem('bot_users') || '[]'),
+        logs: JSON.parse(localStorage.getItem('bot_logs') || '[]'),
+        queue: JSON.parse(localStorage.getItem('channel_queue') || '[]'),
+        products: JSON.parse(localStorage.getItem('bot_products') || '[]'),
+        carts: JSON.parse(localStorage.getItem('bot_carts') || '{}'),
+        orders: JSON.parse(localStorage.getItem('bot_orders') || '[]'),
+        tickets: JSON.parse(localStorage.getItem('bot_tickets') || '[]'),
+        automations: JSON.parse(localStorage.getItem('bot_automations') || '[]'),
+        gallery: JSON.parse(localStorage.getItem('gallery_images') || '[]'),
+        services: JSON.parse(localStorage.getItem('booking_services') || '[]'),
+        providers: JSON.parse(localStorage.getItem('booking_providers') || '[]')
+      }
+    };
+
+    const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/data/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code, data: backupData })
+    });
+    
+    const result = await res.json();
+    return !!result.ok;
+  } catch (e) {
+    console.warn('Failed to save state to cloud:', e);
+    return false;
+  }
+};
+
+export const loadFromCloud = async (code: string): Promise<boolean> => {
+  try {
+    if (!code) return false;
+
+    const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/data/load', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code })
+    });
+
+    const result = await res.json();
+    if (result.ok && result.data) {
+      const json = result.data;
+
+      // Restore Config
+      if (json.config) {
+        if (json.config.token) localStorage.setItem('bot_token', json.config.token);
+        if (json.config.db_channel) localStorage.setItem('bot_db_channel', json.config.db_channel);
+        if (json.config.webhook_url) localStorage.setItem('bot_webhook_url', json.config.webhook_url);
+        if (json.config.force_join) localStorage.setItem('force_join_enabled', json.config.force_join);
+        if (json.config.payment_card_number) localStorage.setItem('payment_card_number', json.config.payment_card_number);
+        if (json.config.payment_card_owner) localStorage.setItem('payment_card_owner', json.config.payment_card_owner);
+        if (json.config.admin_chat_id) localStorage.setItem('admin_chat_id', json.config.admin_chat_id);
+        if (json.config.support_chat_id) localStorage.setItem('support_chat_id', json.config.support_chat_id);
+        if (json.config.post_confirm_menu_id) localStorage.setItem('post_confirm_menu_id', json.config.post_confirm_menu_id);
+        if (json.config.miniapp_modules) localStorage.setItem('miniapp_modules', JSON.stringify(json.config.miniapp_modules));
+        if (json.config.booking_hours) localStorage.setItem('booking_hours', JSON.stringify(json.config.booking_hours));
+      }
+
+      // Restore Data
+      if (json.data) {
+        localStorage.setItem('kb_menus', JSON.stringify(json.data.menus || {}));
+        localStorage.setItem('kb_forms', JSON.stringify(json.data.forms || {}));
+        localStorage.setItem('bot_commands', JSON.stringify(json.data.commands || []));
+        localStorage.setItem('saved_channels', JSON.stringify(json.data.channels || []));
+        localStorage.setItem('broadcast_templates', JSON.stringify(json.data.templates || []));
+        localStorage.setItem('bot_users', JSON.stringify(json.data.users || []));
+        localStorage.setItem('bot_logs', JSON.stringify(json.data.logs || []));
+        localStorage.setItem('channel_queue', JSON.stringify(json.data.queue || []));
+        localStorage.setItem('bot_products', JSON.stringify(json.data.products || []));
+        localStorage.setItem('bot_carts', JSON.stringify(json.data.carts || {}));
+        localStorage.setItem('bot_orders', JSON.stringify(json.data.orders || []));
+        if (json.data.tickets) localStorage.setItem('bot_tickets', JSON.stringify(json.data.tickets));
+        if (json.data.automations) localStorage.setItem('bot_automations', JSON.stringify(json.data.automations));
+        if (json.data.gallery) localStorage.setItem('gallery_images', JSON.stringify(json.data.gallery));
+        if (json.data.services) localStorage.setItem('booking_services', JSON.stringify(json.data.services));
+        if (json.data.providers) localStorage.setItem('booking_providers', JSON.stringify(json.data.providers));
+        if (json.data.bookings) localStorage.setItem('bookings_cache', JSON.stringify(json.data.bookings));
+      }
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.warn('Failed to load state from cloud:', e);
+    return false;
+  }
+};
+
+let syncTimer: ReturnType<typeof setTimeout> | null = null;
+
+export const syncNow = () => {
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    try {
+      const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
+      const licenseCache = JSON.parse(licenseCacheStr);
+      const code = licenseCache.code;
+      if (code) {
+        saveToCloud(code);
+      }
+    } catch (e) {
+      // silent fail
+    }
+  }, 400);
+};

@@ -1,0 +1,643 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { GlassCard } from '../components/GlassCard';
+import { Plus, Trash2, Edit, ShoppingBag, CheckCircle, X, DollarSign, Image as ImageIcon, ToggleLeft, ToggleRight, Check, Zap } from 'lucide-react';
+import { Product } from '../types';
+import { telegramService } from '../services/telegramService';
+import { syncNow } from '../services/cloudSync';
+import { getDisplayableImageUrl } from '../utils/image';
+
+export const Products: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('bot_products') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // Form states
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState<number | ''>('');
+  const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [active, setActive] = useState(true);
+  const [category, setCategory] = useState('');
+  const [postConfirmMenuId, setPostConfirmMenuId] = useState('');
+  const [postOrderFormId, setPostOrderFormId] = useState('');
+
+  const getKbMenus = (): Record<string, { id?: string; title?: string; content?: string }> => {
+    try {
+      return JSON.parse(localStorage.getItem('kb_menus') || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const getKbForms = (): Record<string, { id?: string; title?: string }> => {
+    try {
+      return JSON.parse(localStorage.getItem('kb_forms') || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [manualUrlInput, setManualUrlInput] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files: File[] = Array.from(e.target.files);
+      const token = localStorage.getItem('bot_token') || '';
+      const dbChannel = localStorage.getItem('bot_db_channel') || '';
+
+      if (!token || !dbChannel) {
+        alert('هشدار: کانال دیتابیس یا توکن ربات تنظیم نشده است. ابتدا از بخش تنظیمات ربات، توکن و کانال دیتابیس را ست کنید.');
+        return;
+      }
+
+      if (imageUrls.length >= 10) {
+        alert('حداکثر ۱۰ عکس برای هر محصول می‌توانید آپلود کنید.');
+        return;
+      }
+
+      setIsUploading(true);
+      const uploadedList: string[] = [];
+      try {
+        for (const file of files) {
+          if (imageUrls.length + uploadedList.length >= 10) break;
+          const uploadedId = await telegramService.uploadToDb(token, dbChannel, file, 'image');
+          if (uploadedId) {
+            uploadedList.push(uploadedId);
+          }
+        }
+        if (uploadedList.length > 0) {
+          setImageUrls(prev => {
+            const next = [...prev, ...uploadedList].slice(0, 10);
+            setImageUrl(next[0] || '');
+            return next;
+          });
+          console.log(`Product images uploaded to DB:`, uploadedList);
+        } else {
+          alert('هشدار: آپلود در کانال دیتابیس ناموفق بود. لطفا بررسی کنید که ربات در کانال دیتابیس "ادمین" باشد.');
+        }
+      } catch (err) {
+        console.error('Failed to upload product images to DB channel', err);
+        alert('خطا در ارتباط با تلگرام برای آپلود فایل.');
+      } finally {
+        setIsUploading(false);
+        e.target.value = '';
+      }
+    }
+  };
+
+  const handleAddManualUrl = () => {
+    const trimmed = manualUrlInput.trim();
+    if (!trimmed) return;
+    if (imageUrls.length >= 10) {
+      alert('حداکثر ۱۰ عکس برای هر محصول می‌توانید آپلود کنید.');
+      return;
+    }
+    const next = [...imageUrls, trimmed].slice(0, 10);
+    setImageUrls(next);
+    setImageUrl(next[0] || '');
+    setManualUrlInput('');
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const next = imageUrls.filter((_, i) => i !== index);
+    setImageUrls(next);
+    setImageUrl(next[0] || '');
+  };
+
+  useEffect(() => {
+    localStorage.setItem('bot_products', JSON.stringify(products));
+    syncNow();
+  }, [products]);
+
+  const openAddModal = () => {
+    setEditingProduct(null);
+    setName('');
+    setPrice('');
+    setDescription('');
+    setImageUrl('');
+    setImageUrls([]);
+    setManualUrlInput('');
+    setActive(true);
+    setCategory('');
+    setPostConfirmMenuId('');
+    setPostOrderFormId('');
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setName(product.name);
+    setPrice(product.price);
+    setDescription(product.description);
+    const existingImgs = product.imageUrls && product.imageUrls.length > 0
+      ? product.imageUrls
+      : (product.imageUrl ? [product.imageUrl] : []);
+    setImageUrls(existingImgs);
+    setImageUrl(existingImgs[0] || '');
+    setManualUrlInput('');
+    setActive(product.active);
+    setCategory(product.category || '');
+    setPostConfirmMenuId(product.post_confirm_menu_id || '');
+    setPostOrderFormId(product.post_order_form_id || '');
+    setIsModalOpen(true);
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || price === '') {
+      alert('لطفاً نام و قیمت محصول را وارد کنید.');
+      return;
+    }
+
+    const finalImageUrls = imageUrls.length > 0 ? imageUrls : (imageUrl ? [imageUrl] : []);
+    const primaryImageUrl = finalImageUrls[0] || undefined;
+
+    if (editingProduct) {
+      // Edit existing
+      setProducts(products.map(p => p.id === editingProduct.id ? {
+        ...p,
+        name,
+        price: Number(price),
+        description,
+        imageUrl: primaryImageUrl,
+        imageUrls: finalImageUrls.length > 0 ? finalImageUrls : undefined,
+        active,
+        category: category.trim() || 'عمومی',
+        post_confirm_menu_id: postConfirmMenuId || undefined,
+        post_order_form_id: postOrderFormId || undefined
+      } : p));
+    } else {
+      // Create new
+      const newProduct: Product = {
+        id: 'prod_' + Math.random().toString(36).substr(2, 9),
+        name,
+        price: Number(price),
+        description,
+        imageUrl: primaryImageUrl,
+        imageUrls: finalImageUrls.length > 0 ? finalImageUrls : undefined,
+        active,
+        category: category.trim() || 'عمومی',
+        post_confirm_menu_id: postConfirmMenuId || undefined,
+        post_order_form_id: postOrderFormId || undefined
+      };
+      setProducts([...products, newProduct]);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('آیا از حذف این محصول اطمینان دارید؟')) {
+      setProducts(products.filter(p => p.id !== id));
+    }
+  };
+
+  const toggleActiveStatus = (product: Product) => {
+    setProducts(products.map(p => p.id === product.id ? { ...p, active: !p.active } : p));
+  };
+
+  const addShopButtonToRootMenu = () => {
+    try {
+      const saved = localStorage.getItem('kb_menus');
+      let menus = saved ? JSON.parse(saved) : {};
+
+      if (!menus['root']) {
+        alert('هنوز منوی اصلی (root) رو نساختی — اول برو دکمه‌ساز و منوی اصلی رو بساز.');
+        return;
+      }
+
+      const alreadyExists = menus['root'].rows?.some((r: any) =>
+        r.buttons?.some((b: any) => b.type === 'callback' && b.value === 'cart_shop')
+      );
+
+      if (alreadyExists) {
+        alert('این دکمه از قبل توی منوی اصلی هست.');
+        return;
+      }
+
+      const newButton = {
+        id: 'btn_' + Date.now(),
+        text: '🛍️ فروشگاه',
+        type: 'callback',
+        value: 'cart_shop'
+      };
+
+      menus['root'].rows = [...(menus['root'].rows || []), { id: 'row_' + Date.now(), buttons: [newButton] }];
+      localStorage.setItem('kb_menus', JSON.stringify(menus));
+      syncNow();
+      alert('✅ دکمه‌ی «فروشگاه» به منوی اصلی اضافه شد.');
+    } catch (e) {
+      console.error(e);
+      alert('خطا در تغییر منوهای کیبورد.');
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto space-y-6 animate-fade-in pb-10">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold dark:text-white text-slate-800 flex items-center gap-2">
+            <ShoppingBag className="text-blue-500" />
+            مدیریت محصولات فروشگاه
+          </h2>
+          <p className="text-xs dark:text-white/50 text-slate-500 mt-1">
+            محصولات فروشگاه تلگرامی خود را از این قسمت مدیریت، ویرایش و اضافه کنید.
+          </p>
+          <p className="text-xs text-blue-400/90 font-medium mt-1">
+            💡 محصولات رو می‌تونی مستقیم داخل دکمه‌ساز هم اضافه یا انتخاب کنی.
+          </p>
+        </div>
+
+        <button
+          onClick={openAddModal}
+          className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all font-medium text-sm"
+        >
+          <Plus size={18} />
+          افزودن محصول جدید
+        </button>
+      </div>
+
+      {/* Bot Connection Card (🔌 اتصال به ربات) */}
+      <div className="bg-gradient-to-r from-blue-900/40 via-cyan-900/30 to-slate-900/60 border border-cyan-500/30 p-5 rounded-2xl shadow-xl backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
+            <Zap size={20} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white flex items-center gap-2">
+              <span>🔌 اتصال به ربات</span>
+            </h2>
+            <p className="text-xs text-slate-300 mt-0.5">
+              با افزودن دکمه‌ی «فروشگاه» به منوی اصلی ربات، کاربران می‌توانند مستقیم از محصولات دیدن کنند.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={addShopButtonToRootMenu}
+          className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 shrink-0"
+        >
+          <Plus size={16} />
+          <span>افزودن دکمه‌ی فروشگاه به منوی اصلی</span>
+        </button>
+      </div>
+
+      {products.length === 0 ? (
+        <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-12 text-center flex flex-col items-center gap-4">
+          <ShoppingBag size={64} className="text-slate-400 opacity-40 animate-pulse" />
+          <h3 className="text-lg font-bold dark:text-white text-slate-700">هیچ محصولی ثبت نشده است</h3>
+          <p className="text-slate-400 max-w-md text-sm">
+            شما هنوز محصولی به کاتالوگ فروشگاه خود اضافه نکرده‌اید. با کلیک بر روی دکمه بالا، اولین محصول خود را ثبت کنید.
+          </p>
+          <button
+            onClick={openAddModal}
+            className="mt-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-blue-500/30 px-4 py-2 rounded-xl text-sm transition-all"
+          >
+            افزودن اولین محصول
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {products.map(product => (
+            <GlassCard key={product.id} className="relative flex flex-col justify-between overflow-hidden group">
+              <div>
+                {/* Product Image */}
+                <div className="relative h-48 -mx-6 -mt-6 mb-4 bg-slate-900/40 border-b dark:border-white/5 border-black/5 flex items-center justify-center p-4 overflow-hidden text-center">
+                  {(() => {
+                    const displayUrl = getDisplayableImageUrl(product.imageUrl);
+                    if (displayUrl) {
+                      return (
+                        <img
+                          src={displayUrl}
+                          alt={product.name}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      );
+                    }
+                    if (product.imageUrl && product.imageUrl.trim() !== '') {
+                      return (
+                        <div className="flex flex-col items-center gap-2 text-blue-400 p-4">
+                          <ImageIcon size={32} className="animate-pulse" />
+                          <span className="text-xs font-medium leading-relaxed">📷 عکس آپلودشده (کد لایسنس برای دریافت عکس یافت نشد)</span>
+                          <span className="text-[10px] text-slate-500 font-mono break-all line-clamp-1">{product.imageUrl}</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="flex flex-col items-center gap-2 text-slate-500">
+                        <ImageIcon size={36} />
+                        <span className="text-xs">بدون تصویر</span>
+                      </div>
+                    );
+                  })()}
+                  {/* Status Badge */}
+                  <span
+                    className={`absolute top-4 right-4 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                      product.active
+                        ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                        : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                    }`}
+                  >
+                    {product.active ? 'فعال' : 'غیرفعال'}
+                  </span>
+                  {/* Category Badge */}
+                  <span className="absolute top-4 left-4 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    {product.category || 'عمومی'}
+                  </span>
+                  {/* Image count badge if > 1 */}
+                  {product.imageUrls && product.imageUrls.length > 1 && (
+                    <span className="absolute bottom-3 left-3 px-2 py-0.5 rounded-lg text-[10px] font-medium bg-black/60 text-white border border-white/10 backdrop-blur-sm flex items-center gap-1">
+                      <ImageIcon size={12} />
+                      {product.imageUrls.length} عکس
+                    </span>
+                  )}
+                </div>
+
+                {/* Product Metadata */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold dark:text-white text-slate-800 line-clamp-1">{product.name}</h3>
+                  <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm">
+                    <DollarSign size={16} />
+                    <span>{product.price.toLocaleString('fa-IR')} تومان</span>
+                  </div>
+                  <p className="text-xs dark:text-slate-400 text-slate-600 line-clamp-3 min-h-[48px]">
+                    {product.description || 'بدون توضیحات.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="mt-6 pt-4 border-t dark:border-white/5 border-black/5 flex items-center justify-between">
+                <button
+                  onClick={() => toggleActiveStatus(product)}
+                  className={`flex items-center gap-1.5 text-xs transition-colors py-1.5 px-2.5 rounded-lg border ${
+                    product.active
+                      ? 'text-green-500 bg-green-500/5 hover:bg-green-500/10 border-green-500/20'
+                      : 'text-slate-400 bg-slate-400/5 hover:bg-slate-400/10 border-slate-400/10'
+                  }`}
+                >
+                  {product.active ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
+                  <span>{product.active ? 'فعال' : 'غیرفعال'}</span>
+                </button>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openEditModal(product)}
+                    className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border border-yellow-500/20 transition-colors"
+                    title="ویرایش محصول"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-colors"
+                    title="حذف محصول"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </GlassCard>
+          ))}
+        </div>
+      )}
+
+      {/* Add / Edit Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-[#1e293b] border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl">
+            <div className="flex justify-between items-center p-5 border-b border-white/5 bg-[#0f172a]">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <ShoppingBag className="text-blue-500" size={20} />
+                {editingProduct ? 'ویرایش محصول' : 'افزودن محصول جدید'}
+              </h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5">نام محصول <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="مثال: اشتراک یک‌ماهه طلایی"
+                  required
+                  className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5">قیمت (به تومان) <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                  placeholder="مثال: ۵۰۰۰۰"
+                  required
+                  className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors text-right"
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5">توضیحات محصول</label>
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="توضیحات مربوط به محصول، ویژگی‌ها، نحوه دریافت و غیره..."
+                  rows={3}
+                  className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl p-4 text-sm outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs text-slate-400">تصاویر محصول (آپلود تا ۱۰ عکس)</label>
+                  <span className="text-[11px] text-blue-400 font-medium">{imageUrls.length} / ۱۰ عکس</span>
+                </div>
+                
+                <div className="space-y-3">
+                  {/* Thumbnails Row */}
+                  {imageUrls.length > 0 && (
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 custom-scrollbar">
+                      {imageUrls.map((img, idx) => {
+                        const displayUrl = getDisplayableImageUrl(img);
+                        return (
+                          <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-900 border border-white/10 shrink-0 group">
+                            {displayUrl ? (
+                              <img src={displayUrl} alt={`عکس ${idx + 1}`} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center p-1 text-center bg-blue-500/10 text-blue-400 text-[9px] font-mono">
+                                <ImageIcon size={14} />
+                                <span className="line-clamp-1">{img}</span>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              className="absolute top-0.5 right-0.5 bg-red-600/80 hover:bg-red-600 text-white p-1 rounded-full transition-all shadow-md"
+                              title="حذف عکس"
+                            >
+                              <X size={12} />
+                            </button>
+                            {idx === 0 && (
+                              <span className="absolute bottom-0 inset-x-0 bg-blue-600/80 text-[8px] text-white text-center py-0.5 font-bold">
+                                کاور اصلی
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading || imageUrls.length >= 10}
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-blue-500/20 transition-all text-sm font-medium flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isUploading ? (
+                        <span>⏳ در حال آپلود...</span>
+                      ) : (
+                        <span>📤 آپلود عکس از گالری (چندتایی)</span>
+                      )}
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={manualUrlInput}
+                      onChange={e => setManualUrlInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddManualUrl(); } }}
+                      placeholder="یا آدرس عکس را وارد کنید: https://..."
+                      className="flex-1 bg-[#0f172a] border border-white/10 text-white rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500 transition-colors text-right"
+                      dir="ltr"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddManualUrl}
+                      disabled={!manualUrlInput.trim() || imageUrls.length >= 10}
+                      className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-medium transition-all disabled:opacity-50"
+                    >
+                      افزودن
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5">دسته‌بندی (اختیاری)</label>
+                <input
+                  type="text"
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  placeholder="مثال: اشتراک‌ها، فیزیکی، عمومی"
+                  className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5">منوی بعد از تایید (اختیاری)</label>
+                <select
+                  value={postConfirmMenuId}
+                  onChange={e => setPostConfirmMenuId(e.target.value)}
+                  className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
+                >
+                  <option value="">پیش‌فرض سراسری (تنظیمات)</option>
+                  {Object.entries(getKbMenus()).map(([id, menu]) => (
+                    <option key={id} value={id}>
+                      {menu.title || menu.content || id} ({id})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5">فرم بعد از تایید (اختیاری)</label>
+                <select
+                  value={postOrderFormId}
+                  onChange={e => setPostOrderFormId(e.target.value)}
+                  className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
+                >
+                  <option value="">پیش‌فرض سراسری (تنظیمات)</option>
+                  {Object.entries(getKbForms()).map(([id, form]) => (
+                    <option key={id} value={id}>
+                      {form.title || id} ({id})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                  اگر اینجا چیزی انتخاب نکنید، همان تنظیم پیش‌فرضی که در صفحه تنظیمات گذاشته‌اید استفاده می‌شود. برای هر محصول می‌توانید جدا مشخص کنید.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                <div>
+                  <h4 className="text-sm font-bold text-white">وضعیت نمایش محصول</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">در صورت غیرفعال بودن، در فروشگاه نمایش داده نمی‌شود.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActive(!active)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    active ? 'bg-blue-600' : 'bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      active ? '-translate-x-6' : '-translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-300 hover:text-white text-sm font-medium transition-colors"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition-all shadow-lg shadow-blue-600/20 flex items-center gap-1.5"
+                >
+                  <Check size={16} />
+                  {editingProduct ? 'ذخیره تغییرات' : 'افزودن به محصولات'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

@@ -21,6 +21,7 @@ import {
 import { Coupon } from '../types';
 import { syncNow } from '../services/cloudSync';
 import { GlassCard } from '../components/GlassCard';
+import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
 
 export const CouponsPage: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>(() => {
@@ -49,6 +50,7 @@ export const CouponsPage: React.FC = () => {
   const [formPerUserLimit, setFormPerUserLimit] = useState<string>('');
   const [formMinOrderAmount, setFormMinOrderAmount] = useState<string>('');
   const [formExpiresDate, setFormExpiresDate] = useState<string>('');
+  const [showExpiryDatePicker, setShowExpiryDatePicker] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   // Fetch usage stats from server
@@ -644,12 +646,27 @@ export const CouponsPage: React.FC = () => {
                 <label className="block text-xs font-medium text-slate-300 mb-1">
                   تاریخ انقضا (اختیاری)
                 </label>
-                <input
-                  type="date"
-                  value={formExpiresDate}
-                  onChange={(e) => setFormExpiresDate(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowExpiryDatePicker(true)}
+                    className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 text-right hover:border-blue-500/50 transition-colors"
+                  >
+                    {formExpiresDate
+                      ? new Date(formExpiresDate + 'T00:00:00').toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })
+                      : <span className="text-slate-500">بدون انقضا (کلیک برای انتخاب)</span>}
+                  </button>
+                  {formExpiresDate && (
+                    <button
+                      type="button"
+                      onClick={() => setFormExpiresDate('')}
+                      className="px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-medium transition-colors cursor-pointer"
+                      title="حذف تاریخ انقضا"
+                    >
+                      حذف
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Active Checkbox */}
@@ -685,6 +702,20 @@ export const CouponsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Persian Date Picker for Coupon Expiry */}
+      <PersianDatePicker
+        isOpen={showExpiryDatePicker}
+        onClose={() => setShowExpiryDatePicker(false)}
+        initialDate={formExpiresDate ? new Date(formExpiresDate + 'T00:00:00') : new Date()}
+        onSelect={(d) => {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          setFormExpiresDate(`${y}-${m}-${day}`);
+          setShowExpiryDatePicker(false);
+        }}
+      />
     </div>
   );
 };

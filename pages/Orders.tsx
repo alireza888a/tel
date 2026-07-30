@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
 import { ShoppingCart, Check, X, Clock, User, DollarSign, Calendar, Info, AlertCircle, RefreshCw } from 'lucide-react';
-import { Order } from '../types';
+import { Order, Product } from '../types';
+import { getDisplayableImageUrl } from '../utils/image';
 
 export const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -11,6 +12,20 @@ export const Orders: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [nextBefore, setNextBefore] = useState<number | null>(null);
+
+  const [products] = useState<Product[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('bot_products') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const getProductImage = (productId: string): string | null => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return null;
+    return getDisplayableImageUrl(product.imageUrl);
+  };
 
   const getLicenseCode = (): string => {
     const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
@@ -297,21 +312,31 @@ export const Orders: React.FC = () => {
                   {/* Order Items */}
                   <div className="space-y-1.5">
                     <h4 className="text-xs font-bold text-slate-400 mb-1.5">لیست اقلام سفارش:</h4>
-                    {order.items.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex justify-between items-center text-xs py-1.5 px-2.5 bg-black/10 dark:bg-black/20 rounded-xl"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="dark:text-white text-slate-800 font-medium">{item.name}</span>
-                          <span className="text-[10px] text-slate-400">×{item.qty}</span>
+                    {order.items.map((item, idx) => {
+                      const imgUrl = getProductImage(item.productId);
+                      return (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-center text-xs py-1.5 px-2.5 bg-black/10 dark:bg-black/20 rounded-xl"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                              {imgUrl ? (
+                                <img src={imgUrl} alt={item.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-[10px] text-slate-500">📦</span>
+                              )}
+                            </div>
+                            <span className="dark:text-white text-slate-800 font-medium truncate">{item.name}</span>
+                            <span className="text-[10px] text-slate-400 shrink-0">×{item.qty}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-slate-400 shrink-0">
+                            <span>{(item.price * item.qty).toLocaleString('fa-IR')}</span>
+                            <span className="text-[9px]">تومان</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 text-slate-400">
-                          <span>{(item.price * item.qty).toLocaleString('fa-IR')}</span>
-                          <span className="text-[9px]">تومان</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Fulfillment / Extra Info */}

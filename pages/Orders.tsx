@@ -6,6 +6,7 @@ import { Order } from '../types';
 export const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'rejected'>('all');
+  const [dateRange, setDateRange] = useState<'all' | 'today' | 'week' | 'month'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -21,7 +22,25 @@ export const Orders: React.FC = () => {
     }
   };
 
-  const fetchOrdersApi = async (statusFilter: 'all' | 'pending' | 'confirmed' | 'rejected', beforeCursor?: number | null) => {
+  const getDateRangeCutoff = (range: 'all' | 'today' | 'week' | 'month'): number | undefined => {
+    if (range === 'all') return undefined;
+    const now = new Date();
+    if (range === 'today') {
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return start.getTime();
+    }
+    if (range === 'week') {
+      return now.getTime() - 7 * 24 * 60 * 60 * 1000;
+    }
+    // month
+    return now.getTime() - 30 * 24 * 60 * 60 * 1000;
+  };
+
+  const fetchOrdersApi = async (
+    statusFilter: 'all' | 'pending' | 'confirmed' | 'rejected',
+    range: 'all' | 'today' | 'week' | 'month',
+    beforeCursor?: number | null
+  ) => {
     const code = getLicenseCode();
     const payload: any = {
       code,
@@ -36,6 +55,11 @@ export const Orders: React.FC = () => {
       payload.before = beforeCursor;
     }
 
+    const afterCutoff = getDateRangeCutoff(range);
+    if (afterCutoff) {
+      payload.after = afterCutoff;
+    }
+
     const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/orders/list', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,7 +72,7 @@ export const Orders: React.FC = () => {
   const refreshOrders = async () => {
     setIsRefreshing(true);
     try {
-      const result = await fetchOrdersApi(filter);
+      const result = await fetchOrdersApi(filter, dateRange);
       if (result.ok) {
         setOrders(result.orders || []);
         setHasMore(!!result.hasMore);
@@ -68,7 +92,7 @@ export const Orders: React.FC = () => {
     if (!nextBefore || isLoadingMore) return;
     setIsLoadingMore(true);
     try {
-      const result = await fetchOrdersApi(filter, nextBefore);
+      const result = await fetchOrdersApi(filter, dateRange, nextBefore);
       if (result.ok) {
         setOrders(prev => [...prev, ...(result.orders || [])]);
         setHasMore(!!result.hasMore);
@@ -86,7 +110,7 @@ export const Orders: React.FC = () => {
 
   useEffect(() => {
     refreshOrders();
-  }, [filter]);
+  }, [filter, dateRange]);
 
   const handleConfirmOrder = async (orderId: string) => {
     const code = getLicenseCode();
@@ -170,23 +194,45 @@ export const Orders: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {(['all', 'pending', 'confirmed', 'rejected'] as const).map(tab => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all whitespace-nowrap ${
-              filter === tab
-                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
-                : 'bg-white/5 dark:text-slate-300 text-slate-600 dark:border-white/5 border-black/5 hover:bg-white/10'
-            }`}
-          >
-            {tab === 'all' && 'همه سفارش‌ها'}
-            {tab === 'pending' && 'در انتظار بررسی ⏳'}
-            {tab === 'confirmed' && 'تایید شده ✅'}
-            {tab === 'rejected' && 'رد شده ❌'}
-          </button>
-        ))}
+      <div className="space-y-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {(['all', 'pending', 'confirmed', 'rejected'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all whitespace-nowrap cursor-pointer ${
+                filter === tab
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
+                  : 'bg-white/5 dark:text-slate-300 text-slate-600 dark:border-white/5 border-black/5 hover:bg-white/10'
+              }`}
+            >
+              {tab === 'all' && 'همه سفارش‌ها'}
+              {tab === 'pending' && 'در انتظار بررسی ⏳'}
+              {tab === 'confirmed' && 'تایید شده ✅'}
+              {tab === 'rejected' && 'رد شده ❌'}
+            </button>
+          ))}
+        </div>
+
+        {/* Date Range Filter */}
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {(['all', 'today', 'week', 'month'] as const).map(range => (
+            <button
+              key={range}
+              onClick={() => setDateRange(range)}
+              className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all whitespace-nowrap cursor-pointer ${
+                dateRange === range
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/10'
+                  : 'bg-white/5 dark:text-slate-300 text-slate-600 dark:border-white/5 border-black/5 hover:bg-white/10'
+              }`}
+            >
+              {range === 'all' && 'همه‌ی بازه‌ها'}
+              {range === 'today' && 'امروز'}
+              {range === 'week' && 'هفته‌ی اخیر'}
+              {range === 'month' && 'ماه اخیر'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {orders.length === 0 ? (
@@ -199,12 +245,12 @@ export const Orders: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
             {orders.map(order => (
-              <GlassCard key={order.id} className="relative overflow-hidden flex flex-col justify-between">
+              <GlassCard key={order.id} className="relative overflow-hidden flex flex-col justify-between p-4">
                 <div>
                   {/* Order Header */}
-                  <div className="flex justify-between items-start pb-4 border-b dark:border-white/5 border-black/5 mb-4">
+                  <div className="flex justify-between items-start pb-3 border-b dark:border-white/5 border-black/5 mb-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm dark:text-white text-slate-800">سفارش #{order.id.slice(-6)}</span>
@@ -237,7 +283,7 @@ export const Orders: React.FC = () => {
                   </div>
 
                   {/* User details */}
-                  <div className="bg-white/5 rounded-xl p-3 mb-4 space-y-2 border border-white/5 text-xs">
+                  <div className="bg-white/5 rounded-xl p-2.5 mb-3 space-y-1.5 border border-white/5 text-xs">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-400 flex items-center gap-1"><User size={14} /> خریدار:</span>
                       <span className="dark:text-white text-slate-800 font-medium">{order.userFirstName}</span>
@@ -249,12 +295,12 @@ export const Orders: React.FC = () => {
                   </div>
 
                   {/* Order Items */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-slate-400 mb-2">لیست اقلام سفارش:</h4>
+                  <div className="space-y-1.5">
+                    <h4 className="text-xs font-bold text-slate-400 mb-1.5">لیست اقلام سفارش:</h4>
                     {order.items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex justify-between items-center text-xs py-2 px-3 bg-black/10 dark:bg-black/20 rounded-xl"
+                        className="flex justify-between items-center text-xs py-1.5 px-2.5 bg-black/10 dark:bg-black/20 rounded-xl"
                       >
                         <div className="flex items-center gap-2">
                           <span className="dark:text-white text-slate-800 font-medium">{item.name}</span>
@@ -289,7 +335,7 @@ export const Orders: React.FC = () => {
                       if (items.length === 0) return null;
 
                       return (
-                        <div className="mt-4 bg-blue-500/5 border border-blue-500/10 rounded-xl p-3 space-y-2 text-xs">
+                        <div className="mt-3 bg-blue-500/5 border border-blue-500/10 rounded-xl p-2.5 space-y-1.5 text-xs">
                           <h4 className="font-bold text-blue-400 flex items-center gap-1.5">
                             <span>📋 اطلاعات تکمیلی</span>
                           </h4>
@@ -309,7 +355,7 @@ export const Orders: React.FC = () => {
 
                 {/* Order Actions */}
                 {order.status === 'pending' && (
-                  <div className="mt-6 pt-4 border-t dark:border-white/5 border-black/5 flex gap-3">
+                  <div className="mt-4 pt-3 border-t dark:border-white/5 border-black/5 flex gap-2.5">
                     <button
                       onClick={() => handleConfirmOrder(order.id)}
                       className="flex-1 bg-green-600 hover:bg-green-500 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-green-600/10 transition-all cursor-pointer"

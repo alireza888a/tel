@@ -1,7 +1,8 @@
 import React from 'react';
-import { ShoppingBag, Plus, Minus, AlertTriangle, Loader2 } from 'lucide-react';
+import { ShoppingBag, Plus, Minus, AlertTriangle, Loader2, Share2 } from 'lucide-react';
 import { Product } from '../../types';
 import { ProductImageSlider } from './ProductImageSlider';
+import { getDisplayableImageUrl } from '../../utils/image';
 
 export interface ShopTabProps {
   loading: boolean;
@@ -37,6 +38,51 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   const tapQty = (productId: string, delta: number) => {
     window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.(delta > 0 ? 'light' : 'soft');
     updateQty(productId, delta);
+  };
+
+  // Shares a product to a chat the user picks, via Telegram's native share sheet.
+  // Works everywhere (no server round-trip, no special Bot API version needed).
+  const shareProductToChat = (p: Product) => {
+    window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.('light');
+    const shopUrl = window.location.href;
+    const caption = `🛍️ ${p.name}\n💰 ${p.price.toLocaleString('fa-IR')} تومان\n\nمشاهده و خرید:`;
+    const shareLink = `https://t.me/share/url?url=${encodeURIComponent(shopUrl)}&text=${encodeURIComponent(caption)}`;
+
+    const webApp = window.Telegram?.WebApp;
+    if (webApp?.openTelegramLink) {
+      webApp.openTelegramLink(shareLink);
+    } else if (navigator.share) {
+      // Fallback for testing outside Telegram (regular mobile browser)
+      navigator.share({ title: p.name, text: caption, url: shopUrl }).catch(() => {});
+    } else {
+      window.open(shareLink, '_blank');
+    }
+  };
+
+  // Shares the product photo directly to the user's Telegram story, with a link sticker
+  // back to the shop. Requires a public https image (not a local/base64 image) and a
+  // Telegram client recent enough to support shareToStory — both are feature-detected below.
+  const shareProductToStory = (p: Product) => {
+    const webApp = window.Telegram?.WebApp;
+    if (!webApp?.shareToStory) return;
+    const firstImage = p.imageUrls?.find(u => u && u.trim()) || p.imageUrl;
+    const displayUrl = getDisplayableImageUrl(firstImage);
+    if (!displayUrl || displayUrl.startsWith('data:')) return;
+
+    webApp.HapticFeedback?.impactOccurred?.('light');
+    webApp.shareToStory(displayUrl, {
+      text: `${p.name} — ${p.price.toLocaleString('fa-IR')} تومان`,
+      widget_link: { url: window.location.href, name: 'مشاهده در فروشگاه' }
+    });
+  };
+
+  // A product is eligible for story-sharing only when we have a real public image URL
+  // and the current Telegram client actually exposes shareToStory.
+  const canShareToStory = (p: Product) => {
+    if (!window.Telegram?.WebApp?.shareToStory) return false;
+    const firstImage = p.imageUrls?.find(u => u && u.trim()) || p.imageUrl;
+    const displayUrl = getDisplayableImageUrl(firstImage);
+    return !!displayUrl && !displayUrl.startsWith('data:');
   };
 
   if (loading) {
@@ -129,7 +175,29 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                 <ProductImageSlider product={p} outOfStock={outOfStock} />
 
                 {/* Title & Price */}
-                <h3 className="text-sm font-bold text-white mb-1 line-clamp-1">{p.name}</h3>
+                <div className="flex items-start justify-between gap-1.5 mb-1">
+                  <h3 className="text-sm font-bold text-white line-clamp-1 flex-1">{p.name}</h3>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {canShareToStory(p) && (
+                      <button
+                        type="button"
+                        onClick={() => shareProductToStory(p)}
+                        title="اشتراک‌گذاری در استوری"
+                        className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors active:scale-90"
+                      >
+                        <div className="w-2.5 h-2.5 rounded-full border-2 border-current" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => shareProductToChat(p)}
+                      title="اشتراک‌گذاری در چت"
+                      className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors active:scale-90"
+                    >
+                      <Share2 size={12} />
+                    </button>
+                  </div>
+                </div>
                 {p.description && (
                   <p className="text-[11px] text-slate-400 line-clamp-2 mb-2 leading-relaxed">
                     {p.description}

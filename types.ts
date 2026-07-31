@@ -230,7 +230,6 @@ export interface Product {
   imageUrls?: string[];
   active: boolean;
   category?: string;
-  stock?: number;
   post_confirm_menu_id?: string;
   post_order_form_id?: string;
   trackStock?: boolean;

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
 import { Send, CornerUpRight, BarChart3, Users } from 'lucide-react';
-import { InlineRow, MediaAttachment, InlineButton, QueueItem } from '../types';
+import { InlineRow, MediaAttachment, InlineButton } from '../types';
 import { telegramService } from '../services/telegramService';
 import { generateBroadcastMessage } from '../services/geminiService';
 
@@ -92,13 +92,6 @@ export const Broadcast: React.FC = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [scheduledDateObj, setScheduledDateObj] = useState<Date>(new Date());
   const [isScheduledEnabled, setIsScheduledEnabled] = useState(false);
-  
-  const [broadcastQueue, setBroadcastQueue] = useState<QueueItem[]>(() => {
-      try { 
-          const q = JSON.parse(localStorage.getItem('channel_queue') || '[]'); 
-          return q.filter((item: QueueItem) => item.targetChannelId === 'all' || item.targetChannelId === 'BROADCAST_ALL');
-      } catch { return []; }
-  });
 
   // --- MEDIA ALBUM STATE ---
   const [mediaGroup, setMediaGroup] = useState<MediaAttachment[]>([]);
@@ -108,7 +101,6 @@ export const Broadcast: React.FC = () => {
   const [inlineRows, setInlineRows] = useState<InlineRow[]>([]);
 
   // --- TEMPLATES ---
-  const [showTemplates, setShowTemplates] = useState(false);
   const [savedTemplates, setSavedTemplates] = useState<Template[]>(() => {
       try { return JSON.parse(localStorage.getItem('broadcast_templates') || '[]'); } catch { return []; }
   });
@@ -148,19 +140,6 @@ export const Broadcast: React.FC = () => {
       }, 1000);
       return () => clearTimeout(timeout);
   }, [messageA, inlineRows, sendSilent, pinMessage, sendSpeed, contentProtect]);
-
-  // Refresh Queue from LocalStorage
-  const refreshQueue = () => {
-      try { 
-          const q = JSON.parse(localStorage.getItem('channel_queue') || '[]'); 
-          setBroadcastQueue(q.filter((item: QueueItem) => item.targetChannelId === 'all' || item.targetChannelId === 'BROADCAST_ALL'));
-      } catch { }
-  };
-
-  useEffect(() => {
-      const interval = setInterval(refreshQueue, 2000);
-      return () => clearInterval(interval);
-  }, []);
 
   const stopSignal = useRef(false);
 

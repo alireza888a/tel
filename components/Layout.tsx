@@ -15,20 +15,20 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
   const [showExitModal, setShowExitModal] = useState(false);
 
   const menuItems = [
-    { id: 'dashboard', label: 'داشبورد', icon: <Home size={20} /> },
-    { id: 'broadcast', label: 'پیام همگانی', icon: <Megaphone size={20} /> },
-    { id: 'channels', label: 'مدیریت کانال‌ها', icon: <Users size={20} /> },
-    { id: 'keyboard', label: 'دکمه‌ساز', icon: <Layers size={20} /> },
-    { id: 'commands', label: 'دستورات', icon: <Command size={20} /> },
-    { id: 'users', label: 'کاربران ربات', icon: <UserCog size={20} /> },
-    { id: 'products', label: 'محصولات', icon: <ShoppingBag size={20} /> },
-    { id: 'orders', label: 'سفارش‌ها', icon: <ShoppingCart size={20} /> },
-    { id: 'coupons', label: 'کدهای تخفیف', icon: <Tag size={20} /> },
-    { id: 'booking', label: 'نوبت‌دهی', icon: <Calendar size={20} /> },
-    { id: 'customer-tickets', label: 'تیکت‌های پشتیبانی', icon: <HelpCircle size={20} /> },
-    { id: 'automations', label: 'قوانین خودکار', icon: <Zap size={20} /> },
-    { id: 'support', label: 'پشتیبانی', icon: <MessageCircle size={20} /> },
-    { id: 'settings', label: 'تنظیمات', icon: <Settings size={20} /> },
+    { id: 'dashboard', label: 'داشبورد', icon: <Home size={20} />, color: 'dark:text-blue-400 text-blue-600' },
+    { id: 'broadcast', label: 'پیام همگانی', icon: <Megaphone size={20} />, color: 'dark:text-purple-400 text-purple-600' },
+    { id: 'channels', label: 'مدیریت کانال‌ها', icon: <Users size={20} />, color: 'dark:text-pink-400 text-pink-600' },
+    { id: 'keyboard', label: 'دکمه‌ساز', icon: <Layers size={20} />, color: 'dark:text-indigo-400 text-indigo-600' },
+    { id: 'commands', label: 'دستورات', icon: <Command size={20} />, color: 'dark:text-cyan-400 text-cyan-600' },
+    { id: 'users', label: 'کاربران ربات', icon: <UserCog size={20} />, color: 'dark:text-emerald-400 text-emerald-600' },
+    { id: 'products', label: 'محصولات', icon: <ShoppingBag size={20} />, color: 'dark:text-amber-400 text-amber-600' },
+    { id: 'orders', label: 'سفارش‌ها', icon: <ShoppingCart size={20} />, color: 'dark:text-orange-400 text-orange-600' },
+    { id: 'coupons', label: 'کدهای تخفیف', icon: <Tag size={20} />, color: 'dark:text-rose-400 text-rose-600' },
+    { id: 'booking', label: 'نوبت‌دهی', icon: <Calendar size={20} />, color: 'dark:text-teal-400 text-teal-600' },
+    { id: 'customer-tickets', label: 'تیکت‌های پشتیبانی', icon: <HelpCircle size={20} />, color: 'dark:text-sky-400 text-sky-600' },
+    { id: 'automations', label: 'قوانین خودکار', icon: <Zap size={20} />, color: 'dark:text-yellow-400 text-yellow-600' },
+    { id: 'support', label: 'پشتیبانی', icon: <MessageCircle size={20} />, color: 'dark:text-green-400 text-green-600' },
+    { id: 'settings', label: 'تنظیمات', icon: <Settings size={20} />, color: 'dark:text-slate-400 text-slate-500' },
   ];
 
   // Helper function to trigger quick backup
@@ -136,7 +136,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                 }
               `}
             >
-              <div className={`${currentPage === item.id ? 'text-white' : 'text-current'} transition-transform group-hover:scale-110`}>
+              <div className={`${currentPage === item.id ? 'text-white' : item.color} transition-transform group-hover:scale-110`}>
                 {item.icon}
               </div>
               

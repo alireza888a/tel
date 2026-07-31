@@ -58,6 +58,11 @@ declare global {
           notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
           selectionChanged: () => void;
         };
+        // Opens any t.me link (used for the "share to chat" picker below) without closing the Mini App.
+        openTelegramLink?: (url: string) => void;
+        // Posts a photo directly to the user's Telegram story, with an optional link sticker
+        // back to the Mini App. Only works with a public https image URL (Bot API 7.8+).
+        shareToStory?: (mediaUrl: string, params?: { text?: string; widget_link?: { url: string; name?: string } }) => void;
       };
     };
   }

@@ -111,19 +111,19 @@ const PersianDatePicker: React.FC<{ isOpen: boolean; onClose: () => void; onSele
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-4">
-            <div className="bg-[#1e293b] border border-white/10 rounded-2xl shadow-2xl w-full max-w-[350px] overflow-hidden flex flex-col">
+            <div className="dark:bg-[#1e293b] bg-white border dark:border-white/10 border-slate-200 rounded-2xl shadow-2xl w-full max-w-[350px] overflow-hidden flex flex-col">
                 {/* Header */}
-                <div className="bg-blue-600 p-4 text-white flex justify-between items-center shadow-lg relative z-10">
-                    <button onClick={handlePrevMonth} className="hover:bg-white/10 p-1.5 rounded-lg transition-colors"><ChevronRight size={20}/></button>
+                <div className="bg-blue-600 p-4 dark:text-white text-slate-800 flex justify-between items-center shadow-lg relative z-10">
+                    <button onClick={handlePrevMonth} className="dark:hover:bg-white/10 hover:bg-slate-200 p-1.5 rounded-lg transition-colors"><ChevronRight size={20}/></button>
                     <span className="font-bold text-lg">{MONTH_NAMES[viewMonth - 1]} {viewYear}</span>
-                    <button onClick={handleNextMonth} className="hover:bg-white/10 p-1.5 rounded-lg transition-colors"><ChevronLeft size={20}/></button>
+                    <button onClick={handleNextMonth} className="dark:hover:bg-white/10 hover:bg-slate-200 p-1.5 rounded-lg transition-colors"><ChevronLeft size={20}/></button>
                 </div>
 
                 {/* Days Grid */}
-                <div className="bg-[#0f172a] grid grid-cols-7 text-center py-2 text-slate-400 text-xs border-b border-white/5">
+                <div className="dark:bg-[#0f172a] bg-white grid grid-cols-7 text-center py-2 dark:text-slate-400 text-slate-500 text-xs border-b dark:border-white/5 border-slate-100">
                     {WEEK_DAYS.map(d => <div key={d}>{d}</div>)}
                 </div>
-                <div className="grid grid-cols-7 p-2 gap-1 content-start bg-[#1e293b] min-h-[240px]">
+                <div className="grid grid-cols-7 p-2 gap-1 content-start dark:bg-[#1e293b] bg-white min-h-[240px]">
                     {generateDays().map((d, idx) => (
                         <div key={idx} className="aspect-square flex items-center justify-center">
                             {d ? (
@@ -131,8 +131,8 @@ const PersianDatePicker: React.FC<{ isOpen: boolean; onClose: () => void; onSele
                                     onClick={() => setSelectedDay(d)}
                                     className={`w-8 h-8 rounded-full text-sm transition-all flex items-center justify-center
                                         ${selectedDay === d 
-                                            ? 'bg-blue-500 text-white shadow-lg scale-110 font-bold' 
-                                            : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                                            ? 'bg-blue-500 dark:text-white text-slate-800 shadow-lg scale-110 font-bold' 
+                                            : 'dark:text-slate-300 text-slate-600 dark:hover:bg-white/10 hover:bg-slate-200 dark:hover:text-white hover:text-slate-900'
                                         }
                                         ${(d === jDate.jd && viewMonth === jDate.jm && viewYear === jDate.jy) ? 'border border-blue-500/50' : ''}
                                     `}
@@ -145,32 +145,32 @@ const PersianDatePicker: React.FC<{ isOpen: boolean; onClose: () => void; onSele
                 </div>
 
                 {/* Time Picker */}
-                <div className="border-t border-white/10 p-4 bg-[#0f172a] flex items-center justify-center gap-4" dir="ltr">
+                <div className="border-t dark:border-white/10 border-slate-200 p-4 dark:bg-[#0f172a] bg-white flex items-center justify-center gap-4" dir="ltr">
                     <div className="flex flex-col items-center">
                         <label className="text-[10px] text-slate-500 mb-1">ساعت</label>
                         <input 
                             type="number" min="0" max="23" 
                             value={selectedHour} 
                             onChange={e => setSelectedHour(Math.max(0, Math.min(23, Number(e.target.value))))}
-                            className="w-16 bg-white/5 border border-white/10 rounded-lg p-2 text-center text-white text-xl font-mono focus:border-blue-500 outline-none transition-colors"
+                            className="w-16 dark:bg-white/5 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-lg p-2 text-center dark:text-white text-slate-800 text-xl font-mono focus:border-blue-500 outline-none transition-colors"
                         />
                     </div>
-                    <span className="text-white text-2xl pt-4 font-bold animate-pulse text-slate-500">:</span>
+                    <span className="dark:text-white text-slate-800 text-2xl pt-4 font-bold animate-pulse text-slate-500">:</span>
                     <div className="flex flex-col items-center">
                         <label className="text-[10px] text-slate-500 mb-1">دقیقه</label>
                         <input 
                             type="number" min="0" max="59" 
                             value={selectedMinute} 
                             onChange={e => setSelectedMinute(Math.max(0, Math.min(59, Number(e.target.value))))}
-                            className="w-16 bg-white/5 border border-white/10 rounded-lg p-2 text-center text-white text-xl font-mono focus:border-blue-500 outline-none transition-colors"
+                            className="w-16 dark:bg-white/5 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-lg p-2 text-center dark:text-white text-slate-800 text-xl font-mono focus:border-blue-500 outline-none transition-colors"
                         />
                     </div>
                 </div>
 
                 {/* Actions */}
-                <div className="p-3 flex gap-3 border-t border-white/5 bg-[#1e293b]">
-                    <button onClick={onClose} className="flex-1 py-2.5 text-slate-400 hover:text-white text-sm hover:bg-white/5 rounded-xl transition-colors font-medium">انصراف</button>
-                    <button onClick={handleConfirm} className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 transition-all">تایید زمان</button>
+                <div className="p-3 flex gap-3 border-t dark:border-white/5 border-slate-100 dark:bg-[#1e293b] bg-white">
+                    <button onClick={onClose} className="flex-1 py-2.5 dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 text-sm dark:hover:bg-white/5 hover:bg-slate-100 rounded-xl transition-colors font-medium">انصراف</button>
+                    <button onClick={handleConfirm} className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 dark:text-white text-slate-800 rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 transition-all">تایید زمان</button>
                 </div>
             </div>
         </div>
@@ -180,7 +180,7 @@ const PersianDatePicker: React.FC<{ isOpen: boolean; onClose: () => void; onSele
 const Toast: React.FC<{ message: string; type: 'success' | 'error'; onClose: () => void }> = ({ message, type, onClose }) => {
     useEffect(() => { const t = setTimeout(onClose, 5000); return () => clearTimeout(t); }, [onClose]);
     return (
-        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up dark:text-white text-slate-800 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
             <span>{message}</span>
         </div>
     );
@@ -561,47 +561,47 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
             {/* SIDEBAR - CHANNEL LIST */}
             <div className="w-full lg:w-72 flex flex-col gap-4 lg:h-full">
                  <GlassCard className="flex-1 !p-0 flex flex-col overflow-hidden min-h-[300px]">
-                     <div className="p-4 border-b border-white/10 bg-white/5">
-                         <div className="flex justify-between items-center mb-4 pb-2 border-b border-white/5">
-                             <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                 <Lock size={16} className={forceJoinEnabled ? "text-red-400" : "text-slate-400"} />
+                     <div className="p-4 border-b dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-100">
+                         <div className="flex justify-between items-center mb-4 pb-2 border-b dark:border-white/5 border-slate-100">
+                             <div className="flex items-center gap-2 dark:text-white text-slate-800 font-bold text-sm">
+                                 <Lock size={16} className={forceJoinEnabled ? "dark:text-red-400 text-red-600" : "dark:text-slate-400 text-slate-500"} />
                                  قفل جوین اجباری
                              </div>
                              <div onClick={() => setForceJoinEnabled(!forceJoinEnabled)} className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${forceJoinEnabled ? 'bg-red-500' : 'bg-slate-600'}`}>
                                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${forceJoinEnabled ? 'left-5' : 'left-0.5'}`}></div>
                              </div>
                          </div>
-                         <h3 className="font-bold text-white flex items-center gap-2"><Users size={18}/> لیست کانال‌ها</h3>
+                         <h3 className="font-bold dark:text-white text-slate-800 flex items-center gap-2"><Users size={18}/> لیست کانال‌ها</h3>
                          <div className="flex gap-2 mt-3">
-                             <input value={newChannelId} onChange={e=>setNewChannelId(e.target.value)} placeholder="@channel" className="w-full bg-black/20 rounded px-2 text-sm text-white border border-white/10 outline-none dir-ltr text-left"/>
-                             <button onClick={handleAddChannel} disabled={verifyingChannel} className="bg-blue-600 rounded px-2 text-white hover:bg-blue-500 disabled:opacity-50">
+                             <input value={newChannelId} onChange={e=>setNewChannelId(e.target.value)} placeholder="@channel" className="w-full dark:bg-black/20 bg-slate-100 rounded px-2 text-sm dark:text-white text-slate-800 border dark:border-white/10 border-slate-200 outline-none dir-ltr text-left"/>
+                             <button onClick={handleAddChannel} disabled={verifyingChannel} className="bg-blue-600 rounded px-2 dark:text-white text-slate-800 hover:bg-blue-500 disabled:opacity-50">
                                  {verifyingChannel ? <RefreshCw className="animate-spin" size={16}/> : <Plus size={20}/>}
                              </button>
                          </div>
                          <div className="mt-3 flex justify-between items-center">
-                             <button onClick={toggleSelectAll} className="text-xs flex items-center gap-1 text-slate-400 hover:text-white transition-colors"><ListChecks size={14}/> {selectedChannelIds.length === channels.length ? 'لغو همه' : 'انتخاب همه'}</button>
-                             <span className="text-xs text-blue-400">{selectedChannelIds.length} انتخاب شده</span>
+                             <button onClick={toggleSelectAll} className="text-xs flex items-center gap-1 dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 transition-colors"><ListChecks size={14}/> {selectedChannelIds.length === channels.length ? 'لغو همه' : 'انتخاب همه'}</button>
+                             <span className="text-xs dark:text-blue-400 text-blue-600">{selectedChannelIds.length} انتخاب شده</span>
                          </div>
                      </div>
                      <div className="flex-1 overflow-y-auto p-2 space-y-2">
                          {channels.map(ch => {
                              const isSelected = selectedChannelIds.includes(ch.id.toString());
                              return (
-                                 <div key={ch.id} onClick={() => toggleChannelSelection(ch.id.toString())} className={`w-full p-2.5 rounded-xl flex items-center gap-3 transition-all cursor-pointer border relative overflow-hidden group ${isSelected ? 'bg-blue-600/20 border-blue-500 shadow-lg' : 'bg-white/5 border-transparent hover:bg-white/10'} ${ch.isAdmin ? 'border-r-4 border-r-green-500' : 'border-r-4 border-r-red-500'}`}>
-                                     <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-500 text-transparent'}`}><Check size={14} strokeWidth={3}/></div>
+                                 <div key={ch.id} onClick={() => toggleChannelSelection(ch.id.toString())} className={`w-full p-2.5 rounded-xl flex items-center gap-3 transition-all cursor-pointer border relative overflow-hidden group ${isSelected ? 'bg-blue-600/20 border-blue-500 shadow-lg' : 'dark:bg-white/5 bg-slate-100 border-transparent dark:hover:bg-white/10 hover:bg-slate-200'} ${ch.isAdmin ? 'border-r-4 border-r-green-500' : 'border-r-4 border-r-red-500'}`}>
+                                     <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-blue-500 border-blue-500 dark:text-white text-slate-800' : 'border-slate-500 text-transparent'}`}><Check size={14} strokeWidth={3}/></div>
                                      <div className="flex-1 min-w-0">
                                          <div className="flex justify-between items-center">
-                                             <span className={`truncate text-sm font-bold ${isSelected ? 'text-blue-200' : 'text-slate-300'}`}>{ch.title || ch.username}</span>
-                                             {ch.isLocked ? <Lock size={12} className="text-red-400"/> : null}
+                                             <span className={`truncate text-sm font-bold ${isSelected ? 'dark:text-blue-200 text-blue-700' : 'dark:text-slate-300 text-slate-600'}`}>{ch.title || ch.username}</span>
+                                             {ch.isLocked ? <Lock size={12} className="dark:text-red-400 text-red-600"/> : null}
                                          </div>
                                          <div className="flex items-center gap-1 mt-0.5">
-                                             {ch.isAdmin ? <span className="text-[9px] text-green-400 bg-green-500/10 px-1 rounded">ادمین ✅</span> : <span className="text-[9px] text-red-400 bg-red-500/10 px-1 rounded flex items-center gap-1"><AlertTriangle size={8}/> دسترسی محدود</span>}
+                                             {ch.isAdmin ? <span className="text-[9px] dark:text-green-400 text-green-600 bg-green-500/10 px-1 rounded">ادمین ✅</span> : <span className="text-[9px] dark:text-red-400 text-red-600 bg-red-500/10 px-1 rounded flex items-center gap-1"><AlertTriangle size={8}/> دسترسی محدود</span>}
                                          </div>
                                      </div>
                                      <div className="flex items-center gap-1 shrink-0 z-10">
-                                         <button onClick={(e) => { e.stopPropagation(); refreshChannelAdminStatus(ch); }} className="text-blue-400 p-1.5 hover:bg-white/10 rounded transition-colors" title="به‌روزرسانی وضعیت"><RefreshCw size={12}/></button>
-                                         <button onClick={(e) => toggleChannelLock(e, ch.id)} className={`p-1.5 ${ch.isLocked ? 'text-red-400' : 'text-slate-400'} hover:bg-white/10 rounded transition-colors`} title="تغییر وضعیت قفل">{ch.isLocked ? <Lock size={12}/> : <Unlock size={12}/>}</button>
-                                         <button onClick={(e) => handleDeleteChannel(e, ch.id)} className="text-red-400 p-1.5 hover:bg-red-500/20 rounded transition-colors" title="حذف کانال"><Trash2 size={12}/></button>
+                                         <button onClick={(e) => { e.stopPropagation(); refreshChannelAdminStatus(ch); }} className="dark:text-blue-400 text-blue-600 p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded transition-colors" title="به‌روزرسانی وضعیت"><RefreshCw size={12}/></button>
+                                         <button onClick={(e) => toggleChannelLock(e, ch.id)} className={`p-1.5 ${ch.isLocked ? 'dark:text-red-400 text-red-600' : 'dark:text-slate-400 text-slate-500'} dark:hover:bg-white/10 hover:bg-slate-200 rounded transition-colors`} title="تغییر وضعیت قفل">{ch.isLocked ? <Lock size={12}/> : <Unlock size={12}/>}</button>
+                                         <button onClick={(e) => handleDeleteChannel(e, ch.id)} className="dark:text-red-400 text-red-600 p-1.5 hover:bg-red-500/20 rounded transition-colors" title="حذف کانال"><Trash2 size={12}/></button>
                                      </div>
                                  </div>
                              );
@@ -614,19 +614,19 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
             {/* MAIN CONTENT */}
             <div className="flex-1 flex flex-col gap-4 overflow-hidden">
                 {/* TABS */}
-                <div className="flex justify-between items-center bg-black/20 p-1 rounded-xl border border-white/5 shrink-0 overflow-x-auto">
+                <div className="flex justify-between items-center dark:bg-black/20 bg-slate-100 p-1 rounded-xl border dark:border-white/5 border-slate-100 shrink-0 overflow-x-auto">
                     <div className="flex gap-2">
-                        <button onClick={() => setActiveTab('compose')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'compose' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Megaphone size={16}/> پست جدید</button>
-                        <button onClick={() => setActiveTab('poll')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'poll' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}><Vote size={16}/> نظرسنجی</button>
-                        <button onClick={() => setActiveTab('quiz')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'quiz' ? 'bg-yellow-600 text-white' : 'text-slate-400 hover:text-white'}`}><Trophy size={16}/> آزمون (Quiz)</button>
-                        <button onClick={() => setActiveTab('calendar')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'calendar' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}><CalIcon size={16}/> زمان‌بندی</button>
-                        <button onClick={() => setActiveTab('queue')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'queue' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-white'}`}><Layers size={16}/> صف</button>
+                        <button onClick={() => setActiveTab('compose')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'compose' ? 'bg-blue-600 dark:text-white text-slate-800' : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900'}`}><Megaphone size={16}/> پست جدید</button>
+                        <button onClick={() => setActiveTab('poll')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'poll' ? 'bg-cyan-600 dark:text-white text-slate-800' : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900'}`}><Vote size={16}/> نظرسنجی</button>
+                        <button onClick={() => setActiveTab('quiz')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'quiz' ? 'bg-yellow-600 dark:text-white text-slate-800' : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900'}`}><Trophy size={16}/> آزمون (Quiz)</button>
+                        <button onClick={() => setActiveTab('calendar')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'calendar' ? 'bg-purple-600 dark:text-white text-slate-800' : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900'}`}><CalIcon size={16}/> زمان‌بندی</button>
+                        <button onClick={() => setActiveTab('queue')} className={`px-4 py-2 rounded-lg text-sm font-bold flex gap-2 whitespace-nowrap transition-colors ${activeTab === 'queue' ? 'bg-orange-600 dark:text-white text-slate-800' : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900'}`}><Layers size={16}/> صف</button>
                     </div>
                     {/* Draft Indicator */}
                     <div className="hidden lg:flex items-center gap-2 px-3">
-                         <Save size={14} className="text-blue-400"/>
-                         <span className="text-[10px] text-slate-400">ذخیره خودکار</span>
-                         <button onClick={handleClearDraft} className="p-1 text-red-400 hover:text-red-300 transition-colors" title="حذف پیش‌نویس">
+                         <Save size={14} className="dark:text-blue-400 text-blue-600"/>
+                         <span className="text-[10px] dark:text-slate-400 text-slate-500">ذخیره خودکار</span>
+                         <button onClick={handleClearDraft} className="p-1 dark:text-red-400 text-red-600 hover:text-red-300 transition-colors" title="حذف پیش‌نویس">
                              <Trash2 size={14}/>
                          </button>
                     </div>
@@ -639,69 +639,69 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                             {/* Editor Column */}
                             <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
                                  {/* Toolbar */}
-                                 <div className="flex items-center gap-1 mb-2 bg-black/20 w-fit p-1 rounded-lg border border-white/5">
-                                     <button onClick={() => insertTag('b')} className="p-1.5 hover:bg-white/10 rounded text-slate-400 hover:text-white" title="Bold"><Bold size={14}/></button>
-                                     <button onClick={() => insertTag('i')} className="p-1.5 hover:bg-white/10 rounded text-slate-400 hover:text-white" title="Italic"><Italic size={14}/></button>
-                                     <button onClick={() => insertTag('code')} className="p-1.5 hover:bg-white/10 rounded text-slate-400 hover:text-white" title="Monospace"><Code size={14}/></button>
-                                     <button onClick={() => insertTag('spoiler')} className="p-1.5 hover:bg-white/10 rounded text-slate-400 hover:text-white" title="Spoiler"><Eye size={14}/></button>
-                                     <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
-                                     <button onClick={handleAIWrite} disabled={isLoadingAI} className="p-1.5 hover:bg-purple-500/20 rounded text-purple-400 hover:text-purple-300 flex items-center gap-1 text-xs px-2">
+                                 <div className="flex items-center gap-1 mb-2 dark:bg-black/20 bg-slate-100 w-fit p-1 rounded-lg border dark:border-white/5 border-slate-100">
+                                     <button onClick={() => insertTag('b')} className="p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900" title="Bold"><Bold size={14}/></button>
+                                     <button onClick={() => insertTag('i')} className="p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900" title="Italic"><Italic size={14}/></button>
+                                     <button onClick={() => insertTag('code')} className="p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900" title="Monospace"><Code size={14}/></button>
+                                     <button onClick={() => insertTag('spoiler')} className="p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900" title="Spoiler"><Eye size={14}/></button>
+                                     <div className="w-[1px] h-4 dark:bg-white/10 bg-slate-200 mx-1"></div>
+                                     <button onClick={handleAIWrite} disabled={isLoadingAI} className="p-1.5 hover:bg-purple-500/20 rounded dark:text-purple-400 text-purple-600 hover:text-purple-300 flex items-center gap-1 text-xs px-2">
                                          {isLoadingAI ? <RefreshCw className="animate-spin" size={12}/> : <Sparkles size={12}/>} هوش مصنوعی
                                      </button>
                                  </div>
 
-                                 <textarea ref={textAreaRef} value={text} onChange={e => setText(e.target.value)} placeholder="متن پست خود را بنویسید..." className="w-full h-40 bg-black/10 border border-white/10 rounded-xl p-4 text-white resize-none outline-none focus:border-blue-500 transition-colors font-vazir text-sm"/>
+                                 <textarea ref={textAreaRef} value={text} onChange={e => setText(e.target.value)} placeholder="متن پست خود را بنویسید..." className="w-full h-40 bg-black/10 border dark:border-white/10 border-slate-200 rounded-xl p-4 dark:text-white text-slate-800 resize-none outline-none focus:border-blue-500 transition-colors font-vazir text-sm"/>
                                  
                                  {/* Media Upload */}
                                  <div className="mt-4 flex flex-wrap gap-2">
                                      {mediaFiles.map((m, idx) => ( 
-                                         <div key={idx} className="relative w-16 h-16 rounded border border-white/10 overflow-hidden group"> 
+                                         <div key={idx} className="relative w-16 h-16 rounded border dark:border-white/10 border-slate-200 overflow-hidden group"> 
                                              <img src={m.preview} className="w-full h-full object-cover"/> 
                                              {m.fileId ? (
                                                   <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 shadow" title="آپلود شده در دیتابیس"></div>
                                              ) : (
                                                   <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-orange-500 shadow" title="فایل محلی"></div>
                                              )}
-                                             <button onClick={() => setMediaFiles(prev => prev.filter((_, i) => i !== idx))} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-red-400"><X size={16}/></button>
+                                             <button onClick={() => setMediaFiles(prev => prev.filter((_, i) => i !== idx))} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity dark:text-red-400 text-red-600"><X size={16}/></button>
                                          </div> 
                                      ))}
-                                     <label className={`w-16 h-16 border-2 border-dashed border-white/10 hover:border-blue-500 rounded-lg flex flex-col items-center justify-center text-slate-500 cursor-pointer transition-colors ${isUploading ? 'opacity-50 cursor-wait' : ''}`}> 
+                                     <label className={`w-16 h-16 border-2 border-dashed dark:border-white/10 border-slate-200 hover:border-blue-500 rounded-lg flex flex-col items-center justify-center text-slate-500 cursor-pointer transition-colors ${isUploading ? 'opacity-50 cursor-wait' : ''}`}> 
                                          {isUploading ? <RefreshCw className="animate-spin" size={20}/> : <Plus size={20}/>}
                                          <input type="file" multiple className="hidden" onChange={handleFileUpload} accept="image/*,video/*,audio/*" disabled={isUploading}/> 
                                      </label>
                                  </div>
                                  <div className="mt-1 flex items-center gap-2">
-                                     {isUploading && <span className="text-[10px] text-blue-400">در حال آپلود به دیتابیس...</span>}
-                                     {!dbChannel && mediaFiles.some(m => !m.fileId) && <span className="text-[10px] text-orange-400 flex items-center gap-1"><AlertCircle size={10}/> کانال دیتابیس تنظیم نشده. فایل‌ها موقت هستند.</span>}
+                                     {isUploading && <span className="text-[10px] dark:text-blue-400 text-blue-600">در حال آپلود به دیتابیس...</span>}
+                                     {!dbChannel && mediaFiles.some(m => !m.fileId) && <span className="text-[10px] dark:text-orange-400 text-orange-600 flex items-center gap-1"><AlertCircle size={10}/> کانال دیتابیس تنظیم نشده. فایل‌ها موقت هستند.</span>}
                                  </div>
 
                                  {/* Inline Buttons */}
-                                 <div className="mt-6 border-t border-white/10 pt-4">
-                                     <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><LayoutGrid size={16} className="text-blue-400"/> دکمه‌های شیشه‌ای</h4>
+                                 <div className="mt-6 border-t dark:border-white/10 border-slate-200 pt-4">
+                                     <h4 className="text-sm font-bold dark:text-white text-slate-800 mb-3 flex items-center gap-2"><LayoutGrid size={16} className="dark:text-blue-400 text-blue-600"/> دکمه‌های شیشه‌ای</h4>
                                      {inlineRows.map(row => (
                                          <div key={row.id} className="flex gap-2 mb-2">
                                              {row.buttons.map(btn => (
-                                                 <div key={btn.id} className="flex-1 bg-white/5 p-1 rounded flex gap-1 border border-white/5">
-                                                     <input value={btn.text} onChange={e => updateButton(row.id, btn.id, 'text', e.target.value)} className="w-1/2 bg-transparent text-xs text-white outline-none text-center" placeholder="عنوان"/>
-                                                     <div className="w-[1px] bg-white/10"></div>
-                                                     <input value={btn.value} onChange={e => updateButton(row.id, btn.id, 'value', e.target.value)} className="w-1/2 bg-transparent text-xs text-blue-300 outline-none dir-ltr text-center" placeholder="لینک/دیتا"/>
+                                                 <div key={btn.id} className="flex-1 dark:bg-white/5 bg-slate-100 p-1 rounded flex gap-1 border dark:border-white/5 border-slate-100">
+                                                     <input value={btn.text} onChange={e => updateButton(row.id, btn.id, 'text', e.target.value)} className="w-1/2 bg-transparent text-xs dark:text-white text-slate-800 outline-none text-center" placeholder="عنوان"/>
+                                                     <div className="w-[1px] dark:bg-white/10 bg-slate-200"></div>
+                                                     <input value={btn.value} onChange={e => updateButton(row.id, btn.id, 'value', e.target.value)} className="w-1/2 bg-transparent text-xs dark:text-blue-300 text-blue-600 outline-none dir-ltr text-center" placeholder="لینک/دیتا"/>
                                                  </div>
                                              ))}
-                                             <button onClick={() => addBtnToRow(row.id)} className="text-slate-500 hover:text-white"><Plus size={16}/></button>
-                                             <button onClick={() => removeRow(row.id)} className="text-red-400"><Trash2 size={16}/></button>
+                                             <button onClick={() => addBtnToRow(row.id)} className="text-slate-500 dark:hover:text-white hover:text-slate-900"><Plus size={16}/></button>
+                                             <button onClick={() => removeRow(row.id)} className="dark:text-red-400 text-red-600"><Trash2 size={16}/></button>
                                          </div>
                                      ))}
-                                     <button onClick={addInlineRow} className="text-xs text-blue-400 hover:underline flex items-center gap-1 mt-2"><Plus size={12}/> افزودن ردیف جدید</button>
+                                     <button onClick={addInlineRow} className="text-xs dark:text-blue-400 text-blue-600 hover:underline flex items-center gap-1 mt-2"><Plus size={12}/> افزودن ردیف جدید</button>
                                  </div>
 
                                  {/* ADVANCED SETTINGS */}
-                                 <div className="mt-6 bg-white/5 border border-white/5 rounded-2xl p-5">
+                                 <div className="mt-6 dark:bg-white/5 bg-slate-100 border dark:border-white/5 border-slate-100 rounded-2xl p-5">
                                      <div className="flex items-center gap-2 mb-4">
-                                         <Settings size={18} className="text-purple-400"/>
-                                         <span className="text-sm font-bold text-white">تنظیمات پیشرفته پیام</span>
+                                         <Settings size={18} className="dark:text-purple-400 text-purple-600"/>
+                                         <span className="text-sm font-bold dark:text-white text-slate-800">تنظیمات پیشرفته پیام</span>
                                      </div>
                                      <div className="flex flex-wrap gap-3">
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.pin ? 'bg-orange-500/10 border-orange-500/50 text-orange-200' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/10'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.pin ? 'bg-orange-500/10 border-orange-500/50 text-orange-200' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
                                              <Pin size={18} className={settings.pin ? 'text-orange-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">سنجاق کردن</span>
@@ -710,7 +710,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                              <input type="checkbox" className="hidden" checked={settings.pin} onChange={() => setSettings(s => ({...s, pin: !s.pin}))}/>
                                              {settings.pin && <CheckCircle size={14} className="mr-auto text-orange-500"/>}
                                          </label>
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.silent ? 'bg-blue-500/10 border-blue-500/50 text-blue-200' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/10'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.silent ? 'bg-blue-500/10 border-blue-500/50 dark:text-blue-200 text-blue-700' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
                                              <BellOff size={18} className={settings.silent ? 'text-blue-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">ارسال بی‌صدا</span>
@@ -719,7 +719,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                              <input type="checkbox" className="hidden" checked={settings.silent} onChange={() => setSettings(s => ({...s, silent: !s.silent}))}/>
                                              {settings.silent && <CheckCircle size={14} className="mr-auto text-blue-500"/>}
                                          </label>
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.protect ? 'bg-green-500/10 border-green-500/50 text-green-200' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/10'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.protect ? 'bg-green-500/10 border-green-500/50 text-green-200' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
                                              <ShieldAlert size={18} className={settings.protect ? 'text-green-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">محافظت محتوا</span>
@@ -728,7 +728,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                              <input type="checkbox" className="hidden" checked={settings.protect} onChange={() => setSettings(s => ({...s, protect: !s.protect}))}/>
                                              {settings.protect && <CheckCircle size={14} className="mr-auto text-green-500"/>}
                                          </label>
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.addReactions ? 'bg-purple-500/10 border-purple-500/50 text-purple-200' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/10'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.addReactions ? 'bg-purple-500/10 border-purple-500/50 text-purple-200' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
                                              <Vote size={18} className={settings.addReactions ? 'text-purple-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">دکمه لایک/دیس‌لایک</span>
@@ -741,10 +741,10 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                  </div>
 
                                  <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                                     <button onClick={() => setShowDatePicker(true)} className={`flex-1 py-3 border border-white/10 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-white/5 ${isScheduledEnabled ? 'text-blue-400 border-blue-500/50' : 'text-slate-400'}`}>
+                                     <button onClick={() => setShowDatePicker(true)} className={`flex-1 py-3 border dark:border-white/10 border-slate-200 rounded-xl text-sm flex items-center justify-center gap-2 dark:hover:bg-white/5 hover:bg-slate-100 ${isScheduledEnabled ? 'dark:text-blue-400 text-blue-600 border-blue-500/50' : 'dark:text-slate-400 text-slate-500'}`}>
                                          <CalIcon size={16}/> {isScheduledEnabled ? `زمان‌بندی: ${scheduledDateObj.toLocaleTimeString('fa-IR', {hour: '2-digit', minute:'2-digit'})} ${new Intl.DateTimeFormat('fa-IR').format(scheduledDateObj)}` : 'زمان‌بندی ارسال'}
                                      </button>
-                                     <button onClick={() => handleSend(isScheduledEnabled)} disabled={sendingProgress || selectedChannelIds.length === 0} className={`flex-[2] py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 text-white transition-all disabled:opacity-50 ${isScheduledEnabled ? 'bg-purple-600 hover:bg-purple-500' : 'bg-green-600 hover:bg-green-500'}`}>
+                                     <button onClick={() => handleSend(isScheduledEnabled)} disabled={sendingProgress || selectedChannelIds.length === 0} className={`flex-[2] py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 dark:text-white text-slate-800 transition-all disabled:opacity-50 ${isScheduledEnabled ? 'bg-purple-600 hover:bg-purple-500' : 'bg-green-600 hover:bg-green-500'}`}>
                                          {sendingProgress ? <RefreshCw className="animate-spin" size={18}/> : <Send size={18}/>}
                                          {isScheduledEnabled ? 'ثبت در صف ارسال' : 'ارسال آنی به کانال‌ها'}
                                      </button>
@@ -752,17 +752,17 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                             </div>
 
                             {/* Live Monitor Column */}
-                            <div className="w-[360px] bg-[#0f172a] border-r border-white/5 p-4 hidden xl:flex flex-col items-center justify-center relative shadow-2xl z-10">
-                                <div className="mb-4 flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                            <div className="w-[360px] dark:bg-[#0f172a] bg-white border-r dark:border-white/5 border-slate-100 p-4 hidden xl:flex flex-col items-center justify-center relative shadow-2xl z-10">
+                                <div className="mb-4 flex items-center gap-2 px-3 py-1 dark:bg-white/5 bg-slate-100 rounded-full border dark:border-white/5 border-slate-100">
                                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                    <span className="text-xs text-slate-300 font-medium">مانیتور نمایش زنده</span>
+                                    <span className="text-xs dark:text-slate-300 text-slate-600 font-medium">مانیتور نمایش زنده</span>
                                 </div>
                                 <div className="telegram-simulator w-[300px] h-[600px] bg-[#1c2431] rounded-[35px] border-[8px] border-[#2d3748] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden relative flex flex-col">
                                     <div className="bg-[#242f3d] h-14 flex items-center px-4 gap-3 shrink-0 shadow-sm relative z-10">
-                                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs">CH</div>
+                                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center dark:text-white text-slate-800 font-bold text-xs">CH</div>
                                          <div className="flex-1">
-                                             <div className="text-white text-xs font-bold">پیش‌نمایش کانال</div>
-                                             <div className="text-[10px] text-slate-400">bot subscribers</div>
+                                             <div className="dark:text-white text-slate-800 text-xs font-bold">پیش‌نمایش کانال</div>
+                                             <div className="text-[10px] dark:text-slate-400 text-slate-500">bot subscribers</div>
                                          </div>
                                     </div>
                                     <div className="flex-1 bg-[#0e1621] p-2 overflow-y-auto bg-[url('https://web.telegram.org/img/bg_0.png')] flex flex-col">
@@ -772,19 +772,19 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                                      <div className="relative">
                                                          {mediaFiles[0].type === 'image' && <img src={mediaFiles[0].preview} className="w-full h-auto object-cover max-h-[200px]" />}
                                                          {mediaFiles[0].type === 'video' && <video src={mediaFiles[0].preview} className="w-full h-auto object-cover max-h-[200px]" controls={false} />}
-                                                         {mediaFiles[0].type === 'audio' && <div className="w-full h-12 bg-[#2b5278] flex items-center justify-center text-white"><Music size={20}/></div>}
-                                                         {mediaFiles.length > 1 && <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">+{mediaFiles.length - 1} فایل</div>}
+                                                         {mediaFiles[0].type === 'audio' && <div className="w-full h-12 bg-[#2b5278] flex items-center justify-center dark:text-white text-slate-800"><Music size={20}/></div>}
+                                                         {mediaFiles.length > 1 && <div className="absolute top-2 right-2 bg-black/60 dark:text-white text-slate-800 text-[10px] px-2 py-0.5 rounded-full">+{mediaFiles.length - 1} فایل</div>}
                                                      </div>
                                                  )}
-                                                 <div className="p-3 text-white text-sm whitespace-pre-wrap dir-rtl text-right leading-relaxed font-vazir" dangerouslySetInnerHTML={{ __html: text || 'متن پیام شما...' }}></div>
-                                                 <div className="px-2 pb-1 text-right"><span className="text-[10px] text-white/40 font-mono">12:30 PM</span></div>
+                                                 <div className="p-3 dark:text-white text-slate-800 text-sm whitespace-pre-wrap dir-rtl text-right leading-relaxed font-vazir" dangerouslySetInnerHTML={{ __html: text || 'متن پیام شما...' }}></div>
+                                                 <div className="px-2 pb-1 text-right"><span className="text-[10px] dark:text-white/40 text-slate-400 font-mono">12:30 PM</span></div>
                                              </div>
                                              {inlineRows.length > 0 && (
                                                  <div className="mt-1 space-y-1 max-w-[95%] ml-auto">
                                                      {inlineRows.map(row => (
                                                          <div key={row.id} className="flex gap-1">
                                                              {row.buttons.map(btn => (
-                                                                 <button key={btn.id} className="flex-1 bg-[#2b5278]/40 hover:bg-[#2b5278]/60 text-white text-xs py-2 rounded-md backdrop-blur-sm transition-colors border border-white/5">{btn.text}{btn.type === 'link' && <LinkIcon size={10} className="inline ml-1 opacity-50"/>}</button>
+                                                                 <button key={btn.id} className="flex-1 bg-[#2b5278]/40 hover:bg-[#2b5278]/60 dark:text-white text-slate-800 text-xs py-2 rounded-md backdrop-blur-sm transition-colors border dark:border-white/5 border-slate-100">{btn.text}{btn.type === 'link' && <LinkIcon size={10} className="inline ml-1 opacity-50"/>}</button>
                                                              ))}
                                                          </div>
                                                      ))}
@@ -792,8 +792,8 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                              )}
                                              {settings.addReactions && (
                                                  <div className="mt-1 max-w-[95%] ml-auto flex gap-1">
-                                                     <button className="flex-1 bg-[#2b5278]/40 text-white text-xs py-2 rounded-md border border-white/5">👍 0</button>
-                                                     <button className="flex-1 bg-[#2b5278]/40 text-white text-xs py-2 rounded-md border border-white/5">👎 0</button>
+                                                     <button className="flex-1 bg-[#2b5278]/40 dark:text-white text-slate-800 text-xs py-2 rounded-md border dark:border-white/5 border-slate-100">👍 0</button>
+                                                     <button className="flex-1 bg-[#2b5278]/40 dark:text-white text-slate-800 text-xs py-2 rounded-md border dark:border-white/5 border-slate-100">👎 0</button>
                                                  </div>
                                              )}
                                          </div>
@@ -808,46 +808,46 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                         <div className="p-6 overflow-y-auto">
                              <div className="max-w-3xl mx-auto space-y-6">
                                  <div className="flex items-center gap-2 mb-4">
-                                     <Vote className="text-cyan-400" size={28}/>
+                                     <Vote className="dark:text-cyan-400 text-cyan-600" size={28}/>
                                      <div>
-                                         <h3 className="text-xl font-bold text-white">ایجاد نظرسنجی جدید</h3>
-                                         <p className="text-xs text-slate-400">نظرسنجی عمومی با قابلیت انتخاب چندگانه</p>
+                                         <h3 className="text-xl font-bold dark:text-white text-slate-800">ایجاد نظرسنجی جدید</h3>
+                                         <p className="text-xs dark:text-slate-400 text-slate-500">نظرسنجی عمومی با قابلیت انتخاب چندگانه</p>
                                      </div>
                                  </div>
                                  
-                                 <div className="bg-black/20 p-4 rounded-xl border border-white/5 space-y-4">
+                                 <div className="dark:bg-black/20 bg-slate-100 p-4 rounded-xl border dark:border-white/5 border-slate-100 space-y-4">
                                      <div>
-                                         <label className="text-sm text-slate-300 mb-2 block">سوال نظرسنجی</label>
-                                         <input value={pollConfig.question} onChange={e => setPollConfig({...pollConfig, question: e.target.value})} placeholder="سوال خود را مطرح کنید..." className="w-full bg-black/20 p-3 rounded-xl border border-white/10 text-white focus:border-cyan-500 outline-none transition-colors"/>
+                                         <label className="text-sm dark:text-slate-300 text-slate-600 mb-2 block">سوال نظرسنجی</label>
+                                         <input value={pollConfig.question} onChange={e => setPollConfig({...pollConfig, question: e.target.value})} placeholder="سوال خود را مطرح کنید..." className="w-full dark:bg-black/20 bg-slate-100 p-3 rounded-xl border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 focus:border-cyan-500 outline-none transition-colors"/>
                                      </div>
                                      
                                      <div className="space-y-2">
-                                         <label className="text-sm text-slate-300 mb-2 block">گزینه‌ها</label>
+                                         <label className="text-sm dark:text-slate-300 text-slate-600 mb-2 block">گزینه‌ها</label>
                                          {pollConfig.options.map((opt, i) => (
                                              <div key={i} className="flex gap-2 items-center">
                                                  <span className="text-xs text-slate-500 w-4">{i+1}.</span>
-                                                 <input value={opt} onChange={e => {const n=[...pollConfig.options]; n[i]=e.target.value; setPollConfig({...pollConfig, options: n})}} placeholder={`گزینه ${i+1}`} className="flex-1 bg-black/20 p-3 rounded-lg border border-white/10 text-white focus:border-cyan-500 outline-none transition-colors"/>
-                                                 {pollConfig.options.length > 2 && <button onClick={()=>{const n=[...pollConfig.options]; n.splice(i,1); setPollConfig({...pollConfig, options: n})}} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg"><Trash2 size={16}/></button>}
+                                                 <input value={opt} onChange={e => {const n=[...pollConfig.options]; n[i]=e.target.value; setPollConfig({...pollConfig, options: n})}} placeholder={`گزینه ${i+1}`} className="flex-1 dark:bg-black/20 bg-slate-100 p-3 rounded-lg border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 focus:border-cyan-500 outline-none transition-colors"/>
+                                                 {pollConfig.options.length > 2 && <button onClick={()=>{const n=[...pollConfig.options]; n.splice(i,1); setPollConfig({...pollConfig, options: n})}} className="p-2 dark:text-red-400 text-red-600 hover:bg-red-500/10 rounded-lg"><Trash2 size={16}/></button>}
                                              </div>
                                          ))}
-                                         {pollConfig.options.length < 10 && <button onClick={()=>setPollConfig({...pollConfig, options: [...pollConfig.options, '']})} className="text-cyan-400 text-sm flex items-center gap-1 hover:underline mt-2"><Plus size={14}/> افزودن گزینه</button>}
+                                         {pollConfig.options.length < 10 && <button onClick={()=>setPollConfig({...pollConfig, options: [...pollConfig.options, '']})} className="dark:text-cyan-400 text-cyan-600 text-sm flex items-center gap-1 hover:underline mt-2"><Plus size={14}/> افزودن گزینه</button>}
                                      </div>
                                  </div>
 
                                  <div className="flex gap-4">
-                                     <label className={`flex-1 p-3 rounded-xl border cursor-pointer flex items-center gap-3 transition-colors ${pollConfig.isAnonymous ? 'bg-cyan-900/20 border-cyan-500/50' : 'bg-black/20 border-white/5'}`}>
+                                     <label className={`flex-1 p-3 rounded-xl border cursor-pointer flex items-center gap-3 transition-colors ${pollConfig.isAnonymous ? 'bg-cyan-900/20 border-cyan-500/50' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100'}`}>
                                          <input type="checkbox" className="hidden" checked={pollConfig.isAnonymous} onChange={e=>setPollConfig({...pollConfig, isAnonymous: e.target.checked})}/>
-                                         <div className={`w-5 h-5 rounded border flex items-center justify-center ${pollConfig.isAnonymous ? 'bg-cyan-500 border-cyan-500' : 'border-slate-500'}`}>{pollConfig.isAnonymous && <Check size={14} className="text-white"/>}</div>
-                                         <span className="text-sm text-white">رای‌گیری ناشناس</span>
+                                         <div className={`w-5 h-5 rounded border flex items-center justify-center ${pollConfig.isAnonymous ? 'bg-cyan-500 border-cyan-500' : 'border-slate-500'}`}>{pollConfig.isAnonymous && <Check size={14} className="dark:text-white text-slate-800"/>}</div>
+                                         <span className="text-sm dark:text-white text-slate-800">رای‌گیری ناشناس</span>
                                      </label>
-                                     <label className={`flex-1 p-3 rounded-xl border cursor-pointer flex items-center gap-3 transition-colors ${pollConfig.multipleAnswers ? 'bg-cyan-900/20 border-cyan-500/50' : 'bg-black/20 border-white/5'}`}>
+                                     <label className={`flex-1 p-3 rounded-xl border cursor-pointer flex items-center gap-3 transition-colors ${pollConfig.multipleAnswers ? 'bg-cyan-900/20 border-cyan-500/50' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100'}`}>
                                          <input type="checkbox" className="hidden" checked={pollConfig.multipleAnswers} onChange={e=>setPollConfig({...pollConfig, multipleAnswers: e.target.checked})}/>
-                                         <div className={`w-5 h-5 rounded border flex items-center justify-center ${pollConfig.multipleAnswers ? 'bg-cyan-500 border-cyan-500' : 'border-slate-500'}`}>{pollConfig.multipleAnswers && <Check size={14} className="text-white"/>}</div>
-                                         <span className="text-sm text-white">انتخاب چند گزینه</span>
+                                         <div className={`w-5 h-5 rounded border flex items-center justify-center ${pollConfig.multipleAnswers ? 'bg-cyan-500 border-cyan-500' : 'border-slate-500'}`}>{pollConfig.multipleAnswers && <Check size={14} className="dark:text-white text-slate-800"/>}</div>
+                                         <span className="text-sm dark:text-white text-slate-800">انتخاب چند گزینه</span>
                                      </label>
                                  </div>
 
-                                 <button onClick={() => handleSendPoll('regular')} disabled={sendingProgress} className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-xl shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2">
+                                 <button onClick={() => handleSendPoll('regular')} disabled={sendingProgress} className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 dark:text-white text-slate-800 font-bold rounded-xl shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2">
                                      {sendingProgress ? <RefreshCw className="animate-spin"/> : <Send/>}
                                      ارسال نظرسنجی
                                  </button>
@@ -860,45 +860,45 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                         <div className="p-6 overflow-y-auto">
                              <div className="max-w-3xl mx-auto space-y-6">
                                  <div className="flex items-center gap-2 mb-4">
-                                     <Trophy className="text-yellow-400" size={28}/>
+                                     <Trophy className="dark:text-yellow-400 text-yellow-600" size={28}/>
                                      <div>
-                                         <h3 className="text-xl font-bold text-white">ایجاد آزمون (Quiz)</h3>
-                                         <p className="text-xs text-slate-400">آزمون با یک گزینه صحیح و توضیحات تشریحی</p>
+                                         <h3 className="text-xl font-bold dark:text-white text-slate-800">ایجاد آزمون (Quiz)</h3>
+                                         <p className="text-xs dark:text-slate-400 text-slate-500">آزمون با یک گزینه صحیح و توضیحات تشریحی</p>
                                      </div>
                                  </div>
                                  
-                                 <div className="bg-black/20 p-4 rounded-xl border border-white/5 space-y-4">
+                                 <div className="dark:bg-black/20 bg-slate-100 p-4 rounded-xl border dark:border-white/5 border-slate-100 space-y-4">
                                      <div>
-                                         <label className="text-sm text-slate-300 mb-2 block">سوال آزمون</label>
-                                         <input value={quizConfig.question} onChange={e => setQuizConfig({...quizConfig, question: e.target.value})} placeholder="سوال آزمون را وارد کنید..." className="w-full bg-black/20 p-3 rounded-xl border border-white/10 text-white focus:border-yellow-500 outline-none transition-colors"/>
+                                         <label className="text-sm dark:text-slate-300 text-slate-600 mb-2 block">سوال آزمون</label>
+                                         <input value={quizConfig.question} onChange={e => setQuizConfig({...quizConfig, question: e.target.value})} placeholder="سوال آزمون را وارد کنید..." className="w-full dark:bg-black/20 bg-slate-100 p-3 rounded-xl border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 focus:border-yellow-500 outline-none transition-colors"/>
                                      </div>
                                      
                                      <div className="space-y-2">
-                                         <label className="text-sm text-slate-300 mb-2 block">گزینه‌ها (گزینه صحیح را تیک بزنید)</label>
+                                         <label className="text-sm dark:text-slate-300 text-slate-600 mb-2 block">گزینه‌ها (گزینه صحیح را تیک بزنید)</label>
                                          {quizConfig.options.map((opt, i) => (
                                              <div key={i} className="flex gap-2 items-center">
                                                  <button 
                                                     onClick={()=>setQuizConfig({...quizConfig, correctOptionId: i})} 
-                                                    className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-all ${quizConfig.correctOptionId === i ? 'bg-green-500 border-green-500 text-white shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-black/20 border-white/10 text-slate-500 hover:border-white/30'}`}
+                                                    className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-all ${quizConfig.correctOptionId === i ? 'bg-green-500 border-green-500 dark:text-white text-slate-800 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'dark:bg-black/20 bg-slate-100 dark:border-white/10 border-slate-200 text-slate-500 hover:border-white/30'}`}
                                                     title="انتخاب به عنوان پاسخ صحیح"
                                                  >
                                                      {quizConfig.correctOptionId === i ? <CheckCircle size={20}/> : <div className="w-4 h-4 rounded-full border border-slate-500"></div>}
                                                  </button>
-                                                 <input value={opt} onChange={e => {const n=[...quizConfig.options]; n[i]=e.target.value; setQuizConfig({...quizConfig, options: n})}} placeholder={`گزینه ${i+1}`} className={`flex-1 bg-black/20 p-3 rounded-lg border text-white outline-none transition-colors ${quizConfig.correctOptionId === i ? 'border-green-500/50' : 'border-white/10 focus:border-yellow-500'}`}/>
-                                                 {quizConfig.options.length > 2 && <button onClick={()=>{const n=[...quizConfig.options]; n.splice(i,1); setQuizConfig({...quizConfig, options: n, correctOptionId: 0})}} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg"><Trash2 size={16}/></button>}
+                                                 <input value={opt} onChange={e => {const n=[...quizConfig.options]; n[i]=e.target.value; setQuizConfig({...quizConfig, options: n})}} placeholder={`گزینه ${i+1}`} className={`flex-1 dark:bg-black/20 bg-slate-100 p-3 rounded-lg border dark:text-white text-slate-800 outline-none transition-colors ${quizConfig.correctOptionId === i ? 'border-green-500/50' : 'dark:border-white/10 border-slate-200 focus:border-yellow-500'}`}/>
+                                                 {quizConfig.options.length > 2 && <button onClick={()=>{const n=[...quizConfig.options]; n.splice(i,1); setQuizConfig({...quizConfig, options: n, correctOptionId: 0})}} className="p-2 dark:text-red-400 text-red-600 hover:bg-red-500/10 rounded-lg"><Trash2 size={16}/></button>}
                                              </div>
                                          ))}
-                                         {quizConfig.options.length < 10 && <button onClick={()=>setQuizConfig({...quizConfig, options: [...quizConfig.options, '']})} className="text-yellow-400 text-sm flex items-center gap-1 hover:underline mt-2"><Plus size={14}/> افزودن گزینه</button>}
+                                         {quizConfig.options.length < 10 && <button onClick={()=>setQuizConfig({...quizConfig, options: [...quizConfig.options, '']})} className="dark:text-yellow-400 text-yellow-600 text-sm flex items-center gap-1 hover:underline mt-2"><Plus size={14}/> افزودن گزینه</button>}
                                      </div>
 
                                      <div>
-                                         <label className="text-sm text-slate-300 mb-2 block flex items-center gap-2"><HelpCircle size={14}/> توضیحات تکمیلی (Explanation)</label>
-                                         <textarea value={quizConfig.explanation} onChange={e => setQuizConfig({...quizConfig, explanation: e.target.value})} placeholder="متنی که پس از انتخاب گزینه توسط کاربر نمایش داده می‌شود (نکته آموزشی)..." className="w-full bg-black/20 p-3 rounded-xl border border-white/10 text-white h-24 resize-none focus:border-yellow-500 outline-none transition-colors"/>
+                                         <label className="text-sm dark:text-slate-300 text-slate-600 mb-2 block flex items-center gap-2"><HelpCircle size={14}/> توضیحات تکمیلی (Explanation)</label>
+                                         <textarea value={quizConfig.explanation} onChange={e => setQuizConfig({...quizConfig, explanation: e.target.value})} placeholder="متنی که پس از انتخاب گزینه توسط کاربر نمایش داده می‌شود (نکته آموزشی)..." className="w-full dark:bg-black/20 bg-slate-100 p-3 rounded-xl border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 h-24 resize-none focus:border-yellow-500 outline-none transition-colors"/>
                                          <p className="text-[10px] text-slate-500 mt-1">حداکثر ۲۰۰ کاراکتر</p>
                                      </div>
                                  </div>
 
-                                 <button onClick={() => handleSendPoll('quiz')} disabled={sendingProgress} className="w-full py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold rounded-xl shadow-lg hover:shadow-yellow-500/20 transition-all flex items-center justify-center gap-2">
+                                 <button onClick={() => handleSendPoll('quiz')} disabled={sendingProgress} className="w-full py-4 bg-gradient-to-r from-yellow-600 to-orange-600 dark:text-white text-slate-800 font-bold rounded-xl shadow-lg hover:shadow-yellow-500/20 transition-all flex items-center justify-center gap-2">
                                      {sendingProgress ? <RefreshCw className="animate-spin"/> : <Trophy/>}
                                      ارسال آزمون
                                  </button>
@@ -909,30 +909,30 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                     {/* QUEUE TAB */}
                     {activeTab === 'queue' && (
                         <div className="p-6 overflow-y-auto">
-                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Layers size={20}/> صف انتظار ارسال</h3>
+                            <h3 className="text-lg font-bold dark:text-white text-slate-800 mb-4 flex items-center gap-2"><Layers size={20}/> صف انتظار ارسال</h3>
                             {queue.length === 0 ? <div className="text-center text-slate-500 py-10">صف خالی است</div> : (
                                 <div className="space-y-2">
                                     {queue.filter(q => q.targetChannelId !== 'all').map(q => {
                                         const channelInfo = channels.find(c => String(c.id) === String(q.targetChannelId));
                                         const date = new Date(q.createdAt);
                                         return (
-                                            <div key={q.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-center group hover:bg-white/10 transition-colors">
+                                            <div key={q.id} className="dark:bg-white/5 bg-slate-100 p-4 rounded-xl border dark:border-white/10 border-slate-200 flex justify-between items-center group dark:hover:bg-white/10 hover:bg-slate-200 transition-colors">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="flex flex-col items-center bg-black/30 p-2 rounded-lg min-w-[70px]">
-                                                        <span className="text-[10px] text-slate-400">{date.toLocaleDateString('fa-IR')}</span>
-                                                        <span className="text-sm font-bold text-white">{date.toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'})}</span>
+                                                    <div className="flex flex-col items-center dark:bg-black/30 bg-slate-100 p-2 rounded-lg min-w-[70px]">
+                                                        <span className="text-[10px] dark:text-slate-400 text-slate-500">{date.toLocaleDateString('fa-IR')}</span>
+                                                        <span className="text-sm font-bold dark:text-white text-slate-800">{date.toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'})}</span>
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">
+                                                            <span className="text-xs bg-blue-500/20 dark:text-blue-300 text-blue-600 px-2 py-0.5 rounded border border-blue-500/30">
                                                                 {channelInfo ? (channelInfo.title || channelInfo.username) : q.targetChannelId}
                                                             </span>
-                                                            {q.hasMedia && <span className="text-[10px] text-purple-400 border border-purple-500/30 px-1 rounded">مدیا</span>}
+                                                            {q.hasMedia && <span className="text-[10px] dark:text-purple-400 text-purple-600 border border-purple-500/30 px-1 rounded">مدیا</span>}
                                                         </div>
                                                         <div className="text-white/80 text-sm line-clamp-1 max-w-[200px]">{q.content || 'پست بدون متن'}</div>
                                                     </div>
                                                 </div>
-                                                <div className={`px-3 py-1 rounded-full text-xs font-bold ${q.status==='sent'?'bg-green-500/20 text-green-400':q.status==='failed'?'bg-red-500/20 text-red-400':'bg-orange-500/20 text-orange-400'}`}>
+                                                <div className={`px-3 py-1 rounded-full text-xs font-bold ${q.status==='sent'?'bg-green-500/20 dark:text-green-400 text-green-600':q.status==='failed'?'bg-red-500/20 dark:text-red-400 text-red-600':'bg-orange-500/20 dark:text-orange-400 text-orange-600'}`}>
                                                     {q.status==='pending'?'در انتظار':q.status==='sent'?'ارسال شد':'خطا'}
                                                 </div>
                                             </div>

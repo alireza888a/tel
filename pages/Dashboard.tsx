@@ -73,6 +73,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   } | null>(null);
   const [salesLoading, setSalesLoading] = useState(false);
 
+  // Self-service renewal — the customer's own license code (needed to call
+  // the redeem endpoint) plus the small inline "enter a top-up code" form
+  // shown right next to the license status widget.
+  const [licenseCode, setLicenseCode] = useState('');
+  const [voucherInput, setVoucherInput] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemMsg, setRedeemMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+
   // Fetch Bot Health API & Telegram Webhook Status
   const fetchHealthAndStatus = async () => {
       setHealthLoading(true);
@@ -83,6 +91,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       } catch {
           code = '';
       }
+      if (code) setLicenseCode(code);
       const botToken = localStorage.getItem('bot_token') || token;
 
       // 1. Fetch /api/bot/health
@@ -232,6 +241,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   };
 
   // Render License Status Badge
+  // Self-service renewal — redeems a top-up voucher code against this
+  // customer's own license, extending its expiry without needing to
+  // contact the platform admin at all.
+  const handleRedeemVoucher = async () => {
+      if (!voucherInput.trim() || !licenseCode || redeeming) return;
+      setRedeeming(true);
+      setRedeemMsg(null);
+      try {
+          const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/license/redeem-voucher', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code: licenseCode, voucherCode: voucherInput.trim() })
+          });
+          const data = await res.json();
+          if (data.ok) {
+              setRedeemMsg({ type: 'ok', text: '✅ اشتراک شما با موفقیت تمدید شد!' });
+              setVoucherInput('');
+              fetchHealthAndStatus(); // refresh the "X days left" display with the new expiry
+          } else {
+              const reasonMap: Record<string, string> = {
+                  voucher_invalid: 'این کد شارژ معتبر نیست.',
+                  voucher_already_used: 'این کد شارژ قبلاً استفاده شده.',
+                  invalid: 'مشکلی در شناسایی لایسنس شما پیش اومد.',
+                  revoked: 'لایسنس شما غیرفعال شده. با پشتیبانی تماس بگیرید.',
+                  missing_fields: 'لطفاً کد شارژ رو وارد کنید.'
+              };
+              setRedeemMsg({ type: 'err', text: reasonMap[data.reason] || 'خطایی رخ داد، دوباره تلاش کنید.' });
+          }
+      } catch (e) {
+          setRedeemMsg({ type: 'err', text: 'خطا در ارتباط با سرور.' });
+      } finally {
+          setRedeeming(false);
+      }
+  };
+
   const renderLicenseStatus = () => {
       if (!healthData) {
           return (
@@ -410,6 +454,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
                     <div className="pt-1">
                         {renderLicenseStatus()}
+                    </div>
+
+                    {/* Self-service renewal — enter a top-up code the admin gave the customer */}
+                    <div className="pt-2 border-t border-white/5">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={voucherInput}
+                                onChange={(e) => { setVoucherInput(e.target.value); setRedeemMsg(null); }}
+                                placeholder="کد شارژ / تمدید اشتراک"
+                                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 outline-none focus:border-amber-500/50 dir-ltr text-left"
+                            />
+                            <button
+                                onClick={handleRedeemVoucher}
+                                disabled={redeeming || !voucherInput.trim()}
+                                className="px-3 py-2 bg-amber-500/20 hover:bg-amber-500 border border-amber-500/30 text-amber-300 hover:text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                            >
+                                {redeeming ? '...' : 'اعمال کد'}
+                            </button>
+                        </div>
+                        {redeemMsg && (
+                            <p className={`text-[11px] mt-1.5 ${redeemMsg.type === 'ok' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                {redeemMsg.text}
+                            </p>
+                        )}
                     </div>
                 </div>
 

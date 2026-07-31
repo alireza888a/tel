@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Server, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Server, CheckCircle, AlertTriangle, Database, CreditCard, Users, ListChecks, Smartphone, Image } from 'lucide-react';
 import { telegramService } from '../services/telegramService';
 import { syncNow } from '../services/cloudSync';
 import { MiniAppModule, GalleryImage } from '../types';
@@ -19,6 +19,9 @@ export const Settings: React.FC = () => {
     const [token, setToken] = useState(localStorage.getItem('bot_token') || '');
     // Initialize directly from localStorage
     const [dbChannel, setDbChannel] = useState(localStorage.getItem('bot_db_channel') || '');
+    const [activeSettingsTab, setActiveSettingsTab] = useState<
+        'database' | 'payment' | 'admins' | 'postConfirm' | 'miniapp' | 'gallery'
+    >('database');
     
     // Payment Card Settings States
     const [cardNumber, setCardNumber] = useState(localStorage.getItem('payment_card_number') || '');
@@ -492,73 +495,159 @@ export const Settings: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* 1. DATABASE CHANNEL CONFIG */}
-                <DatabaseChannelCard
-                    dbChannel={dbChannel}
-                    setDbChannel={setDbChannel}
-                    handleSaveDb={handleSaveDb}
-                    isCheckingDb={isCheckingDb}
-                    dbStatus={dbStatus}
-                    statusMsg={statusMsg}
-                />
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-2 bg-black/30 p-1.5 rounded-xl border border-white/5 flex-wrap mb-6">
+                <button
+                    onClick={() => setActiveSettingsTab('database')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'database'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <Database size={16} />
+                    <span>دیتابیس و بکاپ</span>
+                </button>
+                <button
+                    onClick={() => setActiveSettingsTab('payment')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'payment'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <CreditCard size={16} />
+                    <span>پرداخت</span>
+                </button>
+                <button
+                    onClick={() => setActiveSettingsTab('admins')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'admins'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <Users size={16} />
+                    <span>ادمین‌ها و دسترسی</span>
+                </button>
+                <button
+                    onClick={() => setActiveSettingsTab('postConfirm')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'postConfirm'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <ListChecks size={16} />
+                    <span>منوی بعد از خرید</span>
+                </button>
+                <button
+                    onClick={() => setActiveSettingsTab('miniapp')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'miniapp'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <Smartphone size={16} />
+                    <span>Mini App</span>
+                </button>
+                <button
+                    onClick={() => setActiveSettingsTab('gallery')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'gallery'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <Image size={16} />
+                    <span>گالری</span>
+                </button>
+            </div>
 
-                {/* 2. BACKUP & RESTORE */}
-                <BackupRestoreCard
-                    handleBackup={handleBackup}
-                    handleFileSelect={handleFileSelect}
-                    handleFactoryReset={handleFactoryReset}
-                    autoBackupEnabled={autoBackupEnabled}
-                    onToggleAutoBackup={handleToggleAutoBackup}
-                    autoBackupFrequency={autoBackupFrequency}
-                    onChangeAutoBackupFrequency={handleChangeAutoBackupFrequency}
-                />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                {activeSettingsTab === 'database' && (
+                    <>
+                        {/* 1. DATABASE CHANNEL CONFIG */}
+                        <DatabaseChannelCard
+                            dbChannel={dbChannel}
+                            setDbChannel={setDbChannel}
+                            handleSaveDb={handleSaveDb}
+                            isCheckingDb={isCheckingDb}
+                            dbStatus={dbStatus}
+                            statusMsg={statusMsg}
+                        />
 
-                {/* 3. CARD PAYMENT SETTINGS */}
-                <PaymentSettingsCard
-                    cardNumber={cardNumber}
-                    setCardNumber={setCardNumber}
-                    cardOwner={cardOwner}
-                    setCardOwner={setCardOwner}
-                />
+                        {/* 2. BACKUP & RESTORE */}
+                        <BackupRestoreCard
+                            handleBackup={handleBackup}
+                            handleFileSelect={handleFileSelect}
+                            handleFactoryReset={handleFactoryReset}
+                            autoBackupEnabled={autoBackupEnabled}
+                            onToggleAutoBackup={handleToggleAutoBackup}
+                            autoBackupFrequency={autoBackupFrequency}
+                            onChangeAutoBackupFrequency={handleChangeAutoBackupFrequency}
+                        />
+                    </>
+                )}
 
-                {/* 4. ADMIN & SUPPORT CHAT ID SETTINGS */}
-                <AdminSupportCard
-                    adminChatId={adminChatId}
-                    setAdminChatId={setAdminChatId}
-                    supportChatId={supportChatId}
-                    setSupportChatId={setSupportChatId}
-                    addSupportButtonToRootMenu={addSupportButtonToRootMenu}
-                />
+                {activeSettingsTab === 'payment' && (
+                    /* 3. CARD PAYMENT SETTINGS */
+                    <PaymentSettingsCard
+                        cardNumber={cardNumber}
+                        setCardNumber={setCardNumber}
+                        cardOwner={cardOwner}
+                        setCardOwner={setCardOwner}
+                    />
+                )}
 
-                {/* 4.5. TEAM ACCESS (STAFF) SETTINGS */}
-                <TeamAccessCard
-                    admins={admins}
-                    onAddAdmin={handleAddAdmin}
-                    onRemoveAdmin={handleRemoveAdmin}
-                />
+                {activeSettingsTab === 'admins' && (
+                    <>
+                        {/* 4. ADMIN & SUPPORT CHAT ID SETTINGS */}
+                        <AdminSupportCard
+                            adminChatId={adminChatId}
+                            setAdminChatId={setAdminChatId}
+                            supportChatId={supportChatId}
+                            setSupportChatId={setSupportChatId}
+                            addSupportButtonToRootMenu={addSupportButtonToRootMenu}
+                        />
 
-                {/* 5. POST CONFIRM MENU SETTINGS */}
-                <PostConfirmMenuCard
-                    postConfirmMenuId={postConfirmMenuId}
-                    setPostConfirmMenuId={setPostConfirmMenuId}
-                    getKbMenus={getKbMenus}
-                />
+                        {/* 4.5. TEAM ACCESS (STAFF) SETTINGS */}
+                        <TeamAccessCard
+                            admins={admins}
+                            onAddAdmin={handleAddAdmin}
+                            onRemoveAdmin={handleRemoveAdmin}
+                        />
+                    </>
+                )}
 
-                {/* 6. MINI APP MODULES SETTINGS */}
-                <MiniAppModulesCard
-                    miniappModules={miniappModules}
-                    toggleMiniAppModule={toggleMiniAppModule}
-                />
+                {activeSettingsTab === 'postConfirm' && (
+                    /* 5. POST CONFIRM MENU SETTINGS */
+                    <PostConfirmMenuCard
+                        postConfirmMenuId={postConfirmMenuId}
+                        setPostConfirmMenuId={setPostConfirmMenuId}
+                        getKbMenus={getKbMenus}
+                    />
+                )}
 
-                {/* 7. GALLERY MANAGEMENT */}
-                <GalleryManagementCard
-                    galleryImages={galleryImages}
-                    isUploadingGallery={isUploadingGallery}
-                    handleAddGalleryImage={handleAddGalleryImage}
-                    handleUpdateGalleryCaption={handleUpdateGalleryCaption}
-                    handleDeleteGalleryImage={handleDeleteGalleryImage}
-                />
+                {activeSettingsTab === 'miniapp' && (
+                    /* 6. MINI APP MODULES SETTINGS */
+                    <MiniAppModulesCard
+                        miniappModules={miniappModules}
+                        toggleMiniAppModule={toggleMiniAppModule}
+                    />
+                )}
+
+                {activeSettingsTab === 'gallery' && (
+                    /* 7. GALLERY MANAGEMENT */
+                    <GalleryManagementCard
+                        galleryImages={galleryImages}
+                        isUploadingGallery={isUploadingGallery}
+                        handleAddGalleryImage={handleAddGalleryImage}
+                        handleUpdateGalleryCaption={handleUpdateGalleryCaption}
+                        handleDeleteGalleryImage={handleDeleteGalleryImage}
+                    />
+                )}
             </div>
         </div>
     );

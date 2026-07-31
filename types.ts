@@ -138,6 +138,10 @@ export interface SavedChannel {
     isAdmin: boolean;
     statusCheckTime: number;
     isLocked?: boolean;
+    /** Only meaningful for private channels/groups (no public username) — the
+     * join button used by force-join needs SOME working link, and a private
+     * chat has no "https://t.me/<username>" to fall back on. */
+    inviteLink?: string;
 }
 
 export interface SentMessageLog {

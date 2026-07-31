@@ -261,6 +261,24 @@ export const telegramService = {
     }
   },
 
+  // Needed for private channels/groups — they have no public @username, so
+  // "https://t.me/<username>" is empty/broken for them. Requires the bot to
+  // be an admin with invite-user permission on that chat; returns null
+  // (never throws) if it can't create one, so callers can fall back gracefully.
+  async createChatInviteLink(token: string, chatId: number | string): Promise<string | null> {
+    try {
+      const res = await fetch(`${BASE_URL}${token}/createChatInviteLink`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId })
+      });
+      const data = await res.json();
+      return (data.ok && data.result?.invite_link) ? data.result.invite_link : null;
+    } catch (e) {
+      return null;
+    }
+  },
+
   async setMyCommands(token: string, commands: any[]) {
       try {
         const res = await fetch(`${BASE_URL}${token}/setMyCommands`, {

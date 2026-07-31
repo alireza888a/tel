@@ -295,9 +295,26 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
     // Helpers
     const toggleChannelSelection = (id: string) => setSelectedChannelIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
     const toggleSelectAll = () => setSelectedChannelIds(selectedChannelIds.length === channels.length ? [] : channels.map(c => c.id.toString()));
-    const toggleChannelLock = (e: React.MouseEvent, id: string | number) => { 
-        e.stopPropagation(); 
-        setChannels(prev => prev.map(c => c.id.toString() === id.toString() ? { ...c, isLocked: !c.isLocked } : c)); 
+    const toggleChannelLock = async (e: React.MouseEvent, id: string | number) => {
+        e.stopPropagation();
+        const channel = channels.find(c => c.id.toString() === id.toString());
+        if (!channel) return;
+
+        // Only worth double-checking when we're about to LOCK a channel that
+        // has no public username — that's the case where the "join" button
+        // would otherwise have nowhere to send the user (see server-side
+        // force-join logic). Unlocking never needs this.
+        if (!channel.isLocked && !channel.username && !channel.inviteLink) {
+            const link = await telegramService.createChatInviteLink(token, channel.id);
+            if (!link) {
+                setToast({ message: `این کانال خصوصیه و ربات نتونست لینک دعوت بسازه (باید ادمین با دسترسی «افزودن اعضا» باشه) — قفل کردنش کاربر رو بدون راه ورود گیر می‌ندازه، پس فعلاً قفل نشد.`, type: 'error' });
+                return;
+            }
+            setChannels(prev => prev.map(c => c.id.toString() === id.toString() ? { ...c, inviteLink: link, isLocked: true } : c));
+            return;
+        }
+
+        setChannels(prev => prev.map(c => c.id.toString() === id.toString() ? { ...c, isLocked: !c.isLocked } : c));
     };
     const handleDeleteChannel = (e: React.MouseEvent, id: string | number) => {
         e.stopPropagation();
@@ -346,10 +363,20 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                     }
                 } catch(e) { console.error('Admin check failed', e); }
 
+                // Private channels/groups have no public @username, so the
+                // force-join "join" button would otherwise have nowhere to
+                // send the user. Grab a real invite link up front whenever
+                // possible, so locking this channel later (see
+                // toggleChannelLock) never needs a live API call at all.
+                let inviteLink: string | undefined;
+                if (!res.result.username && isAdmin) {
+                    inviteLink = (await telegramService.createChatInviteLink(token, realId)) || undefined;
+                }
+
                 const newChannel: SavedChannel = { 
                     ...res.result, id: realId, type: 'channel', title: res.result.title || cleanId, 
                     username: res.result.username || '', addedAt: Date.now(), isAdmin: isAdmin, 
-                    statusCheckTime: Date.now(), isLocked: false 
+                    statusCheckTime: Date.now(), isLocked: false, inviteLink
                 };
                 setChannels(prev => [...prev, newChannel]);
                 setSelectedChannelIds([realId.toString()]);

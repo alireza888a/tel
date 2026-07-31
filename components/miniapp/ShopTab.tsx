@@ -16,6 +16,8 @@ export interface ShopTabProps {
   updateQty: (productId: string, delta: number) => void;
   /** Live stock counts from D1, keyed by productId. Only meaningful for products with trackStock=true. */
   stockLevels?: Record<string, number>;
+  /** Real rendered height (px) of the page header, so the category bar sticks right under it. */
+  stickyTop?: number;
 }
 
 export const ShopTab: React.FC<ShopTabProps> = ({
@@ -28,7 +30,8 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   setSelectedCategory,
   cartState,
   updateQty,
-  stockLevels = {}
+  stockLevels = {},
+  stickyTop = 0
 }) => {
   const filteredProducts = selectedCategory === 'همه'
     ? products
@@ -85,6 +88,32 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     return !!displayUrl && !displayUrl.startsWith('data:');
   };
 
+  // Shared stock math, used by both the main grid and the "newest arrivals" strip below.
+  const getStockInfo = (p: Product) => {
+    const isTracked = !!p.trackStock;
+    const available = isTracked ? Math.max(0, stockLevels[p.id] ?? 0) : Infinity;
+    return {
+      outOfStock: isTracked && available <= 0,
+      atMax: isTracked && (cartState[p.id] || 0) >= available,
+      lowStock: isTracked && available > 0 && available <= 5,
+      available
+    };
+  };
+
+  // How many products live in each category, so the person can tell what's inside before tapping
+  // (e.g. "میز عسلی (۶)") instead of a blind list of category names.
+  const categoryCounts: Record<string, number> = { 'همه': products.length };
+  for (const p of products) {
+    const cat = (p.category || '').trim() || 'عمومی';
+    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+  }
+
+  // "Newest arrivals" teaser — the last few products in catalog order, shown up top so a
+  // first-time visitor immediately sees something curated instead of a wall to scroll through.
+  // Uses existing data only (no new admin field required): assumes products are appended in
+  // creation order, so the tail of the array is the most recently added.
+  const newestProducts = products.length > 4 ? [...products].slice(-6).reverse() : [];
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 space-y-3">
@@ -130,20 +159,64 @@ export const ShopTab: React.FC<ShopTabProps> = ({
 
   return (
     <>
-      {/* Categories filter tabs */}
+      {/* Newest arrivals — quick horizontal teaser shown once, above the sticky category bar */}
+      {newestProducts.length > 0 && selectedCategory === 'همه' && (
+        <div className="mb-4">
+          <h2 className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
+            ✨ <span>جدیدترین محصولات</span>
+          </h2>
+          <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+            {newestProducts.map((p) => {
+              const { outOfStock } = getStockInfo(p);
+              const img = getDisplayableImageUrl(p.imageUrls?.find(u => u && u.trim()) || p.imageUrl);
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedCategory((p.category || '').trim() || 'عمومی')}
+                  className="w-28 shrink-0 text-right bg-[#151c2c]/80 border border-white/10 rounded-xl overflow-hidden active:scale-95 transition-all"
+                >
+                  <div className={`w-full aspect-square bg-black/40 flex items-center justify-center ${outOfStock ? 'grayscale opacity-50' : ''}`}>
+                    {img ? (
+                      <img src={img} alt={p.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <ShoppingBag size={20} className="text-blue-400/50" />
+                    )}
+                  </div>
+                  <div className="p-1.5">
+                    <div className="text-[10px] text-white line-clamp-1 font-medium">{p.name}</div>
+                    <div className="text-[10px] text-emerald-400 font-bold mt-0.5">
+                      {p.price.toLocaleString('fa-IR')} <span className="text-slate-500 font-normal">تومان</span>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Categories filter tabs — sticky right under the header, with a per-category product
+          count, so store structure (e.g. ناهارخوری / میز عسلی / سرویس خواب) stays visible
+          and tappable no matter how far the person has scrolled into the grid. */}
       {categories.length > 2 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 custom-scrollbar no-scrollbar mb-2">
+        <div
+          className="sticky z-20 -mx-4 px-4 bg-[#0e131f]/95 backdrop-blur-md flex items-center gap-2 overflow-x-auto py-2.5 mb-2 no-scrollbar border-b border-white/5"
+          style={{ top: `${stickyTop}px` }}
+        >
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border shrink-0 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border shrink-0 flex items-center gap-1 ${
                 selectedCategory === cat
                   ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-600/30'
                   : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
               }`}
             >
-              {cat}
+              <span>{cat}</span>
+              <span className={selectedCategory === cat ? 'text-blue-100/80' : 'text-slate-500'}>
+                ({(categoryCounts[cat] || 0).toLocaleString('fa-IR')})
+              </span>
             </button>
           ))}
         </div>
@@ -153,11 +226,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         {filteredProducts.map((p) => {
           const qty = cartState[p.id] || 0;
-          const isTracked = !!p.trackStock;
-          const available = isTracked ? Math.max(0, stockLevels[p.id] ?? 0) : Infinity;
-          const outOfStock = isTracked && available <= 0;
-          const atMax = isTracked && qty >= available;
-          const lowStock = isTracked && available > 0 && available <= 5;
+          const { available, outOfStock, atMax, lowStock } = getStockInfo(p);
 
           return (
             <div

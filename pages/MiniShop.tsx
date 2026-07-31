@@ -25,6 +25,8 @@ declare global {
         initDataUnsafe?: any;
         initData?: string;
         themeParams?: any;
+        // 'ios' | 'android' | 'macos' | 'tdesktop' | 'web' | 'weba' | 'unknown' ...
+        platform?: string;
         // Fullscreen (Bot API 8.0+)
         requestFullscreen?: () => void;
         exitFullscreen?: () => void;
@@ -578,6 +580,12 @@ export const MiniShop: React.FC = () => {
     return sum + (prod ? prod.price * qty : 0);
   }, 0);
 
+  // Whether to show the explicit "order sent" confirmation screen instead of relying on
+  // WebApp.close() alone — needed because close() reliably dismisses the panel on mobile
+  // clients, but on Telegram Desktop it often just leaves a blank/black frame that the
+  // person has to close manually with no explanation of what happened.
+  const [checkoutDone, setCheckoutDone] = useState(false);
+
   // Send checkout data back to Telegram bot
   const handleCheckout = () => {
     const cart = (Object.entries(cartState) as [string, number][])
@@ -586,9 +594,22 @@ export const MiniShop: React.FC = () => {
 
     if (cart.length === 0) return;
 
-    if (window.Telegram?.WebApp?.sendData) {
-      window.Telegram.WebApp.sendData(JSON.stringify({ cart }));
-      window.Telegram.WebApp.close();
+    const webApp = window.Telegram?.WebApp;
+    if (webApp?.sendData) {
+      webApp.sendData(JSON.stringify({ cart }));
+      webApp.HapticFeedback?.notificationOccurred?.('success');
+      setCartState({});
+
+      // Mobile/native clients close cleanly on their own — keep that fast, familiar flow.
+      // Desktop/web clients get an explicit confirmation screen with a manual close button
+      // instead of an unexplained blank frame.
+      const platform = webApp.platform || '';
+      const isNativeMobile = platform === 'ios' || platform === 'android';
+      if (isNativeMobile) {
+        webApp.close();
+      } else {
+        setCheckoutDone(true);
+      }
     } else {
       alert('سبد خرید شما آماده ارسال است: \n' + JSON.stringify({ cart }, null, 2));
     }
@@ -647,6 +668,14 @@ export const MiniShop: React.FC = () => {
   // Categories list
   const categories = ['همه', ...Array.from(new Set(products.map(p => (p.category || '').trim() || 'عمومی')))];
 
+  // Measures the real rendered header height (it changes with the safe-area top inset) so the
+  // category chip bar in ShopTab can stick right under it instead of a guessed pixel value.
+  const headerRef = React.useRef<HTMLElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(56);
+  useEffect(() => {
+    if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
+  }, [safeArea.top, activeTab]);
+
   const filteredProducts = selectedCategory === 'همه'
     ? products
     : products.filter(p => ((p.category || '').trim() || 'عمومی') === selectedCategory);
@@ -663,6 +692,7 @@ export const MiniShop: React.FC = () => {
 
       {/* Header */}
       <header
+        ref={headerRef}
         className="sticky top-0 z-30 bg-[#151c2c]/90 backdrop-blur-md border-b border-white/10 px-4 py-3.5 flex items-center justify-between shadow-lg"
         style={{ paddingTop: `calc(0.875rem + ${safeArea.top}px)` }}
       >
@@ -704,6 +734,7 @@ export const MiniShop: React.FC = () => {
             cartState={cartState}
             updateQty={updateQty}
             stockLevels={stockLevels}
+            stickyTop={headerHeight}
           />
         )}
 
@@ -811,6 +842,26 @@ export const MiniShop: React.FC = () => {
         setActiveTab={setActiveTab}
         safeAreaBottom={safeArea.bottom}
       />
+
+      {/* Order-sent confirmation — shown instead of an unexplained blank frame on
+          Telegram Desktop/web, where WebApp.close() often doesn't dismiss the panel cleanly. */}
+      {checkoutDone && (
+        <div className="fixed inset-0 z-50 bg-[#0e131f]/98 backdrop-blur-md flex flex-col items-center justify-center text-center px-8 gap-4">
+          <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-3xl">
+            ✅
+          </div>
+          <h2 className="text-lg font-bold text-white">سفارش شما با موفقیت ثبت شد</h2>
+          <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
+            جزئیات و پیگیری سفارش از طریق چت ربات براتون ارسال می‌شه. می‌تونید این پنجره رو ببندید.
+          </p>
+          <button
+            onClick={() => window.Telegram?.WebApp?.close()}
+            className="mt-2 py-2.5 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all active:scale-95"
+          >
+            بستن پنجره
+          </button>
+        </div>
+      )}
     </div>
   );
 };

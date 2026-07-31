@@ -31,7 +31,7 @@ export const PostConfirmMenuCard: React.FC<PostConfirmMenuCardProps> = ({
             <option value="" className="bg-slate-900 text-slate-300">هیچکدام (پیش‌فرض)</option>
             {Object.entries(getKbMenus()).map(([id, menu]) => (
               <option key={id} value={id} className="bg-slate-900 text-white">
-                {(menu as { title?: string; content?: string }).title || (menu as { title?: string; content?: string }).content || id} ({id})
+                {(menu as { title?: string; content?: string })?.title || (menu as { title?: string; content?: string })?.content || id} ({id})
               </option>
             ))}
           </select>

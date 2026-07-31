@@ -677,11 +677,11 @@ export const BookingPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
                 {bookings.map(b => (
                   <div
                     key={b.id}
-                    className="bg-[#1e293b]/60 border border-white/10 rounded-2xl p-5 space-y-4 shadow-lg backdrop-blur-sm relative hover:border-white/20 transition-all"
+                    className="bg-[#1e293b]/60 border border-white/10 rounded-2xl p-4 space-y-3 shadow-lg backdrop-blur-sm relative hover:border-white/20 transition-all"
                   >
                     <div className="flex items-center justify-between border-b border-white/5 pb-3">
                       <div>
@@ -716,7 +716,7 @@ export const BookingPage: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="space-y-2 text-xs text-slate-300 bg-black/20 p-3 rounded-xl border border-white/5">
+                    <div className="space-y-2 text-xs text-slate-300 bg-black/20 p-2.5 rounded-xl border border-white/5">
                       <div className="flex items-center justify-between">
                         <span className="text-slate-400">عنوان خدمت:</span>
                         <span className="font-bold text-white">{getServiceName(b.serviceId)}</span>

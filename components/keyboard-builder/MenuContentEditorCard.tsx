@@ -29,13 +29,13 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
   DYNAMIC_VARS,
 }) => {
   return (
-    <GlassCard title={`ویرایش محتوای: ${currentMenu.title}`}>
+    <GlassCard title={`ویرایش محتوای: ${currentMenu?.title || 'منو'}`}>
       <div className="space-y-4">
         <div>
           <label className="text-sm dark:text-white/60 text-slate-500 mb-2 block">عنوان داخلی (برای مدیریت)</label>
           <input
             type="text"
-            value={currentMenu.title}
+            value={currentMenu?.title || ''}
             onChange={(e) => updateMenu(currentMenuId, { title: e.target.value })}
             className="w-full dark:bg-black/20 bg-slate-50 border dark:border-white/10 border-slate-300 rounded-lg p-2 text-sm outline-none dark:text-white text-slate-800"
           />
@@ -45,7 +45,7 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
           <label className="text-sm dark:text-white/60 text-slate-500 mb-2 block">متن پیام (Caption)</label>
           <textarea
             id="message-content"
-            value={currentMenu.content}
+            value={currentMenu?.content || ''}
             onChange={(e) => updateMenu(currentMenuId, { content: e.target.value })}
             className="w-full dark:bg-black/20 bg-slate-50 border dark:border-white/10 border-slate-300 rounded-xl p-3 min-h-[100px] focus:outline-none dark:text-white text-slate-800 resize-none font-vazir mb-2"
             placeholder="متنی که ربات در این منو نمایش می‌دهد..."
@@ -101,7 +101,7 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
             </label>
           </div>
 
-          {currentMenu.media.length > 0 && (
+          {Array.isArray(currentMenu?.media) && currentMenu.media.length > 0 && (
             <div className="flex gap-2 overflow-x-auto pb-2">
               {currentMenu.media.map(media => (
                 <div key={media.id} className={`relative w-24 h-24 shrink-0 rounded-lg overflow-hidden border ${media.fileId ? 'border-green-500/50' : 'border-red-500/50 ring-2 ring-red-500/20'} group`}>

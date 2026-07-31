@@ -707,7 +707,7 @@ export const Products: React.FC = () => {
                   <option value="">پیش‌فرض سراسری (تنظیمات)</option>
                   {Object.entries(getKbMenus()).map(([id, menu]) => (
                     <option key={id} value={id}>
-                      {menu.title || menu.content || id} ({id})
+                      {menu?.title || menu?.content || id} ({id})
                     </option>
                   ))}
                 </select>
@@ -723,7 +723,7 @@ export const Products: React.FC = () => {
                   <option value="">پیش‌فرض سراسری (تنظیمات)</option>
                   {Object.entries(getKbForms()).map(([id, form]) => (
                     <option key={id} value={id}>
-                      {form.title || id} ({id})
+                      {form?.title || id} ({id})
                     </option>
                   ))}
                 </select>

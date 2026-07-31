@@ -29,7 +29,7 @@ export const LiveSimulatorPreview: React.FC<LiveSimulatorPreviewProps> = ({
              <div className="flex-1 bg-[#0e1621] p-2 overflow-y-auto space-y-2 bg-[url('https://web.telegram.org/img/bg_0.png')] bg-repeat custom-scrollbar mt-12">
              <div className="bg-[#182533] rounded-tl-xl rounded-tr-xl rounded-br-xl rounded-bl-none max-w-[95%] shadow-sm overflow-hidden animate-slide-up">
                 {/* Media */}
-                {currentMenu.media.length > 0 && (
+                {!!currentMenu?.media && currentMenu.media.length > 0 && (
                   <div className={`grid gap-0.5 ${currentMenu.media.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                     {currentMenu.media.map((media, i) => (
                       <div key={i} className={`relative bg-black/50 ${currentMenu.media.length === 1 ? 'aspect-video' : 'aspect-square'} overflow-hidden`}>
@@ -42,14 +42,14 @@ export const LiveSimulatorPreview: React.FC<LiveSimulatorPreviewProps> = ({
                 )}
                 {/* Text */}
                 <div className="p-3 text-white text-sm whitespace-pre-wrap dir-rtl text-right leading-relaxed">
-                   {currentMenu.content || '...'}
+                   {currentMenu?.content || '...'}
                 </div>
                 <div className="px-3 pb-1 text-right"><span className="text-[10px] text-white/40">14:05</span></div>
              </div>
 
              {/* Buttons */}
               <div className="max-w-[95%] space-y-[2px] animate-slide-up">
-                {currentMenu.rows.map((row) => (
+                {(currentMenu?.rows || []).map((row) => (
                   <div key={row.id} className="flex gap-[2px] w-full">
                     {row.buttons.map((btn) => (
                       <button
@@ -81,7 +81,7 @@ export const LiveSimulatorPreview: React.FC<LiveSimulatorPreviewProps> = ({
                 ))}
 
                 {/* Auto Nav Injection in Preview */}
-                {currentMenu.id !== 'root' && (
+                {currentMenu?.id !== 'root' && (
                     <div className="flex gap-[2px] w-full">
                         <button onClick={() => navigateTo('root')} className="flex-1 bg-[#2b5278]/20 hover:bg-[#2b5278]/40 text-white text-xs py-2.5 px-1 rounded-[4px] text-center">🏠 منوی اصلی</button>
                         <button onClick={navigateBack} className="flex-1 bg-[#2b5278]/20 hover:bg-[#2b5278]/40 text-white text-xs py-2.5 px-1 rounded-[4px] text-center">🔙 بازگشت</button>

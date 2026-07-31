@@ -44,7 +44,7 @@ export const ButtonPreviewModal: React.FC<ButtonPreviewModalProps> = ({
             if (!form) {
               return <p className="text-xs text-red-400">فرمی با این شناسه یافت نشد ({previewModal.value}).</p>;
             }
-            const qCount = form.questions.length;
+            const qCount = form.questions?.length || 0;
             if (qCount === 0) {
               return <p className="text-xs text-slate-400">این فرم هیچ سوالی ندارد.</p>;
             }
@@ -61,7 +61,7 @@ export const ButtonPreviewModal: React.FC<ButtonPreviewModalProps> = ({
                   </div>
                   <div className="bg-black/30 p-3 rounded-xl border border-white/10 text-right space-y-2 text-xs">
                     <p className="font-bold text-slate-300 border-b border-white/10 pb-1">خلاصه پاسخ‌های شما:</p>
-                    {form.questions.map((q, idx) => (
+                    {(form.questions || []).map((q, idx) => (
                       <div key={q.id} className="text-slate-400">
                         <span className="text-slate-300 font-medium">{q.text}: </span>
                         <span className="text-blue-300">{simFormAnswers[idx] || 'پاسخ داده نشده'}</span>

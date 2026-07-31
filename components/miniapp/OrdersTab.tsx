@@ -42,7 +42,7 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
           <AlertTriangle size={32} className="text-red-400 mx-auto" />
           <p className="text-xs text-red-300">{ordersError}</p>
         </div>
-      ) : orders.length === 0 ? (
+      ) : !orders || orders.length === 0 ? (
         <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-center space-y-3 my-8">
           <Package size={44} className="text-slate-600 mx-auto" />
           <h3 className="text-sm font-bold text-slate-300">سفارشی ثبت نشده است</h3>
@@ -83,7 +83,7 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
 
               {/* Order Items List */}
               <div className="space-y-1.5 text-xs">
-                {ord.items.map((item, idx) => (
+                {(ord.items || []).map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between text-slate-300">
                     <span className="font-medium">{item.name} <span className="text-slate-500">×{item.qty}</span></span>
                     <span className="font-mono text-slate-400">{(item.price * item.qty).toLocaleString('fa-IR')} تومان</span>

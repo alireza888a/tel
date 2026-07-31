@@ -250,7 +250,7 @@ export const Orders: React.FC = () => {
         </div>
       </div>
 
-      {orders.length === 0 ? (
+      {!orders || orders.length === 0 ? (
         <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-12 text-center flex flex-col items-center gap-4">
           <ShoppingCart size={64} className="text-slate-400 opacity-40 animate-pulse" />
           <h3 className="text-lg font-bold dark:text-white text-slate-700">هیچ سفارشی یافت نشد</h3>
@@ -313,7 +313,7 @@ export const Orders: React.FC = () => {
                   <div className="space-y-1.5">
                     <h4 className="text-xs font-bold text-slate-400 mb-1.5">لیست اقلام سفارش:</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {order.items.map((item, idx) => {
+                      {(order.items || []).map((item, idx) => {
                         const imgUrl = getProductImage(item.productId);
                         return (
                           <div

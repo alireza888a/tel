@@ -132,9 +132,9 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
               className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
             >
               <option value="">پیش‌فرض سراسری (تنظیمات)</option>
-              {Object.entries(menus).map(([id, menu]) => (
+              {Object.entries(menus || {}).map(([id, menu]) => (
                 <option key={id} value={id}>
-                  {(menu as MenuPage).title || (menu as MenuPage).content || id} ({id})
+                  {(menu as MenuPage)?.title || (menu as MenuPage)?.content || id} ({id})
                 </option>
               ))}
             </select>
@@ -148,9 +148,9 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
               className="w-full bg-[#0f172a] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
             >
               <option value="">پیش‌فرض سراسری (تنظیمات)</option>
-              {Object.entries(forms).map(([id, form]) => (
+              {Object.entries(forms || {}).map(([id, form]) => (
                 <option key={id} value={id}>
-                  {(form as FormConfig).title || id} ({id})
+                  {(form as FormConfig)?.title || id} ({id})
                 </option>
               ))}
             </select>

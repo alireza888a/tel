@@ -177,14 +177,14 @@ export const Automations: React.FC = () => {
                   {targetMenu && (
                     <div className="flex items-center gap-2 text-blue-300 bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/20">
                       <Layers size={14} />
-                      <span>ارسال منو: <strong>{targetMenu.title}</strong></span>
+                      <span>ارسال منو: <strong>{targetMenu?.title || rule.menuId}</strong></span>
                     </div>
                   )}
 
                   {targetForm && (
                     <div className="flex items-center gap-2 text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20">
                       <FileText size={14} />
-                      <span>شروع فرم: <strong>{targetForm.title}</strong></span>
+                      <span>شروع فرم: <strong>{targetForm?.title || rule.formId}</strong></span>
                     </div>
                   )}
 
@@ -307,9 +307,9 @@ export const Automations: React.FC = () => {
                   className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-500"
                 >
                   <option value="">بدون ارسال منو</option>
-                  {Object.values(menus).map((m: any) => (
+                  {Object.values(menus || {}).map((m: any) => m && (
                     <option key={m.id} value={m.id}>
-                      {m.title} ({m.id})
+                      {m.title || m.id} ({m.id})
                     </option>
                   ))}
                 </select>
@@ -324,9 +324,9 @@ export const Automations: React.FC = () => {
                   className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-500"
                 >
                   <option value="">بدون شروع فرم</option>
-                  {Object.values(forms).map((f: any) => (
+                  {Object.values(forms || {}).map((f: any) => f && (
                     <option key={f.id} value={f.id}>
-                      {f.title} ({f.id})
+                      {f.title || f.id} ({f.id})
                     </option>
                   ))}
                 </select>

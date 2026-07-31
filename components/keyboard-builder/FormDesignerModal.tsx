@@ -96,10 +96,10 @@ export const FormDesignerModal: React.FC<FormDesignerModalProps> = ({
           <div className="space-y-3">
             <div className="flex justify-between items-end">
               <label className="text-sm text-slate-400 font-bold">لیست سوالات</label>
-              <span className="text-xs text-slate-500">{currentForm.questions.length} سوال</span>
+              <span className="text-xs text-slate-500">{currentForm.questions?.length || 0} سوال</span>
             </div>
 
-            {currentForm.questions.map((q, idx) => (
+            {(currentForm.questions || []).map((q, idx) => (
               <div key={q.id} className="group flex flex-col md:flex-row items-start gap-3 bg-white/5 border border-white/5 rounded-xl p-3 hover:border-white/20 transition-all">
                 <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-slate-400 mt-2 shrink-0">
                   {idx + 1}

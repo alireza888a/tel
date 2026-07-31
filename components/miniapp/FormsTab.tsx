@@ -89,7 +89,7 @@ export const FormsTab: React.FC<FormsTabProps> = ({
             </div>
           ) : (
             <form onSubmit={handleFormSubmit} className="space-y-4">
-              {selectedForm.questions.map((q, i) => (
+              {(selectedForm.questions || []).map((q, i) => (
                 <div key={i} className="space-y-2 bg-black/20 border border-white/5 p-3.5 rounded-xl">
                   <label className="block text-xs font-medium text-slate-200">
                     {i + 1}. {q.text}

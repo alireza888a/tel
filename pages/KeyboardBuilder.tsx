@@ -21,7 +21,7 @@ export const KeyboardBuilder: React.FC = () => {
   const [token] = useState(localStorage.getItem('bot_token') || '');
   const [dbChannel] = useState(localStorage.getItem('bot_db_channel') || '');
   const [isUploading, setIsUploading] = useState(false);
-  
+
   // 1. Initialize State from LocalStorage (Persistence)
   const [menus, setMenus] = useState<Record<string, MenuPage>>(() => {
     if (typeof window !== 'undefined') {
@@ -50,7 +50,7 @@ export const KeyboardBuilder: React.FC = () => {
     }
     return {};
   });
-  
+
   // Form Builder Modal State
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
 
@@ -234,7 +234,20 @@ export const KeyboardBuilder: React.FC = () => {
     syncNow();
   }, [forms]);
 
-  const currentMenu = menus[currentMenuId] || menus['root']; // Fallback safety
+  const defaultFallbackMenu: MenuPage = {
+    id: currentMenuId || 'root',
+    title: 'منوی اصلی (شروع)',
+    content: 'به ربات خوش آمدید.',
+    media: [],
+    rows: []
+  };
+
+  const currentMenuRaw = menus[currentMenuId] || menus['root'] || defaultFallbackMenu;
+  const currentMenu: MenuPage = {
+    ...currentMenuRaw,
+    rows: Array.isArray(currentMenuRaw?.rows) ? currentMenuRaw.rows : [],
+    media: Array.isArray(currentMenuRaw?.media) ? currentMenuRaw.media : []
+  };
 
   // --- VARIABLES ---
   const DYNAMIC_VARS = [
@@ -328,7 +341,7 @@ export const KeyboardBuilder: React.FC = () => {
 
   const updateCurrentButton = (updates: Partial<InlineButton>) => {
     if (!selectedButton) return;
-    
+
     const newRows = currentMenu.rows.map(row => {
       if (row.id === selectedButton.rowId) {
         return {
@@ -336,7 +349,7 @@ export const KeyboardBuilder: React.FC = () => {
           buttons: row.buttons.map(btn => {
             if (btn.id === selectedButton.btnId) {
               const updatedBtn = { ...btn, ...updates };
-              
+
               if (updates.type === 'submenu' && !btn.targetMenuId) {
                 const newMenuId = `menu_${Date.now()}`;
                 setMenus(prev => ({
@@ -357,7 +370,7 @@ export const KeyboardBuilder: React.FC = () => {
               if (updates.type === 'form') {
                   const formId = btn.value && btn.value.startsWith('form_') ? btn.value : `form_${Date.now()}`;
                   updatedBtn.value = formId;
-                  
+
                   if (!forms[formId]) {
                       setForms(prev => ({
                           ...prev,
@@ -393,12 +406,12 @@ export const KeyboardBuilder: React.FC = () => {
 
     updateMenu(currentMenuId, { rows: newRows });
   };
-  
+
   const updateInquiryConfig = (updates: Partial<InquiryConfig>) => {
       if (!selectedButton) return;
       const btn = getSelectedBtnObj();
       if (!btn || !btn.inquiryConfig) return;
-      
+
       const newConfig = { ...btn.inquiryConfig, ...updates };
       updateCurrentButton({ inquiryConfig: newConfig });
   };
@@ -543,7 +556,7 @@ export const KeyboardBuilder: React.FC = () => {
     reader.onload = (event) => {
       try {
         const importedData = JSON.parse(event.target?.result as string);
-        
+
         let loadedMenus = {};
         let loadedForms = {};
 
@@ -593,7 +606,7 @@ export const KeyboardBuilder: React.FC = () => {
     if(window.confirm('آیا مطمئن هستید؟ تمام تغییرات ذخیره شده حذف شده و به حالت اولیه برمی‌گردد.')) {
         localStorage.removeItem('kb_menus');
         localStorage.removeItem('kb_forms');
-        window.location.reload(); 
+        window.location.reload();
     }
   };
 
@@ -622,8 +635,8 @@ export const KeyboardBuilder: React.FC = () => {
       type: 'callback',
       value: ''
     }));
-    updateMenu(currentMenuId, { 
-      rows: [...currentMenu.rows, { id: Date.now().toString(), buttons: newButtons }] 
+    updateMenu(currentMenuId, {
+      rows: [...currentMenu.rows, { id: Date.now().toString(), buttons: newButtons }]
     });
   };
 
@@ -640,8 +653,8 @@ export const KeyboardBuilder: React.FC = () => {
   };
 
   const removeRow = (rowId: string) => {
-    updateMenu(currentMenuId, { 
-      rows: currentMenu.rows.filter(r => r.id !== rowId) 
+    updateMenu(currentMenuId, {
+      rows: currentMenu.rows.filter(r => r.id !== rowId)
     });
     if (selectedButton?.rowId === rowId) setSelectedButton(null);
   };
@@ -690,7 +703,7 @@ export const KeyboardBuilder: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const previewUrl = URL.createObjectURL(file);
-      
+
       setIsUploading(true);
       let finalUrl = previewUrl;
       let fileId = undefined;
@@ -721,7 +734,7 @@ export const KeyboardBuilder: React.FC = () => {
         previewUrl: previewUrl,
         fileId: fileId
       };
-      
+
       updateMenu(currentMenuId, { media: [...currentMenu.media, newMedia] });
       setIsUploading(false);
       e.target.value = '';
@@ -782,7 +795,7 @@ export const KeyboardBuilder: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative pb-12">
+    <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 relative h-[calc(100vh-9rem)]">
       <input type="file" ref={fileInputRef} onChange={handleMediaUpload} className="hidden" accept="image/*,video/*,audio/*" />
 
 <FormDesignerModal
@@ -840,12 +853,12 @@ export const KeyboardBuilder: React.FC = () => {
         setCurrentMenuId={setCurrentMenuId}
         setHistory={setHistory}
       />
-      
+
       {/* --- EDITOR COLUMN --- */}
-      <div className="space-y-6 overflow-y-auto pl-2 pr-1 pb-20 custom-scrollbar">
+      <div className="space-y-6 overflow-y-auto pl-2 pr-1 pb-8 custom-scrollbar h-full">
          {/* Top Actions Bar */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <button 
+            <button
               onClick={() => setShowMenuSidebar(!showMenuSidebar)}
               className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-slate-300 transition-colors whitespace-nowrap"
             >
@@ -853,14 +866,14 @@ export const KeyboardBuilder: React.FC = () => {
               منوها
             </button>
             <div className="w-[1px] h-6 bg-white/10 mx-1"></div>
-            <button 
+            <button
               onClick={() => setShowTemplates(true)}
               className="flex items-center gap-2 px-3 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 rounded-lg text-sm text-purple-400 transition-colors whitespace-nowrap"
             >
               <LayoutTemplate size={16} />
               قالب‌ها
             </button>
-            <button 
+            <button
               onClick={handleExport}
               className="flex items-center gap-2 px-3 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 rounded-lg text-sm text-blue-400 transition-colors whitespace-nowrap"
               title="ذخیره فایل JSON با ناوبری خودکار"
@@ -874,7 +887,7 @@ export const KeyboardBuilder: React.FC = () => {
               <input type="file" accept=".json" onChange={handleImport} ref={fileInputRef} className="hidden" />
             </label>
             <div className="w-[1px] h-6 bg-white/10 mx-1"></div>
-            <button 
+            <button
               onClick={handleReset}
               className="flex items-center gap-2 px-3 py-2 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 rounded-lg text-sm text-red-400 transition-colors whitespace-nowrap"
               title="حذف تمام اطلاعات ذخیره شده و شروع مجدد"
@@ -885,7 +898,7 @@ export const KeyboardBuilder: React.FC = () => {
 
         {/* Navigation Breadcrumbs */}
         <div className="flex items-center gap-2 text-sm dark:text-white/60 text-slate-500 bg-white/50 dark:bg-black/20 p-2 rounded-xl">
-           <button 
+           <button
              onClick={() => { setCurrentMenuId('root'); setHistory([]); }}
              className="hover:text-blue-500 p-1 rounded-md transition-colors"
            >
@@ -894,7 +907,7 @@ export const KeyboardBuilder: React.FC = () => {
            <span>/</span>
            {history.map((histId, idx) => (
              <React.Fragment key={histId}>
-               <span 
+               <span
                  onClick={() => {
                    const newHistory = history.slice(0, idx);
                    setHistory(newHistory);
@@ -908,7 +921,7 @@ export const KeyboardBuilder: React.FC = () => {
              </React.Fragment>
            ))}
            <span className="font-bold dark:text-white text-slate-800 truncate max-w-[150px]">
-             {currentMenu.title}
+             {currentMenu?.title || 'منو'}
            </span>
            {history.length > 0 && (
                <button onClick={navigateBack} className="mr-auto flex items-center gap-1 text-xs bg-blue-500/10 text-blue-500 px-2 py-1 rounded-lg">
@@ -917,7 +930,7 @@ export const KeyboardBuilder: React.FC = () => {
                </button>
             )}
          </div>
-         
+
          <MenuContentEditorCard
            currentMenu={currentMenu}
            currentMenuId={currentMenuId}
@@ -930,7 +943,7 @@ export const KeyboardBuilder: React.FC = () => {
            removeMedia={removeMedia}
            DYNAMIC_VARS={DYNAMIC_VARS}
          />
-         
+
          <MenuButtonsCard
            addRow={addRow}
            addSupportButton={addSupportButton}
@@ -944,7 +957,7 @@ export const KeyboardBuilder: React.FC = () => {
            duplicateRow={duplicateRow}
            removeRow={removeRow}
          />
-         
+
          <ButtonPropertiesCard
            selectedButton={selectedButton}
            getSelectedBtnObj={getSelectedBtnObj}
@@ -959,17 +972,18 @@ export const KeyboardBuilder: React.FC = () => {
            handleCatalogUpload={handleCatalogUpload}
            updateInquiryConfig={updateInquiryConfig}
          />
-       </div>
-       
-       <LiveSimulatorPreview
-         currentMenu={currentMenu}
-         handlePreviewAction={handlePreviewAction}
-         getButtonDisplayText={getButtonDisplayText}
-         navigateTo={navigateTo}
-         navigateBack={navigateBack}
-       />
+      </div>
 
-     </div>
+      <div className="overflow-y-auto custom-scrollbar h-full flex justify-center items-start pt-2 pb-8">
+        <LiveSimulatorPreview
+          currentMenu={currentMenu}
+          handlePreviewAction={handlePreviewAction}
+          getButtonDisplayText={getButtonDisplayText}
+          navigateTo={navigateTo}
+          navigateBack={navigateBack}
+        />
+      </div>
+    </div>
    );
 };
 

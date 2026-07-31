@@ -32,7 +32,7 @@ export const MenuSidebar: React.FC<MenuSidebarProps> = ({
         </button>
       </div>
       <div className="space-y-2">
-        {Object.values(menus).map((m: MenuPage) => (
+        {Object.values(menus || {}).map((m: MenuPage) => m && (
           <button
             key={m.id}
             onClick={() => {
@@ -46,7 +46,7 @@ export const MenuSidebar: React.FC<MenuSidebarProps> = ({
                 : 'bg-white/5 border-transparent hover:bg-white/10 text-slate-300'
             }`}
           >
-            {m.title}
+            {m.title || m.id}
             {m.id === 'root' && <span className="mr-2 text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded">خانه</span>}
           </button>
         ))}

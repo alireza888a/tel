@@ -63,13 +63,13 @@ export const MenuButtonsCard: React.FC<MenuButtonsCardProps> = ({
        </div>
 
        <div className="space-y-3">
-         {currentMenu.rows.length === 0 && (
+         {(!currentMenu?.rows || currentMenu.rows.length === 0) && (
            <div className="text-center py-6 dark:text-white/20 text-slate-400 border-2 border-dashed dark:border-white/10 border-slate-300 rounded-xl mb-4">
              هنوز دکمه‌ای اضافه نکرده‌اید.
            </div>
          )}
 
-         {currentMenu.rows.map((row, idx) => (
+         {(currentMenu?.rows || []).map((row, idx) => (
            <div key={row.id} className="relative group">
                {/* Row Content */}
                <div className="flex gap-2 pr-8">

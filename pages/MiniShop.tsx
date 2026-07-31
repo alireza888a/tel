@@ -25,12 +25,49 @@ declare global {
         initDataUnsafe?: any;
         initData?: string;
         themeParams?: any;
+        // Fullscreen (Bot API 8.0+)
+        requestFullscreen?: () => void;
+        exitFullscreen?: () => void;
+        isFullscreen?: boolean;
+        // Safe area insets, in CSS px, respecting device notches/status bars (Bot API 8.0+)
+        safeAreaInset?: { top: number; bottom: number; left: number; right: number };
+        contentSafeAreaInset?: { top: number; bottom: number; left: number; right: number };
+        // Native chrome colors
+        setHeaderColor?: (color: string) => void;
+        setBackgroundColor?: (color: string) => void;
+        setBottomBarColor?: (color: string) => void;
+        // Event subscription for the events above
+        onEvent?: (eventType: string, callback: () => void) => void;
+        offEvent?: (eventType: string, callback: () => void) => void;
+        // Native bottom action button, used for checkout instead of a custom in-page button
+        MainButton?: {
+          text: string;
+          isVisible: boolean;
+          isActive: boolean;
+          setText: (text: string) => void;
+          onClick: (cb: () => void) => void;
+          offClick: (cb: () => void) => void;
+          show: () => void;
+          hide: () => void;
+          enable: () => void;
+          disable: () => void;
+          setParams: (params: { text?: string; color?: string; text_color?: string; is_active?: boolean; is_visible?: boolean }) => void;
+        };
+        HapticFeedback?: {
+          impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
+          notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
+          selectionChanged: () => void;
+        };
       };
     };
   }
 }
 
 export const MiniShop: React.FC = () => {
+  // Base height (px) of BottomNavigation before the device's safe area is added — matches
+  // its own icon+label+padding sizing, used to position CheckoutBar right above it.
+  const NAV_BASE_HEIGHT = 64;
+
   const [enabledModules, setEnabledModules] = useState<MiniAppModule[]>(() => {
     try {
       const saved = localStorage.getItem('miniapp_modules');
@@ -102,12 +139,51 @@ export const MiniShop: React.FC = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code') || '';
 
-  // Initialize Telegram WebApp SDK on Mount
+  // Live safe-area insets (px) so fixed header/nav/bars don't sit under the notch, status bar
+  // or the device's home-indicator area when the Mini App is in full-screen mode.
+  const [safeArea, setSafeArea] = useState({ top: 0, bottom: 0 });
+
+  // Initialize Telegram WebApp SDK on Mount: expand, go full-screen, match native chrome colors
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
+    const webApp = window.Telegram?.WebApp;
+    if (!webApp) return;
+
+    webApp.ready();
+    webApp.expand();
+
+    // Full-screen mode (Bot API 8.0+). Guarded with try/catch since older Telegram clients
+    // won't have this method at all — expand() above is still a safe baseline for them.
+    try {
+      webApp.requestFullscreen?.();
+    } catch {
+      // Older client without full-screen support — expand() already applied above.
     }
+
+    // Match Telegram's native chrome (status bar / bottom bar) to our dark brand colors
+    // instead of the client's default, so the app feels like one seamless surface.
+    try {
+      webApp.setHeaderColor?.('#151c2c');
+      webApp.setBackgroundColor?.('#0e131f');
+      webApp.setBottomBarColor?.('#0e131f');
+    } catch {
+      // Older client — colors simply stay default, no functional impact.
+    }
+
+    const readSafeArea = () => {
+      const s = webApp.safeAreaInset || { top: 0, bottom: 0, left: 0, right: 0 };
+      const c = webApp.contentSafeAreaInset || { top: 0, bottom: 0, left: 0, right: 0 };
+      setSafeArea({ top: Math.max(s.top, c.top), bottom: Math.max(s.bottom, c.bottom) });
+    };
+    readSafeArea();
+    webApp.onEvent?.('safeAreaChanged', readSafeArea);
+    webApp.onEvent?.('contentSafeAreaChanged', readSafeArea);
+    webApp.onEvent?.('fullscreenChanged', readSafeArea);
+
+    return () => {
+      webApp.offEvent?.('safeAreaChanged', readSafeArea);
+      webApp.offEvent?.('contentSafeAreaChanged', readSafeArea);
+      webApp.offEvent?.('fullscreenChanged', readSafeArea);
+    };
   }, []);
 
   // Fetch live stock counts (D1) for products with trackStock enabled
@@ -571,13 +647,20 @@ export const MiniShop: React.FC = () => {
     : products.filter(p => ((p.category || '').trim() || 'عمومی') === selectedCategory);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#0e131f] text-white flex flex-col font-sans pb-28 relative">
+    <div
+      dir="rtl"
+      className="min-h-screen bg-[#0e131f] text-white flex flex-col font-sans relative"
+      style={{ paddingBottom: `calc(7rem + ${safeArea.bottom}px)` }}
+    >
       {/* Background Glow */}
       <div className="fixed top-0 right-0 w-72 h-72 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="fixed bottom-0 left-0 w-72 h-72 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-[#151c2c]/90 backdrop-blur-md border-b border-white/10 px-4 py-3.5 flex items-center justify-between shadow-lg">
+      <header
+        className="sticky top-0 z-30 bg-[#151c2c]/90 backdrop-blur-md border-b border-white/10 px-4 py-3.5 flex items-center justify-between shadow-lg"
+        style={{ paddingTop: `calc(0.875rem + ${safeArea.top}px)` }}
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
             <Store size={20} className="text-white" />
@@ -704,12 +787,15 @@ export const MiniShop: React.FC = () => {
         )}
       </main>
 
-      {/* Sticky Bottom Bar for Shop Checkout (Only when shop tab is active & items > 0) */}
+      {/* Sticky Bottom Bar for Shop Checkout (Only when shop tab is active & items > 0) —
+          positioned dynamically just above BottomNavigation, whose own height grows
+          with the device's safe area (home indicator) in full-screen mode. */}
       {activeTab === 'shop' && (
         <CheckoutBar
           totalItems={totalItems}
           totalPrice={totalPrice}
           handleCheckout={handleCheckout}
+          bottom={NAV_BASE_HEIGHT + safeArea.bottom}
         />
       )}
 
@@ -718,6 +804,7 @@ export const MiniShop: React.FC = () => {
         enabledModules={enabledModules}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        safeAreaBottom={safeArea.bottom}
       />
     </div>
   );

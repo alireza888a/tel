@@ -33,6 +33,12 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     ? products
     : products.filter(p => ((p.category || '').trim() || 'عمومی') === selectedCategory);
 
+  // Wraps updateQty with Telegram's native haptic feedback for a more "app-like" tap feel.
+  const tapQty = (productId: string, delta: number) => {
+    window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.(delta > 0 ? 'light' : 'soft');
+    updateQty(productId, delta);
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 space-y-3">
@@ -152,7 +158,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                   </button>
                 ) : qty === 0 ? (
                   <button
-                    onClick={() => updateQty(p.id, 1)}
+                    onClick={() => tapQty(p.id, 1)}
                     className="w-full py-2 bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 hover:border-blue-500 text-blue-300 hover:text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
                   >
                     <Plus size={14} />
@@ -161,14 +167,14 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                 ) : (
                   <div className="w-full flex items-center justify-between bg-blue-600/10 border border-blue-500/30 rounded-xl p-1">
                     <button
-                      onClick={() => updateQty(p.id, -1)}
+                      onClick={() => tapQty(p.id, -1)}
                       className="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white flex items-center justify-center transition-colors active:scale-95"
                     >
                       <Minus size={14} />
                     </button>
                     <span className="text-sm font-black text-white px-2 font-mono">{qty}</span>
                     <button
-                      onClick={() => updateQty(p.id, 1)}
+                      onClick={() => tapQty(p.id, 1)}
                       disabled={atMax}
                       className="w-8 h-8 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-emerald-500/20 disabled:cursor-not-allowed"
                     >

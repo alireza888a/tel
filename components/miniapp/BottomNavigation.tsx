@@ -6,17 +6,23 @@ export interface BottomNavigationProps {
   enabledModules: MiniAppModule[];
   activeTab: MiniAppModule;
   setActiveTab: (tab: MiniAppModule) => void;
+  /** Extra bottom padding (px) to clear the device's safe area (home indicator) in full-screen mode. */
+  safeAreaBottom?: number;
 }
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   enabledModules,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  safeAreaBottom = 0
 }) => {
   if (!enabledModules || enabledModules.length === 0) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#121826]/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 shadow-2xl">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#121826]/95 backdrop-blur-xl border-t border-white/10 px-2 pt-1.5 shadow-2xl"
+      style={{ paddingBottom: `calc(0.375rem + ${safeAreaBottom}px)` }}
+    >
       <div className="max-w-2xl mx-auto flex items-center justify-around">
         {enabledModules.includes('shop') && (
           <button

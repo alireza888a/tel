@@ -1,5 +1,5 @@
-import React from 'react';
-import { ShoppingBag, Plus, Minus, AlertTriangle, Loader2, Share2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingBag, Plus, Minus, AlertTriangle, Loader2, Share2, Search, X } from 'lucide-react';
 import { Product } from '../../types';
 import { ProductImageSlider } from './ProductImageSlider';
 import { getDisplayableImageUrl } from '../../utils/image';
@@ -33,9 +33,19 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   stockLevels = {},
   stickyTop = 0
 }) => {
-  const filteredProducts = selectedCategory === 'همه'
-    ? products
-    : products.filter(p => ((p.category || '').trim() || 'عمومی') === selectedCategory);
+  // Local search — filters within the currently selected category (combined, not a replacement
+  // for it) across name, description and category. Purely client-side: no new server request,
+  // no D1 query, zero added Cloudflare usage — the catalog is already loaded in the browser.
+  const [searchQuery, setSearchQuery] = useState('');
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredProducts = products.filter(p => {
+    const inCategory = selectedCategory === 'همه' || ((p.category || '').trim() || 'عمومی') === selectedCategory;
+    if (!inCategory) return false;
+    if (!normalizedQuery) return true;
+    const haystack = `${p.name} ${p.description || ''} ${p.category || ''}`.toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
 
   // Wraps updateQty with Telegram's native haptic feedback for a more "app-like" tap feel.
   const tapQty = (productId: string, delta: number) => {
@@ -159,8 +169,31 @@ export const ShopTab: React.FC<ShopTabProps> = ({
 
   return (
     <>
-      {/* Newest arrivals — quick horizontal teaser shown once, above the sticky category bar */}
-      {newestProducts.length > 0 && selectedCategory === 'همه' && (
+      {/* Search — filters the grid below in real time, no server round-trip */}
+      <div className="relative mb-3">
+        <Search size={15} className="absolute top-1/2 -translate-y-1/2 right-3 text-slate-500 pointer-events-none" />
+        <input
+          type="text"
+          inputMode="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="جستجو در محصولات..."
+          className="w-full bg-[#151c2c]/80 border border-white/10 rounded-xl py-2.5 pr-9 pl-9 text-xs text-white placeholder:text-slate-500 outline-none focus:border-blue-500/50 transition-colors"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="absolute top-1/2 -translate-y-1/2 left-3 text-slate-500 hover:text-white transition-colors"
+          >
+            <X size={15} />
+          </button>
+        )}
+      </div>
+
+      {/* Newest arrivals — quick horizontal teaser shown once, above the sticky category bar.
+          Hidden while actively searching, since it's just noise once the person is filtering. */}
+      {newestProducts.length > 0 && selectedCategory === 'همه' && !normalizedQuery && (
         <div className="mb-4">
           <h2 className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
             ✨ <span>جدیدترین محصولات</span>
@@ -223,6 +256,14 @@ export const ShopTab: React.FC<ShopTabProps> = ({
       )}
 
       {/* Products Grid */}
+      {filteredProducts.length === 0 ? (
+        <div className="my-10 p-6 rounded-2xl bg-white/5 border border-white/10 text-center space-y-2">
+          <Search size={28} className="text-slate-500 mx-auto" />
+          <p className="text-xs text-slate-400">
+            {normalizedQuery ? `چیزی برای «${searchQuery}» پیدا نشد.` : 'محصولی تو این دسته پیدا نشد.'}
+          </p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         {filteredProducts.map((p) => {
           const qty = cartState[p.id] || 0;
@@ -324,6 +365,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
           );
         })}
       </div>
+      )}
     </>
   );
 };

@@ -18,6 +18,8 @@ export interface ShopTabProps {
   stockLevels?: Record<string, number>;
   /** Real rendered height (px) of the page header, so the category bar sticks right under it. */
   stickyTop?: number;
+  /** Shop's license code — needed only to lazily resolve the bot's username for product deep links when sharing. */
+  code: string;
 }
 
 export const ShopTab: React.FC<ShopTabProps> = ({
@@ -31,7 +33,8 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   cartState,
   updateQty,
   stockLevels = {},
-  stickyTop = 0
+  stickyTop = 0,
+  code
 }) => {
   // Local search — filters within the currently selected category (combined, not a replacement
   // for it) across name, description and category. Purely client-side: no new server request,
@@ -53,20 +56,50 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     updateQty(productId, delta);
   };
 
+  // Bot username cache — resolved lazily (only the first time someone actually
+  // taps "share", not on every shop load) so product deep links don't add
+  // latency to opening the store. Falls back to sharing the plain shop URL
+  // if it can't be resolved for any reason.
+  const [botUsername, setBotUsername] = React.useState<string | null>(null);
+  const usernameFetchStarted = React.useRef(false);
+
+  const resolveBotUsername = async (): Promise<string | null> => {
+    if (botUsername) return botUsername;
+    if (usernameFetchStarted.current) return null;
+    usernameFetchStarted.current = true;
+    try {
+      const res = await fetch(`https://corepanel-api.tajikr450.workers.dev/api/shop/${encodeURIComponent(code)}/bot-username`);
+      const result = await res.json();
+      if (result.ok && result.username) {
+        setBotUsername(result.username);
+        return result.username;
+      }
+    } catch (e) {
+      console.warn('bot-username fetch error:', e);
+    }
+    return null;
+  };
+
   // Shares a product to a chat the user picks, via Telegram's native share sheet.
-  // Works everywhere (no server round-trip, no special Bot API version needed).
-  const shareProductToChat = (p: Product) => {
+  // Links directly to the product (t.me/<bot>?start=product_<id>) when the bot's
+  // username is available, so opening the link jumps straight to that product
+  // instead of the shop's front page. Falls back to the current shop URL
+  // (still fully functional) if the username couldn't be resolved.
+  const shareProductToChat = async (p: Product) => {
     window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.('light');
-    const shopUrl = window.location.href;
+    const username = await resolveBotUsername();
+    const targetUrl = username
+      ? `https://t.me/${username}?start=product_${p.id}`
+      : window.location.href;
     const caption = `🛍️ ${p.name}\n💰 ${p.price.toLocaleString('fa-IR')} تومان\n\nمشاهده و خرید:`;
-    const shareLink = `https://t.me/share/url?url=${encodeURIComponent(shopUrl)}&text=${encodeURIComponent(caption)}`;
+    const shareLink = `https://t.me/share/url?url=${encodeURIComponent(targetUrl)}&text=${encodeURIComponent(caption)}`;
 
     const webApp = window.Telegram?.WebApp;
     if (webApp?.openTelegramLink) {
       webApp.openTelegramLink(shareLink);
     } else if (navigator.share) {
       // Fallback for testing outside Telegram (regular mobile browser)
-      navigator.share({ title: p.name, text: caption, url: shopUrl }).catch(() => {});
+      navigator.share({ title: p.name, text: caption, url: targetUrl }).catch(() => {});
     } else {
       window.open(shareLink, '_blank');
     }
@@ -75,7 +108,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   // Shares the product photo directly to the user's Telegram story, with a link sticker
   // back to the shop. Requires a public https image (not a local/base64 image) and a
   // Telegram client recent enough to support shareToStory — both are feature-detected below.
-  const shareProductToStory = (p: Product) => {
+  const shareProductToStory = async (p: Product) => {
     const webApp = window.Telegram?.WebApp;
     if (!webApp?.shareToStory) return;
     const firstImage = p.imageUrls?.find(u => u && u.trim()) || p.imageUrl;
@@ -83,9 +116,11 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     if (!displayUrl || displayUrl.startsWith('data:')) return;
 
     webApp.HapticFeedback?.impactOccurred?.('light');
+    const username = await resolveBotUsername();
+    const targetUrl = username ? `https://t.me/${username}?start=product_${p.id}` : window.location.href;
     webApp.shareToStory(displayUrl, {
       text: `${p.name} — ${p.price.toLocaleString('fa-IR')} تومان`,
-      widget_link: { url: window.location.href, name: 'مشاهده در فروشگاه' }
+      widget_link: { url: targetUrl, name: 'مشاهده در فروشگاه' }
     });
   };
 

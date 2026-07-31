@@ -735,6 +735,7 @@ export const MiniShop: React.FC = () => {
             updateQty={updateQty}
             stockLevels={stockLevels}
             stickyTop={headerHeight}
+            code={code}
           />
         )}
 

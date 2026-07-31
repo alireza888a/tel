@@ -13,6 +13,8 @@ export interface ShopTabProps {
   setSelectedCategory: (category: string) => void;
   cartState: Record<string, number>;
   updateQty: (productId: string, delta: number) => void;
+  /** Live stock counts from D1, keyed by productId. Only meaningful for products with trackStock=true. */
+  stockLevels?: Record<string, number>;
 }
 
 export const ShopTab: React.FC<ShopTabProps> = ({
@@ -24,7 +26,8 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   selectedCategory,
   setSelectedCategory,
   cartState,
-  updateQty
+  updateQty,
+  stockLevels = {}
 }) => {
   const filteredProducts = selectedCategory === 'همه'
     ? products
@@ -98,18 +101,26 @@ export const ShopTab: React.FC<ShopTabProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         {filteredProducts.map((p) => {
           const qty = cartState[p.id] || 0;
+          const isTracked = !!p.trackStock;
+          const available = isTracked ? Math.max(0, stockLevels[p.id] ?? 0) : Infinity;
+          const outOfStock = isTracked && available <= 0;
+          const atMax = isTracked && qty >= available;
+          const lowStock = isTracked && available > 0 && available <= 5;
+
           return (
             <div
               key={p.id}
               className={`bg-[#151c2c]/80 border rounded-2xl p-3.5 flex flex-col justify-between transition-all backdrop-blur-sm ${
-                qty > 0
+                outOfStock
+                  ? 'border-white/5 opacity-60'
+                  : qty > 0
                   ? 'border-blue-500/50 ring-1 ring-blue-500/30 shadow-lg shadow-blue-600/10'
                   : 'border-white/10 hover:border-white/20'
               }`}
             >
               <div>
                 {/* Product Image Slider */}
-                <ProductImageSlider product={p} />
+                <ProductImageSlider product={p} outOfStock={outOfStock} />
 
                 {/* Title & Price */}
                 <h3 className="text-sm font-bold text-white mb-1 line-clamp-1">{p.name}</h3>
@@ -118,14 +129,28 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                     {p.description}
                   </p>
                 )}
-                <div className="text-xs font-black text-emerald-400 mb-3 dir-rtl">
-                  {p.price.toLocaleString('fa-IR')} <span className="text-[10px] font-normal text-slate-400">تومان</span>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-xs font-black text-emerald-400 dir-rtl">
+                    {p.price.toLocaleString('fa-IR')} <span className="text-[10px] font-normal text-slate-400">تومان</span>
+                  </div>
+                  {lowStock && (
+                    <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                      فقط {available.toLocaleString('fa-IR')} عدد باقی مانده
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Quantity Control Buttons */}
               <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                {qty === 0 ? (
+                {outOfStock ? (
+                  <button
+                    disabled
+                    className="w-full py-2 bg-white/5 border border-white/10 text-slate-500 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
+                  >
+                    <span>ناموجود</span>
+                  </button>
+                ) : qty === 0 ? (
                   <button
                     onClick={() => updateQty(p.id, 1)}
                     className="w-full py-2 bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 hover:border-blue-500 text-blue-300 hover:text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
@@ -144,7 +169,8 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                     <span className="text-sm font-black text-white px-2 font-mono">{qty}</span>
                     <button
                       onClick={() => updateQty(p.id, 1)}
-                      className="w-8 h-8 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white flex items-center justify-center transition-colors active:scale-95"
+                      disabled={atMax}
+                      className="w-8 h-8 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-emerald-500/20 disabled:cursor-not-allowed"
                     >
                       <Plus size={14} />
                     </button>

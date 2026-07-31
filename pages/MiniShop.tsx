@@ -51,6 +51,8 @@ export const MiniShop: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [cartState, setCartState] = useState<Record<string, number>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('همه');
+  // Live stock counts from D1 (productId -> remaining qty), only meaningful for products with trackStock=true
+  const [stockLevels, setStockLevels] = useState<Record<string, number>>({});
 
   // Orders state
   const [orders, setOrders] = useState<Order[]>([]);
@@ -108,6 +110,22 @@ export const MiniShop: React.FC = () => {
     }
   }, []);
 
+  // Fetch live stock counts (D1) for products with trackStock enabled
+  const fetchStockLevels = async () => {
+    if (!code) return;
+    try {
+      const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/products/stock/list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const result = await res.json();
+      if (result.ok) setStockLevels(result.stock || {});
+    } catch (e) {
+      console.warn('MiniShop stock fetch error:', e);
+    }
+  };
+
   // Fetch shop products & enabled modules from server
   useEffect(() => {
     if (!code) {
@@ -135,6 +153,7 @@ export const MiniShop: React.FC = () => {
             }
           }
         }
+        fetchStockLevels();
       } catch (err) {
         console.error('MiniShop API error:', err);
         // Fallback to local storage
@@ -431,13 +450,16 @@ export const MiniShop: React.FC = () => {
     if (activeTab === 'booking') fetchBookingServices();
     if (activeTab === 'gallery') fetchGallery();
     if (activeTab === 'announcements') fetchAnnouncements();
+    if (activeTab === 'shop') fetchStockLevels();
   }, [activeTab, code]);
 
-  // Quantity controls
+  // Quantity controls — respects live stock cap for products with trackStock enabled
   const updateQty = (productId: string, delta: number) => {
     setCartState(prev => {
       const current = prev[productId] || 0;
-      const next = Math.max(0, current + delta);
+      const product = products.find(p => p.id === productId);
+      const cap = product?.trackStock ? Math.max(0, stockLevels[productId] ?? 0) : Infinity;
+      const next = Math.min(cap, Math.max(0, current + delta));
       if (next === 0) {
         const copy = { ...prev };
         delete copy[productId];
@@ -446,6 +468,27 @@ export const MiniShop: React.FC = () => {
       return { ...prev, [productId]: next };
     });
   };
+
+  // If stock drops below what's already in the cart (e.g. refreshed after another buyer purchased),
+  // clamp the cart down to the new available amount instead of letting the user overbuy.
+  useEffect(() => {
+    setCartState(prev => {
+      let changed = false;
+      const next = { ...prev };
+      for (const productId of Object.keys(next)) {
+        const product = products.find(p => p.id === productId);
+        if (product?.trackStock) {
+          const available = Math.max(0, stockLevels[productId] ?? 0);
+          if (next[productId] > available) {
+            changed = true;
+            if (available <= 0) delete next[productId];
+            else next[productId] = available;
+          }
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [stockLevels, products]);
 
   // Cart summary calculations
   const totalItems = (Object.values(cartState) as number[]).reduce((sum: number, qty: number) => sum + qty, 0);
@@ -572,6 +615,7 @@ export const MiniShop: React.FC = () => {
             setSelectedCategory={setSelectedCategory}
             cartState={cartState}
             updateQty={updateQty}
+            stockLevels={stockLevels}
           />
         )}
 

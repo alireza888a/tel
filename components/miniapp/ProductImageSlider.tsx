@@ -3,7 +3,7 @@ import { ShoppingBag, Image as ImageIcon } from 'lucide-react';
 import { Product } from '../../types';
 import { getDisplayableImageUrl } from '../../utils/image';
 
-export const ProductImageSlider: React.FC<{ product: Product }> = ({ product }) => {
+export const ProductImageSlider: React.FC<{ product: Product; outOfStock?: boolean }> = ({ product, outOfStock }) => {
   const [activeIdx, setActiveIdx] = useState(0);
 
   const images = product.imageUrls && product.imageUrls.length > 0
@@ -20,6 +20,11 @@ export const ProductImageSlider: React.FC<{ product: Product }> = ({ product }) 
             {product.category}
           </span>
         )}
+        {outOfStock && (
+          <span className="absolute top-2 left-2 bg-red-600/90 px-2 py-0.5 rounded-md text-[10px] font-bold text-white backdrop-blur-md z-10">
+            ناموجود
+          </span>
+        )}
       </div>
     );
   }
@@ -30,7 +35,7 @@ export const ProductImageSlider: React.FC<{ product: Product }> = ({ product }) 
     return (
       <div className="w-full aspect-[4/3] rounded-xl bg-black/40 border border-white/5 overflow-hidden flex items-center justify-center relative mb-3">
         {displayUrl ? (
-          <img src={displayUrl} alt={product.name} className="w-full h-full object-cover" />
+          <img src={displayUrl} alt={product.name} className={`w-full h-full object-cover ${outOfStock ? 'grayscale opacity-50' : ''}`} />
         ) : (
           <div className="flex flex-col items-center justify-center p-2 text-center text-blue-400 gap-1">
             <ImageIcon size={22} />
@@ -40,6 +45,11 @@ export const ProductImageSlider: React.FC<{ product: Product }> = ({ product }) 
         {product.category && (
           <span className="absolute top-2 right-2 bg-black/60 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-slate-300 backdrop-blur-md">
             {product.category}
+          </span>
+        )}
+        {outOfStock && (
+          <span className="absolute top-2 left-2 bg-red-600/90 px-2 py-0.5 rounded-md text-[10px] font-bold text-white backdrop-blur-md z-10">
+            ناموجود
           </span>
         )}
       </div>
@@ -62,7 +72,7 @@ export const ProductImageSlider: React.FC<{ product: Product }> = ({ product }) 
   return (
     <div className="w-full aspect-[4/3] rounded-xl bg-black/40 border border-white/5 overflow-hidden relative mb-3 group">
       {displayUrl ? (
-        <img src={displayUrl} alt={`${product.name} - ${activeIdx + 1}`} className="w-full h-full object-cover transition-all duration-300" />
+        <img src={displayUrl} alt={`${product.name} - ${activeIdx + 1}`} className={`w-full h-full object-cover transition-all duration-300 ${outOfStock ? 'grayscale opacity-50' : ''}`} />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center text-blue-400 gap-1">
           <ImageIcon size={22} />
@@ -73,6 +83,11 @@ export const ProductImageSlider: React.FC<{ product: Product }> = ({ product }) 
       {product.category && (
         <span className="absolute top-2 right-2 bg-black/60 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-slate-300 backdrop-blur-md z-10">
           {product.category}
+        </span>
+      )}
+      {outOfStock && (
+        <span className="absolute top-2 left-2 bg-red-600/90 px-2 py-0.5 rounded-md text-[10px] font-bold text-white backdrop-blur-md z-10">
+          ناموجود
         </span>
       )}
 

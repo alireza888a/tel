@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { GlassCard } from '../components/GlassCard';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { 
     Users, Send, Activity, Bot, ArrowRight, Zap, ShieldCheck, 
     Layers, Command, Settings, Megaphone, CheckCircle, AlertCircle, 
-    Clock, RefreshCw, BarChart3, AlertTriangle, Key, Wifi, Link2
+    Clock, RefreshCw, BarChart3, AlertTriangle, Key, Wifi, Link2,
+    Wallet, TrendingUp, ShoppingBag, Trophy
 } from 'lucide-react';
 import { telegramService, TelegramUser } from '../services/telegramService';
 
@@ -59,6 +60,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   const [recentLogs, setRecentLogs] = useState<LogItem[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
+
+  // Sales dashboard — real revenue/order data from D1 (confirmed orders only)
+  const [salesData, setSalesData] = useState<{
+      today: { revenue: number; orders: number };
+      week: { revenue: number; orders: number };
+      month: { revenue: number; orders: number };
+      avgOrderValue: number;
+      pendingCount: number;
+      dailySeries: { date: string; revenue: number; orders: number }[];
+      topProducts: { productId: string; name: string; qty: number; revenue: number }[];
+  } | null>(null);
+  const [salesLoading, setSalesLoading] = useState(false);
 
   // Fetch Bot Health API & Telegram Webhook Status
   const fetchHealthAndStatus = async () => {
@@ -158,6 +171,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       }
                   } catch (e) {
                       console.warn("Error fetching logs from API:", e);
+                  }
+
+                  setSalesLoading(true);
+                  try {
+                      const salesRes = await fetch('https://corepanel-api.tajikr450.workers.dev/api/dashboard/sales', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ code: licenseCode })
+                      });
+                      const salesResult = await salesRes.json();
+                      if (salesResult && salesResult.ok) {
+                          setSalesData(salesResult);
+                      }
+                  } catch (e) {
+                      console.warn("Error fetching sales dashboard data:", e);
+                  } finally {
+                      setSalesLoading(false);
                   }
               }
 
@@ -499,6 +529,101 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     </div>
                 </div>
             </div>
+        </div>
+
+        {/* 1.5 SALES DASHBOARD — real revenue/order data from D1 (confirmed orders only) */}
+        <div>
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><TrendingUp size={20} className="text-emerald-400"/> آمار فروش</h3>
+
+            {!salesData && salesLoading ? (
+                <div className="text-center py-10 text-slate-500 text-sm">در حال بارگیری آمار فروش...</div>
+            ) : !salesData ? (
+                <div className="text-center py-10 text-slate-500 text-sm">هنوز داده‌ی فروشی ثبت نشده.</div>
+            ) : (
+            <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-gradient-to-br from-emerald-600/20 to-teal-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 bg-emerald-500 rounded-lg text-white shadow-lg shadow-emerald-500/30"><Wallet size={18}/></div>
+                            <span className="text-[10px] text-slate-400">امروز</span>
+                        </div>
+                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.today.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
+                        <div className="text-[11px] text-slate-400 mt-1">{salesData.today.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 bg-blue-500 rounded-lg text-white shadow-lg shadow-blue-500/30"><TrendingUp size={18}/></div>
+                            <span className="text-[10px] text-slate-400">۷ روز اخیر</span>
+                        </div>
+                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.week.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
+                        <div className="text-[11px] text-slate-400 mt-1">{salesData.week.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 bg-purple-500 rounded-lg text-white shadow-lg shadow-purple-500/30"><ShoppingBag size={18}/></div>
+                            <span className="text-[10px] text-slate-400">۳۰ روز اخیر</span>
+                        </div>
+                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.month.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
+                        <div className="text-[11px] text-slate-400 mt-1">{salesData.month.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-amber-600/20 to-orange-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 bg-amber-500 rounded-lg text-white shadow-lg shadow-amber-500/30"><Clock size={18}/></div>
+                            <span className="text-[10px] text-slate-400">میانگین سفارش</span>
+                        </div>
+                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.avgOrderValue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
+                        <div className="text-[11px] text-slate-400 mt-1">{salesData.pendingCount.toLocaleString('fa-IR')} سفارش در انتظار تایید</div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <GlassCard className="lg:col-span-2" title="روند فروش ۱۴ روز اخیر">
+                        <div className="h-[260px] w-full dir-ltr">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={salesData.dailySeries}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                                    <XAxis
+                                        dataKey="date"
+                                        stroke="#64748b"
+                                        fontSize={10}
+                                        tickLine={false}
+                                        tickFormatter={(d: string) => d.slice(5)}
+                                    />
+                                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                                        formatter={(value: number) => [value.toLocaleString('fa-IR') + ' تومان', 'فروش']}
+                                        labelFormatter={(d: string) => d}
+                                    />
+                                    <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </GlassCard>
+
+                    <GlassCard title="پرفروش‌ترین محصولات (۳۰ روز اخیر)">
+                        <div className="space-y-3">
+                            {salesData.topProducts.length === 0 ? (
+                                <div className="text-center py-10 text-slate-500 text-sm">هنوز فروشی ثبت نشده.</div>
+                            ) : (
+                                salesData.topProducts.map((p, idx) => (
+                                    <div key={p.productId} className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${idx === 0 ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-slate-400'}`}>
+                                            {idx === 0 ? <Trophy size={14}/> : idx + 1}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-bold text-white truncate">{p.name}</div>
+                                            <div className="text-[10px] text-slate-400">{p.qty.toLocaleString('fa-IR')} عدد فروخته شده</div>
+                                        </div>
+                                        <div className="text-[11px] font-bold text-emerald-400 shrink-0 dir-ltr">{p.revenue.toLocaleString('fa-IR')}</div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </GlassCard>
+                </div>
+            </>
+            )}
         </div>
 
         {/* 2. QUICK ACTIONS */}

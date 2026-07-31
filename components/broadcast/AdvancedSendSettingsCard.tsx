@@ -1,6 +1,6 @@
 import React from 'react';
 import { GlassCard } from '../GlassCard';
-import { Users, Zap, BellOff, ShieldCheck, CheckCircle, Send, Play, Pause, Square } from 'lucide-react';
+import { Users, Zap, BellOff, ShieldCheck, CheckCircle, Send, Play, Pause, Square, Calendar, X } from 'lucide-react';
 
 interface AdvancedSendSettingsCardProps {
   targetAudience: 'all' | 'active' | 'vip' | 'new';
@@ -17,6 +17,10 @@ interface AdvancedSendSettingsCardProps {
   isPaused: boolean;
   setIsPaused: (val: boolean) => void;
   handleStop: () => void;
+  isScheduledEnabled: boolean;
+  scheduledDateObj: Date;
+  onOpenDatePicker: () => void;
+  onCancelSchedule: () => void;
 }
 
 export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> = ({
@@ -34,6 +38,10 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
   isPaused,
   setIsPaused,
   handleStop,
+  isScheduledEnabled,
+  scheduledDateObj,
+  onOpenDatePicker,
+  onCancelSchedule,
 }) => {
   return (
     <GlassCard title="تنظیمات ارسال پیشرفته">
@@ -100,10 +108,44 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
 
       <div className="mt-6 pt-6 border-t dark:border-white/5 border-slate-100">
         {!isSending ? (
-          <button onClick={handleBroadcast} disabled={realUsers.length === 0} className="w-full dark:text-white text-slate-800 py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-cyan-500/20">
-            شروع عملیات ارسال
-            <Send size={20}/>
-          </button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <button
+                onClick={onOpenDatePicker}
+                className={`flex-1 py-3 border rounded-xl text-sm flex items-center justify-center gap-2 transition-all ${
+                  isScheduledEnabled
+                    ? 'border-purple-500/50 dark:text-purple-400 text-purple-600 bg-purple-500/10'
+                    : 'dark:border-white/10 border-slate-200 dark:text-slate-400 text-slate-500 dark:hover:bg-white/5 hover:bg-slate-100'
+                }`}
+              >
+                <Calendar size={16}/>
+                {isScheduledEnabled
+                  ? `زمان‌بندی: ${scheduledDateObj.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })} ${new Intl.DateTimeFormat('fa-IR').format(scheduledDateObj)}`
+                  : 'زمان‌بندی ارسال'}
+              </button>
+              {isScheduledEnabled && (
+                <button
+                  onClick={onCancelSchedule}
+                  title="لغو زمان‌بندی"
+                  className="px-3 rounded-xl border dark:border-white/10 border-slate-200 dark:text-slate-400 text-slate-500 dark:hover:bg-white/5 hover:bg-slate-100"
+                >
+                  <X size={16}/>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={handleBroadcast}
+              disabled={realUsers.length === 0}
+              className={`w-full dark:text-white text-slate-800 py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+                isScheduledEnabled
+                  ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:shadow-purple-500/20'
+                  : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-cyan-500/20'
+              }`}
+            >
+              {isScheduledEnabled ? 'ثبت در صف ارسال' : 'شروع عملیات ارسال'}
+              <Send size={20}/>
+            </button>
+          </div>
         ) : (
           <div className="flex gap-2">
             <button onClick={() => setIsPaused(!isPaused)} className={`flex-1 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${isPaused ? 'bg-green-600' : 'bg-yellow-600'}`}>

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
 import { Send, CornerUpRight, BarChart3, Users } from 'lucide-react';
-import { InlineRow, MediaAttachment, InlineButton } from '../types';
+import { InlineRow, MediaAttachment, InlineButton, QueueItem } from '../types';
 import { telegramService } from '../services/telegramService';
 import { generateBroadcastMessage } from '../services/geminiService';
+import { syncNow } from '../services/cloudSync';
 
 import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
 import { BroadcastToast } from '../components/broadcast/BroadcastToast';
@@ -234,10 +235,47 @@ export const Broadcast: React.FC = () => {
     }
 
     if (isScheduledEnabled) {
-        setToast({ message: 'این ویژگی در نسخه دمو برای فوروارد فعال نیست', type: 'error' });
+        // Text/media broadcasts only — mirrors exactly what the shared queue
+        // (processQueue on the server) already knows how to send. Forward
+        // and poll modes aren't representable in a QueueItem yet, so those
+        // are rejected clearly rather than silently doing nothing.
+        if (broadcastMode !== 'compose') {
+            setToast({ message: 'زمان‌بندی فعلاً فقط برای پیام متنی/تصویری پشتیبانی می‌شه، نه فوروارد یا نظرسنجی.', type: 'error' });
+            return;
+        }
+        if (scheduledDateObj.getTime() <= Date.now()) {
+            setToast({ message: 'زمان انتخاب‌شده باید تو آینده باشه.', type: 'error' });
+            return;
+        }
+
+        const newItem: QueueItem = {
+            id: Date.now().toString() + Math.random(),
+            content,
+            hasMedia: mediaGroup.length > 0,
+            mediaType: mediaGroup[0]?.type,
+            mediaFiles: mediaGroup,
+            rows: inlineRows,
+            settings: { pin: pinMessage, silent: sendSilent, protect: contentProtect, addReactions: false },
+            targetChannelId: 'BROADCAST_ALL',
+            status: 'pending',
+            createdAt: scheduledDateObj.getTime()
+        };
+
+        // Appends to the same shared 'channel_queue' the channel-broadcast
+        // scheduler and the Mini App's announcements feed both already read
+        // from — this is one unified queue, not a separate mechanism.
+        let existingQueue: QueueItem[] = [];
+        try { existingQueue = JSON.parse(localStorage.getItem('channel_queue') || '[]'); } catch {}
+        const newQueue = [...existingQueue, newItem];
+        localStorage.setItem('channel_queue', JSON.stringify(newQueue));
+        syncNow();
+
+        setToast({ message: `پیام برای ${scheduledDateObj.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })} ${new Intl.DateTimeFormat('fa-IR').format(scheduledDateObj)} زمان‌بندی شد.`, type: 'success' });
+        setIsScheduledEnabled(false);
+        localStorage.removeItem('broadcast_draft');
         return;
     }
-    
+
     // Immediate Send (Manual Loop)
     executeRealBroadcast(content, inlineRows, mediaGroup, { 
         pin: pinMessage, 
@@ -528,6 +566,10 @@ export const Broadcast: React.FC = () => {
                 isPaused={isPaused}
                 setIsPaused={setIsPaused}
                 handleStop={handleStop}
+                isScheduledEnabled={isScheduledEnabled}
+                scheduledDateObj={scheduledDateObj}
+                onOpenDatePicker={() => setShowDatePicker(true)}
+                onCancelSchedule={() => setIsScheduledEnabled(false)}
               />
 
               <ProgressReportCard

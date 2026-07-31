@@ -256,7 +256,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           });
           const data = await res.json();
           if (data.ok) {
-              setRedeemMsg({ type: 'ok', text: '✅ اشتراک شما با موفقیت تمدید شد!' });
+              const parts: string[] = [];
+              if (data.expires_at) parts.push('اشتراک شما تمدید شد');
+              if (data.max_devices) parts.push('ظرفیت دستگاه شما به ' + data.max_devices.toLocaleString('fa-IR') + ' دستگاه افزایش یافت');
+              const summary = parts.length > 0 ? parts.join(' و ') : 'کد با موفقیت اعمال شد';
+              setRedeemMsg({ type: 'ok', text: '✅ ' + summary + '!' });
               setVoucherInput('');
               fetchHealthAndStatus(); // refresh the "X days left" display with the new expiry
           } else {

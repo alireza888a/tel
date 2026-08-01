@@ -113,13 +113,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
         className={`${isSidebarOpen ? 'w-64' : 'w-20'} 
         dark:bg-white/5 bg-white/60 backdrop-blur-xl border-l dark:border-white/10 border-white/40 transition-all duration-300 relative flex flex-col z-20 shadow-lg`}
       >
-        <div className="p-6 flex items-center gap-3">
-           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-600 shadow-lg flex items-center justify-center shrink-0">
-             <BotIcon />
+        <div className="p-6 flex items-center gap-3.5">
+           <div className="w-11 h-11 rounded-xl bg-white shadow-lg flex items-center justify-center shrink-0 p-1.5 border dark:border-white/10 border-slate-200">
+             <img src="/logo-icon.png" alt="AsanHub" className="w-full h-full object-contain" />
            </div>
            {isSidebarOpen && (
-             <h1 className="font-bold text-lg whitespace-nowrap tracking-wide dark:text-white text-slate-800">
-               Admin<span className="text-cyan-600 dark:text-cyan-400">Panel</span>
+             <h1 className="font-bold text-2xl whitespace-nowrap tracking-wider dark:text-white text-slate-800">
+               Asan<span className="text-purple-600 dark:text-purple-400">Hub</span>
              </h1>
            )}
         </div>

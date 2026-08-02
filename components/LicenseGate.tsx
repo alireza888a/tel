@@ -54,16 +54,29 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
         const now = Date.now();
         const oneDayMs = 24 * 60 * 60 * 1000;
 
-        // Check if checked less than 24 hours ago
+        // Check if checked less than 24 hours ago — but still must respect
+        // whatever the server says RIGHT NOW (revoked/expired), not just
+        // trust the stale local cache blindly. loadFromCloud returns false
+        // (never throws) when the server rejects the code, so its return
+        // value — not just "did it throw" — is what actually matters here.
         if (cache.code && cache.checkedAt && (now - cache.checkedAt < oneDayMs)) {
           setIsLoading(true);
+          let loaded = false;
           try {
-            await loadFromCloud(cache.code);
+            loaded = await loadFromCloud(cache.code);
           } catch (e) {
             console.warn('loadFromCloud error during cached check:', e);
           }
-          setIsAuthenticated(true);
-          setIsLoading(false);
+          if (loaded) {
+              setIsAuthenticated(true);
+              setIsLoading(false);
+              return;
+          }
+          // The cached code was rejected by the server right now (revoked,
+          // expired, or otherwise invalid) — fall through to a full
+          // re-validation instead of letting them in anyway, so the exact
+          // reason (and a proper Persian error message) is shown.
+          await validateLicense(cache.code, currentDeviceId, true);
           return;
         }
 

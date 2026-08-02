@@ -32,22 +32,22 @@ export const MenuSidebar: React.FC<MenuSidebarProps> = ({
         </button>
       </div>
       <div className="space-y-2">
-        {Object.values(menus || {}).map((m: MenuPage) => m && (
+        {Object.entries(menus || {}).map(([menuKey, m]: [string, MenuPage]) => m && (
           <button
-            key={m.id}
+            key={menuKey}
             onClick={() => {
-              setCurrentMenuId(m.id);
+              setCurrentMenuId(menuKey);
               setShowMenuSidebar(false);
               setHistory([]);
             }}
             className={`w-full text-right p-3 rounded-xl text-sm transition-colors border ${
-              currentMenuId === m.id
+              currentMenuId === menuKey
                 ? 'bg-blue-600/20 border-blue-500/50 dark:text-white text-slate-800'
                 : 'dark:bg-white/5 bg-slate-100 border-transparent dark:hover:bg-white/10 hover:bg-slate-200 dark:text-slate-300 text-slate-600'
             }`}
           >
-            {m.title || m.id}
-            {m.id === 'root' && <span className="mr-2 text-xs bg-blue-500 dark:text-white text-slate-800 px-1.5 py-0.5 rounded">خانه</span>}
+            {m.title || menuKey}
+            {menuKey === 'root' && <span className="mr-2 text-xs bg-blue-500 dark:text-white text-slate-800 px-1.5 py-0.5 rounded">خانه</span>}
           </button>
         ))}
       </div>

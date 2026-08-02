@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, Home, Settings, Layers, Users, Command, Bell, Search, Moon, Sun, Megaphone, LogOut, Download, AlertTriangle, X, Cloud, UserCog, ShoppingBag, ShoppingCart, MessageCircle, HelpCircle, Zap, Calendar, Tag } from 'lucide-react';
+import { LOGO_ICON_DATA_URI } from '../assets/logoIcon';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -121,7 +122,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
       >
         <div className="p-6 flex items-center gap-3.5">
            <div className="w-11 h-11 rounded-xl bg-white shadow-lg flex items-center justify-center shrink-0 p-1.5 border dark:border-white/10 border-slate-200">
-             <img src="/logo-icon.png" alt="AsanHub" className="w-full h-full object-contain" />
+             <img src={LOGO_ICON_DATA_URI} alt="AsanHub" className="w-full h-full object-contain" />
            </div>
            {isSidebarOpen && (
              <h1 className="font-bold text-2xl whitespace-nowrap tracking-wider dark:text-white text-slate-800">

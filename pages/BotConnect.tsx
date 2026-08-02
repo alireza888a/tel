@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
-import { Bot, Save, Globe, Lock, CheckCircle, XCircle, RefreshCw, Trash2, ShieldCheck, Activity, Terminal, MessageSquare } from 'lucide-react';
+import { Bot, Globe, Lock, CheckCircle, XCircle, RefreshCw, Trash2, ShieldCheck, Activity, Terminal, MessageSquare } from 'lucide-react';
 import { telegramService, TelegramUser, WebhookInfo } from '../services/telegramService';
 import { syncNow } from '../services/cloudSync';
 
@@ -138,34 +138,6 @@ export const BotConnect: React.FC = () => {
     checkConnection(token);
   };
 
-  const handleUpdateWebhook = async () => {
-    if (!token) return;
-    setIsLoading(true);
-    
-    let res;
-    if (webhookUrl) {
-      const accessToken = localStorage.getItem('webhook_access_token') || undefined;
-      res = await telegramService.setWebhook(token, webhookUrl, accessToken);
-    } else {
-      res = await telegramService.deleteWebhook(token);
-    }
-
-    if (res.ok) {
-      setSuccessMsg(webhookUrl ? 'وب‌هوک با موفقیت تنظیم شد (موتور داخلی متوقف شد).' : 'وب‌هوک حذف شد (موتور داخلی فعال شد).');
-      // Update local storage so BotEngine reacts
-      localStorage.setItem('bot_webhook_url', webhookUrl);
-      
-      const whData = await telegramService.getWebhookInfo(token);
-      if (whData.ok && whData.result) {
-          setWebhookInfo(whData.result);
-      }
-    } else {
-      setError(res.description || 'خطا در تنظیم وب‌هوک');
-    }
-    setIsLoading(false);
-    setTimeout(() => setSuccessMsg(null), 3000);
-  };
-
   const handleDisconnect = () => {
     localStorage.removeItem('bot_token');
     setLogs([]);
@@ -277,38 +249,16 @@ export const BotConnect: React.FC = () => {
                 </button>
              </div>
 
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                   <h4 className="font-bold dark:text-white/90 text-slate-800 flex items-center gap-2">
-                      <Globe size={18} className="text-cyan-400"/>
-                      تنظیمات وب‌هوک
-                   </h4>
-                   <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={webhookUrl}
-                        onChange={(e) => setWebhookUrl(e.target.value)}
-                        placeholder="https://your-domain.com/api/webhook"
-                        className="flex-1 dark:bg-black/20 bg-white/50 border dark:border-white/10 border-slate-300 rounded-lg p-3 dark:text-white text-slate-800 font-mono text-sm text-left dir-ltr"
-                        dir="ltr"
-                      />
-                      <button 
-                        onClick={handleUpdateWebhook}
-                        disabled={isLoading}
-                        className="px-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors flex items-center justify-center"
-                      >
-                         {isLoading ? <RefreshCw size={18} className="animate-spin"/> : <Save size={18} />}
-                      </button>
-                   </div>
-                </div>
-
-                <div className="space-y-3">
-                   <div className={`p-4 rounded-xl border ${webhookInfo?.url ? 'bg-green-500/10 border-green-500/20' : 'bg-orange-500/10 border-orange-500/20'}`}>
-                      <p className="text-xs opacity-70 mb-1">وضعیت موتور داخلی</p>
-                      <p className={`font-bold ${webhookInfo?.url ? 'text-red-400' : 'text-green-400'}`}>
-                         {webhookInfo?.url ? '🔴 متوقف (وب‌هوک فعال است)' : '🟢 فعال (در حال مانیتورینگ)'}
-                      </p>
-                   </div>
+             <div className="space-y-3">
+                <h4 className="font-bold dark:text-white/90 text-slate-800 flex items-center gap-2">
+                   <Globe size={18} className="text-cyan-400"/>
+                   وضعیت اتصال
+                </h4>
+                <div className={`p-4 rounded-xl border ${webhookInfo?.url ? 'bg-green-500/10 border-green-500/20' : 'bg-orange-500/10 border-orange-500/20'}`}>
+                   <p className="text-xs opacity-70 mb-1">وضعیت موتور داخلی</p>
+                   <p className={`font-bold ${webhookInfo?.url ? 'text-red-400' : 'text-green-400'}`}>
+                      {webhookInfo?.url ? '🔴 متوقف (وب‌هوک فعال است)' : '🟢 فعال (در حال مانیتورینگ)'}
+                   </p>
                 </div>
              </div>
 

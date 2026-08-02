@@ -56,16 +56,22 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
   };
 
   const handleConfirmExit = (withBackup: boolean) => {
+      // Actually log out — the previous version only navigated to a
+      // different page inside the panel while staying fully logged in, so
+      // "خروج از پنل" never exited anything. Clearing the same key
+      // LicenseGate itself uses, then a full reload, makes LicenseGate
+      // re-mount with no cached license and show the login form again —
+      // the same reliable reset every other logout flow in the app uses.
+      const doLogout = () => {
+          localStorage.removeItem('license_cache');
+          window.location.reload();
+      };
+
       if (withBackup) {
           performQuickBackup();
-          setTimeout(() => {
-              // Simulate "Exit" by going to connect page and clearing session UI state if any
-              setShowExitModal(false);
-              onNavigate('bot-connect');
-          }, 1000);
+          setTimeout(doLogout, 1000);
       } else {
-          setShowExitModal(false);
-          onNavigate('bot-connect');
+          doLogout();
       }
   };
 
@@ -153,25 +159,28 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
         </nav>
         
         {/* Footer Actions */}
-        <div className="p-4 border-t dark:border-white/5 border-black/5 flex flex-col gap-2">
+        <div className={`p-4 border-t dark:border-white/5 border-black/5 flex items-center gap-2 ${isSidebarOpen ? 'flex-row' : 'flex-col'}`}>
             <button 
                 onClick={() => setShowExitModal(true)}
-                className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden hover:bg-red-500/10 text-red-400`}
+                className={`flex-1 flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden hover:bg-red-500/10 text-red-400 min-w-0`}
             >
-                <div className="transition-transform group-hover:scale-110 group-hover:translate-x-1">
+                <div className="transition-transform group-hover:scale-110 group-hover:translate-x-1 shrink-0">
                     <LogOut size={20} className="rotate-180" />
                 </div>
-                {isSidebarOpen && <span className="font-medium animate-fade-in">خروج از پنل</span>}
+                {isSidebarOpen && <span className="font-medium animate-fade-in whitespace-nowrap">خروج از پنل</span>}
+            </button>
+
+            {/* Toggle Sidebar Button — sits in normal flow now, never overlaps
+                the logout button above (it used to float with `absolute`
+                positioning at a fixed offset, which collided with the logout
+                button whenever the sidebar was collapsed). */}
+            <button 
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="shrink-0 p-2.5 rounded-lg dark:bg-white/5 bg-black/5 hover:bg-black/10 dark:hover:bg-white/10 dark:text-white/50 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+                <Menu size={20} />
             </button>
         </div>
-
-        {/* Toggle Sidebar Button */}
-        <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="absolute bottom-6 left-6 p-2 rounded-lg dark:bg-white/5 bg-black/5 hover:bg-black/10 dark:hover:bg-white/10 dark:text-white/50 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
-        >
-            <Menu size={20} />
-        </button>
       </aside>
 
       {/* Main Content */}

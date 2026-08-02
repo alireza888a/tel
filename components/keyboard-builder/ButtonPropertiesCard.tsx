@@ -97,10 +97,15 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                       webAppUrl: undefined
                     });
                   } else if (newType === 'webapp') {
-                    const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
-                    let code = '';
-                    try { code = JSON.parse(licenseCacheStr).code || ''; } catch {}
-                    const webAppUrl = `${window.location.origin}/miniapp?code=${encodeURIComponent(code)}`;
+                    // NEVER embed the private license code here — it's the
+                    // merchant's own panel-login credential (works for
+                    // /api/data/save, /api/orders/list, /api/dashboard/sales,
+                    // /api/license/redeem-voucher, etc). This button is sent
+                    // to EVERY buyer, so only the leak-safe webhook access
+                    // token (already scoped, by the backend, to just the
+                    // public /api/shop/* Mini App endpoints) belongs here.
+                    const accessToken = localStorage.getItem('webhook_access_token') || '';
+                    const webAppUrl = `${window.location.origin}/miniapp?code=${encodeURIComponent(accessToken)}`;
                     updateCurrentButton({
                       type: 'webapp',
                       webAppUrl: webAppUrl,

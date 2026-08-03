@@ -13,6 +13,7 @@ interface LicenseGateProps {
 }
 
 const API_URL = 'https://corepanel-api.tajikr450.workers.dev/api/auth';
+const VOUCHER_API_URL = 'https://corepanel-api.tajikr450.workers.dev/api/license/redeem-voucher';
 
 export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   const isMiniApp = new URLSearchParams(window.location.search).has('code') && window.location.pathname.includes('miniapp');
@@ -27,6 +28,14 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   const [licenseCode, setLicenseCode] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [networkError, setNetworkError] = useState<boolean>(false);
+  // NEW — self-service renewal, so a customer whose license already expired
+  // isn't stuck: this screen never got past /api/auth's "expired" rejection
+  // before, and the existing voucher-redeem field only lives inside the
+  // dashboard (which requires being past that same rejection) — a dead end.
+  const [showVoucherField, setShowVoucherField] = useState<boolean>(false);
+  const [voucherCode, setVoucherCode] = useState<string>('');
+  const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
+  const [redeemMsg, setRedeemMsg] = useState<{ text: string; ok: boolean } | null>(null);
 
   // Initialize Device ID
   useEffect(() => {
@@ -188,6 +197,47 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
     validateLicense(codeToUse || licenseCode, deviceId);
   };
 
+  // NEW — lets a customer stuck on an "expired" (or device-limit) error
+  // redeem a renewal/top-up voucher right here, without ever needing to
+  // get past /api/auth first. Reuses whatever license code is already
+  // typed in the field above. On success, immediately retries the normal
+  // login so they land straight in the dashboard.
+  const handleRedeemVoucher = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!licenseCode.trim() || !voucherCode.trim()) return;
+
+    setIsRedeeming(true);
+    setRedeemMsg(null);
+
+    try {
+      const response = await fetch(VOUCHER_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: licenseCode.trim(), voucherCode: voucherCode.trim() }),
+      });
+      const data = await response.json();
+
+      if (data.ok) {
+        setRedeemMsg({ text: '✅ کد با موفقیت اعمال شد! در حال ورود...', ok: true });
+        setVoucherCode('');
+        // Re-run the normal login flow now that the license is extended —
+        // this also clears the old "expired" errorMsg on success.
+        await validateLicense(licenseCode, deviceId);
+      } else {
+        let msg = 'کد تمدید نامعتبر است.';
+        if (data.reason === 'voucher_invalid') msg = 'این کد تمدید پیدا نشد.';
+        else if (data.reason === 'voucher_already_used') msg = 'این کد تمدید قبلاً استفاده شده.';
+        else if (data.reason === 'invalid') msg = 'لایسنس‌کدی که بالا نوشتید نامعتبره.';
+        else if (data.reason === 'revoked') msg = 'این لایسنس غیرفعال شده — امکان تمدید خودکار نیست، با پشتیبانی تماس بگیرید.';
+        setRedeemMsg({ text: '❌ ' + msg, ok: false });
+      }
+    } catch (e) {
+      setRedeemMsg({ text: '❌ اتصال به سرور برقرار نشد، دوباره تلاش کنید.', ok: false });
+    } finally {
+      setIsRedeeming(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div dir="rtl" className="min-h-screen dark:bg-[#0f172a] bg-white dark:text-white text-slate-800 flex flex-col items-center justify-center p-4">
@@ -298,6 +348,62 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
             )}
           </div>
         </form>
+
+        {/* NEW — self-service renewal, only surfaced once there's already an
+            error above (expired / device limit / etc). Reuses whatever
+            license code is already typed in the field above. */}
+        {errorMsg && !networkError && (
+          <div className="mt-4">
+            {!showVoucherField ? (
+              <button
+                type="button"
+                onClick={() => setShowVoucherField(true)}
+                className="w-full text-xs dark:text-purple-300 text-purple-600 hover:underline text-center py-1"
+              >
+                🎟 کد تمدید یا شارژ دارید؟
+              </button>
+            ) : (
+              <div className="p-4 rounded-xl dark:bg-white/5 bg-slate-100 border dark:border-white/10 border-slate-200 space-y-3 animate-slide-up">
+                <label className="block text-xs dark:text-slate-400 text-slate-500 font-medium">کد تمدید / شارژ:</label>
+                <input
+                  type="text"
+                  value={voucherCode}
+                  onChange={(e) => setVoucherCode(e.target.value)}
+                  placeholder="مثال: RNW-XXXX-XXXX"
+                  disabled={isRedeeming}
+                  className="w-full dark:bg-black/30 bg-white border dark:border-white/10 border-slate-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl px-4 py-2.5 text-sm text-center dark:text-white text-slate-800 placeholder-slate-600 outline-none transition-all duration-200 font-mono"
+                />
+                {redeemMsg && (
+                  <div className={`text-xs leading-relaxed ${redeemMsg.ok ? 'dark:text-green-300 text-green-600' : 'dark:text-red-300 text-red-600'}`}>
+                    {redeemMsg.text}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleRedeemVoucher}
+                    disabled={isRedeeming || !licenseCode.trim() || !voucherCode.trim()}
+                    className="flex-1 py-2.5 bg-gradient-to-l from-emerald-600 to-teal-600 hover:opacity-95 text-white disabled:opacity-50 disabled:pointer-events-none rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all"
+                  >
+                    {isRedeeming ? <Loader2 size={15} className="animate-spin" /> : '✅'}
+                    اعمال کد و ورود
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowVoucherField(false); setRedeemMsg(null); }}
+                    disabled={isRedeeming}
+                    className="px-4 py-2.5 dark:bg-white/5 bg-slate-200 rounded-xl text-xs dark:text-slate-300 text-slate-600"
+                  >
+                    انصراف
+                  </button>
+                </div>
+                {!licenseCode.trim() && (
+                  <p className="text-[11px] dark:text-amber-300 text-amber-600">⚠️ اول لایسنس‌کد خودتون رو توی فیلد بالا وارد کنید.</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Device Information section */}
         <div className="mt-8 pt-6 border-t dark:border-white/5 border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-mono">

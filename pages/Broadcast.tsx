@@ -109,6 +109,41 @@ export const Broadcast: React.FC = () => {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
+  // --- EFFECT: FETCH REAL USERS FROM THE SERVER ---
+  // `bot_users` in localStorage is a leftover from before users were moved
+  // to the D1 database (see upsertUser on the backend) — nothing writes to
+  // it anymore, so without this it silently stays empty/stale forever and
+  // both the audience-count display AND actual broadcast sending would
+  // always treat the real audience as 0 users, even with real users in the
+  // bot. This refetches from the same endpoint the "کاربران ربات" page
+  // uses, and refreshes the local cache so the rest of this page's existing
+  // logic (which reads/writes bot_users) keeps working unchanged.
+  useEffect(() => {
+      const fetchRealUsers = async () => {
+          try {
+              const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
+              let code = '';
+              try { code = JSON.parse(licenseCacheStr).code || ''; } catch { code = licenseCacheStr; }
+              if (!code) return;
+
+              const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/users/list', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ code, limit: 500 })
+              });
+              const result = await res.json();
+              if (result.ok) {
+                  const fetchedUsers = result.users || [];
+                  localStorage.setItem('bot_users', JSON.stringify(fetchedUsers));
+                  setRealUsers(fetchedUsers);
+              }
+          } catch (e) {
+              console.error('fetchRealUsers error:', e);
+          }
+      };
+      fetchRealUsers();
+  }, []);
+
   // --- EFFECT: LOAD DRAFT ---
   useEffect(() => {
       const savedDraft = localStorage.getItem('broadcast_draft');

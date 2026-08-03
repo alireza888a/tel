@@ -18,6 +18,8 @@ import { MiniShop } from './pages/MiniShop';
 import { BookingPage } from './pages/Booking';
 import { CouponsPage } from './pages/Coupons';
 import { useCloudAutoSave } from './hooks/useCloudAutoSave';
+import { migrateMiniAppButtonUrls } from './utils/miniAppUrlMigration';
+import { syncNow } from './services/cloudSync';
 
 const App: React.FC = () => {
   const isMiniApp = new URLSearchParams(window.location.search).has('code') && window.location.pathname.includes('miniapp');
@@ -43,6 +45,13 @@ const App: React.FC = () => {
     }
     return 'dark';
   });
+
+  useEffect(() => {
+    const didMigrate = migrateMiniAppButtonUrls();
+    if (didMigrate) {
+      syncNow();
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('last_page', currentPage);

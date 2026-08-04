@@ -10,6 +10,7 @@ interface BackupRestoreCardProps {
   onToggleAutoBackup: () => void;
   autoBackupFrequency: 'daily' | 'weekly';
   onChangeAutoBackupFrequency: (freq: 'daily' | 'weekly') => void;
+  isTrialPlan?: boolean;
 }
 
 export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
@@ -20,6 +21,7 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
   onToggleAutoBackup,
   autoBackupFrequency,
   onChangeAutoBackupFrequency,
+  isTrialPlan,
 }) => {
   return (
     <GlassCard className="border-t-4 border-t-blue-500">
@@ -28,10 +30,21 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
         <h3 className="font-bold text-lg dark:text-white text-slate-800">مدیریت داده‌ها (پشتیبان‌گیری)</h3>
       </div>
 
+      {isTrialPlan && (
+        <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs leading-relaxed">
+          ⚠️ دانلود و بازگردانی فایل پشتیبان در دوره‌ی آزمایشی فعال نیست. بعد از خرید اشتراک در دسترس قرار می‌گیره.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-4">
         <button
-          onClick={handleBackup}
-          className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group"
+          onClick={isTrialPlan ? undefined : handleBackup}
+          disabled={isTrialPlan}
+          className={`flex items-center justify-between p-4 border rounded-xl transition-all group ${
+            isTrialPlan
+              ? 'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed'
+              : 'bg-white/5 hover:bg-white/10 border-white/10'
+          }`}
         >
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-500/20 text-green-400 rounded-lg group-hover:scale-110 transition-transform">
@@ -45,7 +58,11 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
           <FileJson size={20} className="text-slate-600" />
         </button>
 
-        <label className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group cursor-pointer">
+        <label className={`flex items-center justify-between p-4 border rounded-xl transition-all group ${
+            isTrialPlan
+              ? 'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed pointer-events-none'
+              : 'bg-white/5 hover:bg-white/10 border-white/10 cursor-pointer'
+          }`}>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg group-hover:scale-110 transition-transform">
               <Upload size={20} />
@@ -55,7 +72,7 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
               <div className="text-[10px] text-slate-500">آپلود فایل JSON و جایگزینی</div>
             </div>
           </div>
-          <input type="file" accept=".json" onChange={handleFileSelect} className="hidden" />
+          <input type="file" accept=".json" onChange={handleFileSelect} className="hidden" disabled={isTrialPlan} />
           <FileJson size={20} className="text-slate-600" />
         </label>
       </div>
@@ -71,8 +88,11 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
             <span className="text-xs text-slate-400">فعال باشد</span>
             <button
               type="button"
-              onClick={onToggleAutoBackup}
-              className={`w-11 h-6 rounded-full p-1 transition-colors flex items-center cursor-pointer ${
+              onClick={isTrialPlan ? undefined : onToggleAutoBackup}
+              disabled={isTrialPlan}
+              className={`w-11 h-6 rounded-full p-1 transition-colors flex items-center ${
+                isTrialPlan ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+              } ${
                 autoBackupEnabled ? 'bg-blue-600 justify-end' : 'bg-slate-700 justify-start'
               }`}
             >

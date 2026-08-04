@@ -115,6 +115,28 @@ export const Settings: React.FC = () => {
     const [showRestoreModal, setShowRestoreModal] = useState(false);
     const [pendingRestoreFile, setPendingRestoreFile] = useState<File | null>(null);
     const [toast, setToast] = useState<{message: string, type: 'success'|'error'} | null>(null);
+
+    // NEW — plan gating (backup/restore are disabled during a trial plan, so
+    // a customer can't build everything, export a JSON backup, then restore
+    // it into an endless string of fresh trial licenses).
+    const [customerPlan, setCustomerPlan] = useState<string | null>(null);
+    useEffect(() => {
+        const getLicenseCode = () => {
+            const cacheStr = localStorage.getItem('license_cache') || '{}';
+            try { return JSON.parse(cacheStr).code || ''; } catch { return cacheStr; }
+        };
+        const code = getLicenseCode();
+        if (!code) return;
+        fetch('https://corepanel-api.tajikr450.workers.dev/api/bot/health', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+        })
+            .then((res) => res.json())
+            .then((data) => { if (data.ok) setCustomerPlan(data.plan || null); })
+            .catch(() => {});
+    }, []);
+    const isTrialPlan = customerPlan === 'trial';
     
     // Toast auto-clear
     useEffect(() => {
@@ -587,6 +609,7 @@ export const Settings: React.FC = () => {
                             onToggleAutoBackup={handleToggleAutoBackup}
                             autoBackupFrequency={autoBackupFrequency}
                             onChangeAutoBackupFrequency={handleChangeAutoBackupFrequency}
+                            isTrialPlan={isTrialPlan}
                         />
                     </>
                 )}

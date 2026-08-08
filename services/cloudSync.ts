@@ -23,7 +23,8 @@ export const saveToCloud = async (code: string): Promise<boolean> => {
         booking_hours: JSON.parse(localStorage.getItem('booking_hours') || '{}'),
         admins: JSON.parse(localStorage.getItem('bot_admins') || '[]'),
         auto_backup_enabled: localStorage.getItem('auto_backup_enabled') === 'true',
-        auto_backup_frequency: localStorage.getItem('auto_backup_frequency') || 'daily'
+        auto_backup_frequency: localStorage.getItem('auto_backup_frequency') || 'daily',
+        custom_texts: JSON.parse(localStorage.getItem('custom_texts') || '{}')
       },
       data: {
         menus: JSON.parse(localStorage.getItem('kb_menus') || '{}'),
@@ -94,6 +95,7 @@ export const loadFromCloud = async (code: string): Promise<boolean> => {
         if (json.config.admins) localStorage.setItem('bot_admins', JSON.stringify(json.config.admins));
         if (json.config.auto_backup_enabled !== undefined) localStorage.setItem('auto_backup_enabled', String(json.config.auto_backup_enabled));
         if (json.config.auto_backup_frequency) localStorage.setItem('auto_backup_frequency', json.config.auto_backup_frequency);
+        if (json.config.custom_texts) localStorage.setItem('custom_texts', JSON.stringify(json.config.custom_texts));
       }
 
       // Restore Data

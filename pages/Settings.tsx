@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Server, CheckCircle, AlertTriangle, Database, CreditCard, Users, ListChecks, Smartphone, Image } from 'lucide-react';
+import { Server, CheckCircle, AlertTriangle, Database, CreditCard, Users, ListChecks, Smartphone, Image, MessageSquare } from 'lucide-react';
 import { telegramService } from '../services/telegramService';
 import { syncNow } from '../services/cloudSync';
 import { MiniAppModule, GalleryImage } from '../types';
@@ -12,6 +12,7 @@ import { TeamAccessCard } from '../components/settings/TeamAccessCard';
 import { PostConfirmMenuCard } from '../components/settings/PostConfirmMenuCard';
 import { MiniAppModulesCard } from '../components/settings/MiniAppModulesCard';
 import { GalleryManagementCard } from '../components/settings/GalleryManagementCard';
+import { AutoMessagesCard, CustomTexts } from '../AutoMessagesCard';
 import { FactoryResetModal } from '../components/settings/FactoryResetModal';
 import { RestoreBackupModal } from '../components/settings/RestoreBackupModal';
 
@@ -20,9 +21,14 @@ export const Settings: React.FC = () => {
     // Initialize directly from localStorage
     const [dbChannel, setDbChannel] = useState(localStorage.getItem('bot_db_channel') || '');
     const [activeSettingsTab, setActiveSettingsTab] = useState<
-        'database' | 'payment' | 'admins' | 'postConfirm' | 'miniapp' | 'gallery'
+        'database' | 'payment' | 'admins' | 'postConfirm' | 'miniapp' | 'gallery' | 'autoMessages'
     >('database');
-    
+
+    // Custom automated-message texts (booking/order confirm/reject, etc.)
+    const [customTexts, setCustomTexts] = useState<CustomTexts>(() => {
+        try { return JSON.parse(localStorage.getItem('custom_texts') || '{}'); } catch { return {}; }
+    });
+
     // Payment Card Settings States
     const [cardNumber, setCardNumber] = useState(localStorage.getItem('payment_card_number') || '');
     const [cardOwner, setCardOwner] = useState(localStorage.getItem('payment_card_owner') || '');
@@ -161,6 +167,11 @@ export const Settings: React.FC = () => {
         localStorage.setItem('payment_card_owner', cardOwner);
         syncNow();
     }, [cardOwner]);
+
+    useEffect(() => {
+        localStorage.setItem('custom_texts', JSON.stringify(customTexts));
+        syncNow();
+    }, [customTexts]);
 
     useEffect(() => {
         localStorage.setItem('admin_chat_id', adminChatId);
@@ -357,7 +368,8 @@ export const Settings: React.FC = () => {
                 payment_card_owner: localStorage.getItem('payment_card_owner'),
                 admin_chat_id: localStorage.getItem('admin_chat_id'),
                 support_chat_id: localStorage.getItem('support_chat_id'),
-                post_confirm_menu_id: localStorage.getItem('post_confirm_menu_id')
+                post_confirm_menu_id: localStorage.getItem('post_confirm_menu_id'),
+                custom_texts: JSON.parse(localStorage.getItem('custom_texts') || '{}')
             },
             data: {
                 menus: JSON.parse(localStorage.getItem('kb_menus') || '{}'),
@@ -408,6 +420,7 @@ export const Settings: React.FC = () => {
                 if (json.config.admin_chat_id) localStorage.setItem('admin_chat_id', json.config.admin_chat_id);
                 if (json.config.support_chat_id) localStorage.setItem('support_chat_id', json.config.support_chat_id);
                 if (json.config.post_confirm_menu_id) localStorage.setItem('post_confirm_menu_id', json.config.post_confirm_menu_id);
+                if (json.config.custom_texts) localStorage.setItem('custom_texts', JSON.stringify(json.config.custom_texts));
 
                 // Restore Data
                 localStorage.setItem('kb_menus', JSON.stringify(json.data.menus || {}));
@@ -585,6 +598,17 @@ export const Settings: React.FC = () => {
                     <Image size={16} />
                     <span>گالری</span>
                 </button>
+                <button
+                    onClick={() => setActiveSettingsTab('autoMessages')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'autoMessages'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <MessageSquare size={16} />
+                    <span>پیام‌های خودکار</span>
+                </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
@@ -669,6 +693,14 @@ export const Settings: React.FC = () => {
                         handleAddGalleryImage={handleAddGalleryImage}
                         handleUpdateGalleryCaption={handleUpdateGalleryCaption}
                         handleDeleteGalleryImage={handleDeleteGalleryImage}
+                    />
+                )}
+
+                {activeSettingsTab === 'autoMessages' && (
+                    /* 8. AUTOMATED MESSAGES */
+                    <AutoMessagesCard
+                        customTexts={customTexts}
+                        setCustomTexts={setCustomTexts}
                     />
                 )}
             </div>

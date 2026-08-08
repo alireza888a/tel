@@ -102,7 +102,14 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
         {FIELDS.map((field) => (
           <div key={field.key}>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs text-slate-500">{field.label}</label>
+              <div className="flex items-center gap-2">
+                <label className="block text-xs text-slate-500">{field.label}</label>
+                {customTexts[field.key] ? (
+                  <span className="text-[10px] font-bold text-teal-400 bg-teal-500/10 border border-teal-500/20 rounded-full px-2 py-0.5">✏️ متن سفارشی فعاله</span>
+                ) : (
+                  <span className="text-[10px] text-slate-500 bg-white/5 border border-white/10 rounded-full px-2 py-0.5">پیش‌فرض (چیزی ننوشتی)</span>
+                )}
+              </div>
               {customTexts[field.key] && (
                 <button
                   type="button"
@@ -116,9 +123,10 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
             <textarea
               value={customTexts[field.key] ?? ''}
               onChange={(e) => updateField(field.key, e.target.value)}
-              placeholder={field.defaultValue}
+              placeholder={'پیش‌فرض (فقط نمونه، ذخیره نشده): ' + field.defaultValue}
               rows={3}
-              className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-teal-500 transition-colors resize-y"
+              dir="rtl"
+              className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-teal-500 transition-colors resize-y placeholder:text-slate-600 placeholder:italic"
             />
             {field.vars.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-1.5">

@@ -24,7 +24,8 @@ export const saveToCloud = async (code: string): Promise<boolean> => {
         admins: JSON.parse(localStorage.getItem('bot_admins') || '[]'),
         auto_backup_enabled: localStorage.getItem('auto_backup_enabled') === 'true',
         auto_backup_frequency: localStorage.getItem('auto_backup_frequency') || 'daily',
-        custom_texts: JSON.parse(localStorage.getItem('custom_texts') || '{}')
+        custom_texts: JSON.parse(localStorage.getItem('custom_texts') || '{}'),
+        profile_photo_file_id: localStorage.getItem('profile_photo_file_id') || null
       },
       data: {
         menus: JSON.parse(localStorage.getItem('kb_menus') || '{}'),
@@ -96,6 +97,7 @@ export const loadFromCloud = async (code: string): Promise<boolean> => {
         if (json.config.auto_backup_enabled !== undefined) localStorage.setItem('auto_backup_enabled', String(json.config.auto_backup_enabled));
         if (json.config.auto_backup_frequency) localStorage.setItem('auto_backup_frequency', json.config.auto_backup_frequency);
         if (json.config.custom_texts) localStorage.setItem('custom_texts', JSON.stringify(json.config.custom_texts));
+        if (json.config.profile_photo_file_id) localStorage.setItem('profile_photo_file_id', json.config.profile_photo_file_id);
       }
 
       // Restore Data

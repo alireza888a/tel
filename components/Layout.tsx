@@ -1,7 +1,10 @@
 
-import React, { useState } from 'react';
-import { Menu, Home, Settings, Layers, Users, Command, Bell, Search, Moon, Sun, Megaphone, LogOut, Download, AlertTriangle, X, Cloud, UserCog, ShoppingBag, ShoppingCart, MessageCircle, HelpCircle, Zap, Calendar, Tag } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Menu, Home, Settings, Layers, Users, Command, Bell, Search, Moon, Sun, Megaphone, LogOut, Download, AlertTriangle, X, Cloud, UserCog, ShoppingBag, ShoppingCart, MessageCircle, HelpCircle, Zap, Calendar, Tag, Camera } from 'lucide-react';
 import { LOGO_ICON_DATA_URI } from '../assets/logoIcon';
+import { telegramService } from '../services/telegramService';
+import { getDisplayableImageUrl } from '../utils/image';
+import { syncNow } from '../services/cloudSync';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +18,36 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [profilePhotoFileId, setProfilePhotoFileId] = useState<string | null>(localStorage.getItem('profile_photo_file_id'));
+  const [isUploadingProfilePhoto, setIsUploadingProfilePhoto] = useState(false);
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleProfilePhotoSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file later
+    if (!file) return;
+
+    const token = localStorage.getItem('bot_token') || '';
+    const dbChannel = localStorage.getItem('bot_db_channel') || '';
+    if (!token || !dbChannel) {
+      alert('اول باید ربات‌تون رو وصل کنید و کانال «دیتابیس/بکاپ» رو توی تنظیمات تنظیم کنید، بعد بتونید عکس پروفایل بذارید.');
+      return;
+    }
+
+    setIsUploadingProfilePhoto(true);
+    try {
+      const fileId = await telegramService.uploadToDb(token, dbChannel, file, 'image');
+      if (fileId) {
+        localStorage.setItem('profile_photo_file_id', fileId);
+        setProfilePhotoFileId(fileId);
+        syncNow();
+      } else {
+        alert('آپلود عکس ناموفق بود، دوباره امتحان کنید.');
+      }
+    } finally {
+      setIsUploadingProfilePhoto(false);
+    }
+  };
 
   // NEW — profile dropdown: reads the same license_cache LicenseGate already
   // maintains, so no new API call/state is needed. The code is masked
@@ -245,11 +278,22 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
              </button>
              
              <div className="relative">
+                <input
+                   type="file"
+                   accept="image/*"
+                   ref={profilePhotoInputRef}
+                   onChange={handleProfilePhotoSelected}
+                   className="hidden"
+                />
                 <button
                    onClick={() => setShowProfileMenu(!showProfileMenu)}
-                   className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 dark:border-white/20 border-white/50 shadow-lg cursor-pointer transform hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-sm"
+                   className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 dark:border-white/20 border-white/50 shadow-lg cursor-pointer transform hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-sm overflow-hidden"
                 >
-                   {licenseInfo.maskedCode ? licenseInfo.maskedCode.slice(0, 1) : 'A'}
+                   {profilePhotoFileId && getDisplayableImageUrl(profilePhotoFileId) ? (
+                      <img src={getDisplayableImageUrl(profilePhotoFileId)!} alt="پروفایل" className="w-full h-full object-cover" />
+                   ) : (
+                      licenseInfo.maskedCode ? licenseInfo.maskedCode.slice(0, 1) : 'A'
+                   )}
                 </button>
 
                 {showProfileMenu && (
@@ -275,6 +319,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                               </p>
                            )}
                         </div>
+                        <button
+                           onClick={() => { setShowProfileMenu(false); profilePhotoInputRef.current?.click(); }}
+                           disabled={isUploadingProfilePhoto}
+                           className="w-full text-right px-4 py-3 text-sm dark:text-white/80 text-slate-700 dark:hover:bg-white/5 hover:bg-slate-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                        >
+                           <Camera size={16} /> {isUploadingProfilePhoto ? 'در حال آپلود...' : 'تغییر عکس پروفایل'}
+                        </button>
                         <button
                            onClick={() => { setShowProfileMenu(false); onNavigate('settings'); }}
                            className="w-full text-right px-4 py-3 text-sm dark:text-white/80 text-slate-700 dark:hover:bg-white/5 hover:bg-slate-50 transition-colors flex items-center gap-2"

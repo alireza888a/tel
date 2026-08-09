@@ -14,6 +14,29 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigate, toggleTheme, isDarkMode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // NEW — profile dropdown: reads the same license_cache LicenseGate already
+  // maintains, so no new API call/state is needed. The code is masked
+  // (only first/last segment shown) since this is the merchant's own
+  // panel-login credential — no reason to ever show it in full on screen.
+  const licenseInfo = (() => {
+    try {
+      const cache = JSON.parse(localStorage.getItem('license_cache') || '{}');
+      const code: string = cache.code || '';
+      const maskedCode = code.length > 8
+        ? code.slice(0, 4) + '••••' + code.slice(-4)
+        : code;
+      let daysLeft: number | null = null;
+      if (cache.validUntil) {
+        const diffMs = new Date(cache.validUntil).getTime() - Date.now();
+        daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      }
+      return { maskedCode, daysLeft };
+    } catch {
+      return { maskedCode: '', daysLeft: null };
+    }
+  })();
 
   const menuItems = [
     { id: 'dashboard', label: 'داشبورد', icon: <Home size={20} />, color: 'dark:text-blue-400 text-blue-600' },
@@ -221,7 +244,53 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                 <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />
              </button>
              
-             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 dark:border-white/20 border-white/50 shadow-lg cursor-pointer transform hover:scale-105 transition-transform" />
+             <div className="relative">
+                <button
+                   onClick={() => setShowProfileMenu(!showProfileMenu)}
+                   className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 dark:border-white/20 border-white/50 shadow-lg cursor-pointer transform hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-sm"
+                >
+                   {licenseInfo.maskedCode ? licenseInfo.maskedCode.slice(0, 1) : 'A'}
+                </button>
+
+                {showProfileMenu && (
+                   <>
+                     {/* click-outside overlay */}
+                     <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
+                     <div className="absolute left-0 top-full mt-2 w-64 z-50 dark:bg-[#1e293b] bg-white border dark:border-white/10 border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+                        <div className="p-4 border-b dark:border-white/10 border-slate-100">
+                           <p className="text-[11px] dark:text-slate-500 text-slate-400 mb-1">لایسنس‌کد</p>
+                           <p className="text-sm font-mono dark:text-white text-slate-800 dir-ltr text-left">
+                              {licenseInfo.maskedCode || '—'}
+                           </p>
+                        </div>
+                        <div className="p-4 border-b dark:border-white/10 border-slate-100">
+                           <p className="text-[11px] dark:text-slate-500 text-slate-400 mb-1">اعتبار اشتراک</p>
+                           {licenseInfo.daysLeft === null ? (
+                              <p className="text-sm dark:text-white text-slate-800">نامشخص</p>
+                           ) : licenseInfo.daysLeft < 0 ? (
+                              <p className="text-sm font-bold text-red-500">منقضی شده</p>
+                           ) : (
+                              <p className={`text-sm font-bold ${licenseInfo.daysLeft <= 7 ? 'text-amber-500' : 'dark:text-white text-slate-800'}`}>
+                                 {licenseInfo.daysLeft} روز مونده
+                              </p>
+                           )}
+                        </div>
+                        <button
+                           onClick={() => { setShowProfileMenu(false); onNavigate('settings'); }}
+                           className="w-full text-right px-4 py-3 text-sm dark:text-white/80 text-slate-700 dark:hover:bg-white/5 hover:bg-slate-50 transition-colors flex items-center gap-2"
+                        >
+                           <Settings size={16} /> تنظیمات
+                        </button>
+                        <button
+                           onClick={() => { setShowProfileMenu(false); setShowExitModal(true); }}
+                           className="w-full text-right px-4 py-3 text-sm text-red-400 dark:hover:bg-red-500/10 hover:bg-red-50 transition-colors flex items-center gap-2"
+                        >
+                           <LogOut size={16} /> خروج از پنل
+                        </button>
+                     </div>
+                   </>
+                )}
+             </div>
           </div>
         </header>
 

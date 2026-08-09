@@ -42,6 +42,7 @@ interface WebhookData {
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [token, setToken] = useState(localStorage.getItem('bot_token') || '');
   const [botInfo, setBotInfo] = useState<TelegramUser | null>(null);
+  const [botPhotoUrl, setBotPhotoUrl] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean | null>(null); // null=checking, true=online, false=offline
   const [isLoading, setIsLoading] = useState(false);
 
@@ -143,6 +144,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               if (me.ok && me.result) {
                   setBotInfo(me.result);
                   setIsOnline(true);
+                  // Best-effort — a fresh bot with no photo set just falls
+                  // back to the initials circle, no error shown.
+                  telegramService.getBotProfilePhotoUrl(token, me.result.id).then(setBotPhotoUrl);
               } else {
                   setIsOnline(false);
               }
@@ -547,8 +551,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
                     <div className="relative">
                         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px] shadow-lg">
-                            <div className="w-full h-full rounded-full bg-[#1e293b] flex items-center justify-center text-3xl font-bold text-white uppercase">
-                                {botInfo ? botInfo.username.substring(0, 2) : 'BOT'}
+                            <div className="w-full h-full rounded-full bg-[#1e293b] flex items-center justify-center text-3xl font-bold text-white uppercase overflow-hidden">
+                                {botPhotoUrl ? (
+                                    <img src={botPhotoUrl} alt={botInfo?.first_name || 'bot'} className="w-full h-full object-cover" />
+                                ) : (
+                                    botInfo ? botInfo.username.substring(0, 2) : 'BOT'
+                                )}
                             </div>
                         </div>
                         <div className={`absolute bottom-1 right-1 w-6 h-6 rounded-full border-4 border-[#1e293b] ${isOnline ? 'bg-green-500' : 'bg-red-500'} shadow-sm`}></div>

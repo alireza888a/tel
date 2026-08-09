@@ -4,13 +4,12 @@ export function getDisplayableImageUrl(imageValue?: string): string | null {
     return imageValue;
   }
 
-  let code = '';
-  try {
-    const licenseStr = localStorage.getItem('license_cache') || '{}';
-    code = JSON.parse(licenseStr).code || '';
-  } catch {}
+  // NEW — this proxy endpoint was switched to require the leak-safe
+  // access_token (not the private license code) as part of the Mini App
+  // security fix; this helper needs the same value, or every gallery/
+  // product image inside the admin panel itself 404s.
+  const accessToken = localStorage.getItem('webhook_access_token') || '';
+  if (!accessToken) return null;
 
-  if (!code) return null;
-
-  return `https://corepanel-api.tajikr450.workers.dev/api/shop/${encodeURIComponent(code)}/image/${encodeURIComponent(imageValue)}`;
+  return `https://corepanel-api.tajikr450.workers.dev/api/shop/${encodeURIComponent(accessToken)}/image/${encodeURIComponent(imageValue)}`;
 }

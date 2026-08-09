@@ -30,6 +30,28 @@ export const telegramService = {
     }
   },
 
+  // NEW — bot's own profile photo (shown to buyers in Telegram, set via
+  // BotFather /setuserpic). getMe doesn't include it; this is a separate
+  // call. Returns a ready-to-use image URL, or null if the bot has no
+  // photo set (a fresh bot with a default silhouette, for example).
+  async getBotProfilePhotoUrl(token: string, botUserId: number): Promise<string | null> {
+    try {
+      const photosRes = await fetch(`${BASE_URL}${token}/getUserProfilePhotos?user_id=${botUserId}&limit=1`);
+      const photosData = await photosRes.json();
+      const photoSizes = photosData?.result?.photos?.[0];
+      if (!photosData.ok || !photoSizes || photoSizes.length === 0) return null;
+
+      const fileId = photoSizes[photoSizes.length - 1].file_id; // largest size
+      const fileRes = await fetch(`${BASE_URL}${token}/getFile?file_id=${encodeURIComponent(fileId)}`);
+      const fileData = await fileRes.json();
+      if (!fileData.ok || !fileData.result?.file_path) return null;
+
+      return `https://api.telegram.org/file/bot${token}/${fileData.result.file_path}`;
+    } catch (e) {
+      return null;
+    }
+  },
+
   async getWebhookInfo(token: string) {
     try {
       const res = await fetch(`${BASE_URL}${token}/getWebhookInfo`);

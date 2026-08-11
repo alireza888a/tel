@@ -5,33 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Advanced Telegram Admin</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              vazir: ['Vazirmatn', 'sans-serif'],
-            },
-            animation: {
-              'fade-in': 'fadeIn 0.5s ease-out',
-              'slide-up': 'slideUp 0.5s ease-out',
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(20px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)', opacity: '1' },
-              }
-            }
-          }
-        }
-      }
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
@@ -74,6 +47,14 @@
 
       html.light .text-slate-300:not(.telegram-simulator):not(.telegram-simulator *) {
         color: #334155 !important; /* slate-700 */
+      }
+
+      /* text-slate-200 was missing from this list — it's an off-white
+         color meant for dark backgrounds. Without this rule, any element
+         using it renders near-invisible pale-gray-on-white text in light
+         mode. */
+      html.light .text-slate-200:not(.telegram-simulator):not(.telegram-simulator *) {
+        color: #1e293b !important; /* slate-800 */
       }
 
       html.light .text-slate-400:not(.telegram-simulator):not(.telegram-simulator *) {

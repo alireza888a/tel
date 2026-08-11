@@ -5,6 +5,7 @@ import { QueueItem, InlineRow, SavedChannel, SentMessageLog, MediaFile } from '.
 import { telegramService } from '../services/telegramService';
 import { generateBroadcastMessage } from '../services/geminiService';
 import { syncNow } from '../services/cloudSync';
+import { sanitizeTelegramHtml } from '../utils/sanitizeTelegramHtml';
 
 // --- UTILITIES (Accurate Jalali/Gregorian Conversion) ---
 const jalaaliMonthLength = (y: number, m: number) => {
@@ -803,7 +804,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                                          {mediaFiles.length > 1 && <div className="absolute top-2 right-2 bg-black/60 dark:text-white text-slate-800 text-[10px] px-2 py-0.5 rounded-full">+{mediaFiles.length - 1} فایل</div>}
                                                      </div>
                                                  )}
-                                                 <div className="p-3 dark:text-white text-slate-800 text-sm whitespace-pre-wrap dir-rtl text-right leading-relaxed font-vazir" dangerouslySetInnerHTML={{ __html: text || 'متن پیام شما...' }}></div>
+                                                 <div className="p-3 dark:text-white text-slate-800 text-sm whitespace-pre-wrap dir-rtl text-right leading-relaxed font-vazir" dangerouslySetInnerHTML={{ __html: sanitizeTelegramHtml(text) || 'متن پیام شما...' }}></div>
                                                  <div className="px-2 pb-1 text-right"><span className="text-[10px] dark:text-white/40 text-slate-400 font-mono">12:30 PM</span></div>
                                              </div>
                                              {inlineRows.length > 0 && (

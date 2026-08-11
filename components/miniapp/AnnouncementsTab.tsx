@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bell, RefreshCw, Loader2, AlertTriangle, Clock } from 'lucide-react';
+import { sanitizeTelegramHtml } from '../../utils/sanitizeTelegramHtml';
 
 export interface AnnouncementMedia {
   type: 'image' | 'video' | 'audio';
@@ -86,7 +87,7 @@ export const AnnouncementsTab: React.FC<AnnouncementsTabProps> = ({
               {item.content && (
                 <div 
                   className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap font-sans"
-                  dangerouslySetInnerHTML={{ __html: item.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeTelegramHtml(item.content) }}
                 />
               )}
 

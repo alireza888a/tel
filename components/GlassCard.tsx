@@ -9,7 +9,9 @@ interface GlassCardProps {
 
 export const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', title, action }) => {
   return (
-    <div className={`
+    <div
+      style={{ transform: 'translateZ(0)' }}
+      className={`
       backdrop-blur-xl 
       dark:bg-white/5 bg-white/70 
       dark:border-white/10 border-white/40 border

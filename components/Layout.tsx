@@ -16,6 +16,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigate, toggleTheme, isDarkMode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [profilePhotoFileId, setProfilePhotoFileId] = useState<string | null>(localStorage.getItem('profile_photo_file_id'));
@@ -171,10 +172,26 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
           </div>
       )}
 
-      {/* Sidebar - RTL: Right Side */}
+      {/* Mobile backdrop — tapping it closes the drawer. Desktop never renders this. */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - RTL: Right Side.
+          Mobile (below md): fixed overlay drawer, hidden off-screen (translate-x-full)
+          until isMobileMenuOpen, always full width regardless of isSidebarOpen (the
+          icon-only collapse mode doesn't apply to a drawer you open on purpose).
+          Desktop (md+): unchanged from before — static, in-flow, width toggles with
+          isSidebarOpen, always visible (translate-x-0). */}
       <aside 
-        className={`${isSidebarOpen ? 'w-64' : 'w-20'} 
-        dark:bg-white/5 bg-white/60 backdrop-blur-xl border-l dark:border-white/10 border-white/40 transition-all duration-300 relative flex flex-col z-20 shadow-lg`}
+        style={{ willChange: 'width' }}
+        className={`w-64 ${isSidebarOpen ? 'md:w-64' : 'md:w-20'} 
+        fixed md:relative inset-y-0 right-0 z-40 md:z-20
+        ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'} md:translate-x-0
+        dark:bg-white/5 bg-white/60 backdrop-blur-xl border-l dark:border-white/10 border-white/40 transition-transform md:transition-[width] duration-300 flex flex-col shadow-lg`}
       >
         <div className="p-6 flex items-center gap-3.5">
            <div className="w-11 h-11 rounded-xl bg-white shadow-lg flex items-center justify-center shrink-0 p-1.5 border dark:border-white/10 border-slate-200">
@@ -185,13 +202,22 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                Asan<span className="text-purple-600 dark:text-purple-400">Hub</span>
              </h1>
            )}
+           {/* Mobile-only close (X) button — the desktop collapse-to-icons
+               button below is hidden on mobile since it doesn't apply to an
+               overlay drawer; this is the mobile equivalent of "close it". */}
+           <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="md:hidden mr-auto p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-500 dark:text-white/60"
+           >
+              <X size={20} />
+           </button>
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => { onNavigate(item.id); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden
                 ${currentPage === item.id 
                   ? 'bg-gradient-to-l from-blue-600/80 to-purple-600/80 shadow-[0_0_20px_rgba(59,130,246,0.5)] text-white' 
@@ -218,7 +244,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
         {/* Footer Actions */}
         <div className={`p-4 border-t dark:border-white/5 border-black/5 flex items-center gap-2 ${isSidebarOpen ? 'flex-row' : 'flex-col'}`}>
             <button 
-                onClick={() => setShowExitModal(true)}
+                onClick={() => { setShowExitModal(true); setIsMobileMenuOpen(false); }}
                 className={`flex-1 flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden hover:bg-red-500/10 text-red-400 min-w-0`}
             >
                 <div className="transition-transform group-hover:scale-110 group-hover:translate-x-1 shrink-0">
@@ -227,13 +253,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                 {isSidebarOpen && <span className="font-medium animate-fade-in whitespace-nowrap">خروج از پنل</span>}
             </button>
 
-            {/* Toggle Sidebar Button — sits in normal flow now, never overlaps
-                the logout button above (it used to float with `absolute`
-                positioning at a fixed offset, which collided with the logout
-                button whenever the sidebar was collapsed). */}
+            {/* Toggle Sidebar Button (icon-only collapse) — desktop only.
+                Mobile closes via the X button above or the backdrop instead. */}
             <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="shrink-0 p-2.5 rounded-lg dark:bg-white/5 bg-black/5 hover:bg-black/10 dark:hover:bg-white/10 dark:text-white/50 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="hidden md:block shrink-0 p-2.5 rounded-lg dark:bg-white/5 bg-black/5 hover:bg-black/10 dark:hover:bg-white/10 dark:text-white/50 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
                 <Menu size={20} />
             </button>
@@ -241,16 +265,26 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative overflow-hidden">
+      <main className="flex-1 flex flex-col relative overflow-hidden w-full">
         {/* Header */}
-        <header className="h-20 px-8 flex items-center justify-between z-10">
-          <div className="flex items-center gap-4 dark:bg-white/5 bg-white/60 backdrop-blur-md px-4 py-2 rounded-full border dark:border-white/5 border-white/40 shadow-sm">
-             <Search size={18} className="dark:text-white/40 text-slate-400" />
-             <input 
-                type="text" 
-                placeholder="جستجو..." 
-                className="bg-transparent border-none outline-none text-sm dark:text-white text-slate-800 dark:placeholder-white/40 placeholder-slate-400 w-48"
-             />
+        <header className="h-20 px-4 md:px-8 flex items-center justify-between gap-3 z-10">
+          <div className="flex items-center gap-3">
+             {/* Mobile-only hamburger — opens the drawer sidebar. Hidden on
+                 desktop where the sidebar is already always visible. */}
+             <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="md:hidden p-2.5 rounded-full dark:bg-white/5 bg-white/60 backdrop-blur-md border dark:border-white/5 border-white/40 shadow-sm dark:text-white text-slate-700 shrink-0"
+             >
+                <Menu size={20} />
+             </button>
+             <div className="flex items-center gap-4 dark:bg-white/5 bg-white/60 backdrop-blur-md px-4 py-2 rounded-full border dark:border-white/5 border-white/40 shadow-sm min-w-0">
+                <Search size={18} className="dark:text-white/40 text-slate-400 shrink-0" />
+                <input 
+                   type="text" 
+                   placeholder="جستجو..." 
+                   className="bg-transparent border-none outline-none text-sm dark:text-white text-slate-800 dark:placeholder-white/40 placeholder-slate-400 w-24 sm:w-48"
+                />
+             </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -346,7 +380,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
         </header>
 
         {/* Dynamic Content Area */}
-        <div className="flex-1 overflow-y-auto px-8 pb-8 relative">
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 relative">
            {/* Background Decor */}
            <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1]">
               <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px]" />

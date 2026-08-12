@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Key, ShieldCheck, AlertCircle, Loader2, Lock, RefreshCw, Smartphone } from 'lucide-react';
+import { Key, ShieldCheck, AlertCircle, Loader2, Lock, RefreshCw, Smartphone, UserCog } from 'lucide-react';
 import { loadFromCloud } from '../services/cloudSync';
 
 interface LicenseCache {
   code: string;
+  checkedAt: number;
+  validUntil: string;
+}
+
+interface AssistantCache {
+  access_token: string;
+  slug: string;
   checkedAt: number;
   validUntil: string;
 }
@@ -13,6 +20,7 @@ interface LicenseGateProps {
 }
 
 const API_URL = 'https://corepanel-api.tajikr450.workers.dev/api/auth';
+const ADMIN_AUTH_URL = 'https://corepanel-api.tajikr450.workers.dev/api/auth/admin';
 const VOUCHER_API_URL = 'https://corepanel-api.tajikr450.workers.dev/api/license/redeem-voucher';
 
 export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
@@ -21,6 +29,14 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
     return <>{children}</>;
   }
 
+  // Assistant mode is entirely URL-driven: the owner shares a link like
+  // panel.example.com/?admin=<slug>, and whoever opens that link only ever
+  // sees the assistant login (username + password) — never the owner's
+  // license-code field. No mode toggle to confuse anyone with; someone who
+  // just visits the plain URL always gets the normal owner screen.
+  const adminSlug = new URLSearchParams(window.location.search).get('admin');
+  const isAssistantMode = !!adminSlug;
+
   const [deviceId, setDeviceId] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -28,6 +44,9 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   const [licenseCode, setLicenseCode] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [networkError, setNetworkError] = useState<boolean>(false);
+  // Assistant-mode fields
+  const [assistantUsername, setAssistantUsername] = useState<string>('');
+  const [assistantPassword, setAssistantPassword] = useState<string>('');
   // NEW — self-service renewal, so a customer whose license already expired
   // isn't stuck: this screen never got past /api/auth's "expired" rejection
   // before, and the existing voucher-redeem field only lives inside the
@@ -52,8 +71,44 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
     setDeviceId(id);
 
     // Initial check for cache
-    checkLicenseCache(id);
+    if (isAssistantMode && adminSlug) {
+      checkAssistantCache(adminSlug, id);
+    } else {
+      checkLicenseCache(id);
+    }
   }, []);
+
+  const checkAssistantCache = async (slug: string, currentDeviceId: string) => {
+    try {
+      const cachedStr = localStorage.getItem('assistant_session_cache');
+      if (cachedStr) {
+        const cache: AssistantCache = JSON.parse(cachedStr);
+        const now = Date.now();
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        // Only reuse the cached session if it's for this exact shop's link —
+        // a device that was an assistant for shop A must re-enter
+        // credentials if it opens shop B's assistant link.
+        if (cache.access_token && cache.slug === slug && cache.checkedAt && (now - cache.checkedAt < oneDayMs)) {
+          setIsLoading(true);
+          let loaded = false;
+          try {
+            loaded = await loadFromCloud({ access_token: cache.access_token });
+          } catch (e) {
+            console.warn('loadFromCloud error during assistant cached check:', e);
+          }
+          if (loaded) {
+            setIsAuthenticated(true);
+            setIsLoading(false);
+            return;
+          }
+          localStorage.removeItem('assistant_session_cache');
+        }
+      }
+    } catch (e) {
+      console.error('Failed to read assistant session cache', e);
+    }
+    setIsLoading(false);
+  };
 
   const checkLicenseCache = async (currentDeviceId: string) => {
     try {
@@ -72,7 +127,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           setIsLoading(true);
           let loaded = false;
           try {
-            loaded = await loadFromCloud(cache.code);
+            loaded = await loadFromCloud({ code: cache.code });
           } catch (e) {
             console.warn('loadFromCloud error during cached check:', e);
           }
@@ -147,7 +202,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
         // Load state from cloud before showing children
         setIsLoading(true);
         try {
-          await loadFromCloud(code.trim());
+          await loadFromCloud({ code: code.trim() });
         } catch (e) {
           console.warn('loadFromCloud error during validate:', e);
         }
@@ -172,6 +227,72 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
       }
     } catch (e) {
       console.error('License validation failed', e);
+      setNetworkError(true);
+      setErrorMsg('اتصال به سرور برقرار نشد، دوباره تلاش کن.');
+    } finally {
+      setIsSubmitting(false);
+      setIsLoading(false);
+    }
+  };
+
+  // Assistant login — same shape of flow as validateLicense, but hits
+  // /api/auth/admin with slug+username+password instead of a license code.
+  const validateAssistantLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminSlug) return;
+    if (!assistantUsername.trim() || !assistantPassword.trim()) {
+      setErrorMsg('لطفاً نام‌کاربری و رمز عبور را وارد کنید.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMsg(null);
+    setNetworkError(false);
+
+    try {
+      const response = await fetch(ADMIN_AUTH_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: adminSlug,
+          username: assistantUsername.trim(),
+          password: assistantPassword,
+          device_id: deviceId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 429 || data.reason === 'rate_limited') {
+        setErrorMsg('⏳ تعداد تلاش بیش از حد مجاز بود. لطفاً یک دقیقه صبر کنید و دوباره امتحان کنید.');
+      } else if (data.ok && data.access_token) {
+        const newCache: AssistantCache = {
+          access_token: data.access_token,
+          slug: adminSlug,
+          checkedAt: Date.now(),
+          validUntil: data.expires_at || '',
+        };
+        localStorage.setItem('assistant_session_cache', JSON.stringify(newCache));
+
+        setIsLoading(true);
+        try {
+          await loadFromCloud({ access_token: data.access_token });
+        } catch (e) {
+          console.warn('loadFromCloud error during assistant validate:', e);
+        }
+
+        setIsAuthenticated(true);
+        setErrorMsg(null);
+      } else {
+        let message = 'نام‌کاربری یا رمز عبور اشتباه است.';
+        if (data.reason === 'revoked') message = 'این فروشگاه غیرفعال شده.';
+        else if (data.reason === 'expired') message = 'اعتبار لایسنس این فروشگاه تموم شده.';
+        else if (data.reason === 'requires_multi_device_license') message = 'دسترسی دستیار برای این فروشگاه فعال نیست.';
+        else if (data.reason === 'device_limit') message = 'ظرفیت دستگاه‌های این لایسنس پره.';
+        setErrorMsg(message);
+      }
+    } catch (e) {
+      console.error('Assistant login failed', e);
       setNetworkError(true);
       setErrorMsg('اتصال به سرور برقرار نشد، دوباره تلاش کن.');
     } finally {
@@ -272,20 +393,22 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
         <div className="bg-gradient-to-l from-brand-teal to-brand-light px-8 pt-8 pb-8 text-center relative">
           <div className="relative inline-block">
             <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg">
-              <Key size={28} className="text-brand-teal" />
+              {isAssistantMode ? <UserCog size={28} className="text-brand-teal" /> : <Key size={28} className="text-brand-teal" />}
             </div>
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-amber rounded-full flex items-center justify-center text-[10px] text-brand-navy font-bold border-2 border-white">
               🔑
             </div>
           </div>
           <h1 className="text-2xl font-black text-white mt-4">
-            فعالسازی پنل مدیریت
+            {isAssistantMode ? 'ورود دستیار' : 'فعالسازی پنل مدیریت'}
           </h1>
         </div>
 
         <div className="px-8 pb-8 pt-6">
           <p className="text-sm text-brand-navy/80 leading-relaxed text-center mb-6">
-            جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.
+            {isAssistantMode
+              ? 'نام‌کاربری و رمز عبوری که مدیر فروشگاه در اختیارتان گذاشته را وارد کنید.'
+              : 'جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.'}
           </p>
 
         {/* Status Messages */}
@@ -296,6 +419,55 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           </div>
         )}
 
+        {/* Assistant login form — shown only when opened via the shop's
+            assistant link (?admin=<slug>); no license-code field, no
+            voucher-renewal field, nothing owner-only visible here at all. */}
+        {isAssistantMode ? (
+          <form onSubmit={validateAssistantLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm text-brand-navy mb-2 font-bold">نام‌کاربری:</label>
+              <input
+                type="text"
+                required
+                value={assistantUsername}
+                onChange={(e) => setAssistantUsername(e.target.value)}
+                className="w-full bg-black/[0.03] border border-black/10 focus:border-brand-teal focus:ring-1 focus:ring-brand-teal rounded-xl px-4 py-3 text-sm text-center text-brand-navy outline-none transition-all duration-200"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-brand-navy mb-2 font-bold">رمز عبور:</label>
+              <input
+                type="password"
+                required
+                value={assistantPassword}
+                onChange={(e) => setAssistantPassword(e.target.value)}
+                className="w-full bg-black/[0.03] border border-black/10 focus:border-brand-teal focus:ring-1 focus:ring-brand-teal rounded-xl px-4 py-3 text-sm text-center text-brand-navy outline-none transition-all duration-200"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting || !assistantUsername.trim() || !assistantPassword.trim()}
+                className="w-full py-3.5 bg-brand-teal hover:bg-brand-teal/90 text-white disabled:opacity-50 disabled:pointer-events-none rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>در حال ورود...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck size={18} />
+                    <span>ورود</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        ) : (
+        <>
         {/* Main form */}
         <form onSubmit={handleActivate} className="space-y-5">
           <div>
@@ -400,6 +572,8 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
               </div>
             )}
           </div>
+        )}
+        </>
         )}
 
         {/* Device Information section */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Server, CheckCircle, AlertTriangle, Database, CreditCard, Users, ListChecks, Smartphone, Image, MessageSquare } from 'lucide-react';
+import { Server, CheckCircle, AlertTriangle, Database, CreditCard, Users, ListChecks, Smartphone, Image, MessageSquare, UserCog } from 'lucide-react';
 import { telegramService } from '../services/telegramService';
 import { syncNow } from '../services/cloudSync';
 import { MiniAppModule, GalleryImage } from '../types';
@@ -15,13 +15,14 @@ import { GalleryManagementCard } from '../components/settings/GalleryManagementC
 import { AutoMessagesCard, CustomTexts } from '../AutoMessagesCard';
 import { FactoryResetModal } from '../components/settings/FactoryResetModal';
 import { RestoreBackupModal } from '../components/settings/RestoreBackupModal';
+import { AssistantAccessCard } from '../components/settings/AssistantAccessCard';
 
 export const Settings: React.FC = () => {
     const [token, setToken] = useState(localStorage.getItem('bot_token') || '');
     // Initialize directly from localStorage
     const [dbChannel, setDbChannel] = useState(localStorage.getItem('bot_db_channel') || '');
     const [activeSettingsTab, setActiveSettingsTab] = useState<
-        'database' | 'payment' | 'admins' | 'postConfirm' | 'miniapp' | 'gallery' | 'autoMessages'
+        'database' | 'payment' | 'admins' | 'assistantAccess' | 'postConfirm' | 'miniapp' | 'gallery' | 'autoMessages'
     >('database');
 
     // Custom automated-message texts (booking/order confirm/reject, etc.)
@@ -566,6 +567,17 @@ export const Settings: React.FC = () => {
                     <span>ادمین‌ها و دسترسی</span>
                 </button>
                 <button
+                    onClick={() => setActiveSettingsTab('assistantAccess')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                        activeSettingsTab === 'assistantAccess'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                    <UserCog size={16} />
+                    <span>دسترسی دستیار</span>
+                </button>
+                <button
                     onClick={() => setActiveSettingsTab('postConfirm')}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
                         activeSettingsTab === 'postConfirm'
@@ -666,6 +678,13 @@ export const Settings: React.FC = () => {
                             onRemoveAdmin={handleRemoveAdmin}
                         />
                     </>
+                )}
+
+                {activeSettingsTab === 'assistantAccess' && (
+                    /* 4.6. PANEL ASSISTANT ACCESS (separate from the bot's own
+                       Telegram admins above — this is a second panel-login
+                       credential for someone to help manage the panel itself) */
+                    <AssistantAccessCard />
                 )}
 
                 {activeSettingsTab === 'postConfirm' && (

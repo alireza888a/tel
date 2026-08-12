@@ -1,7 +1,41 @@
-export const saveToCloud = async (code: string): Promise<boolean> => {
+// A "credential" is either the owner's license code, or an assistant's
+// session access_token (issued by /api/auth/admin) — never both. Every
+// function below accepts this shape instead of a bare code string, so the
+// same save/load/autosave machinery works identically for both roles; the
+// backend (/api/data/save, /api/data/load) is what actually resolves which
+// one it is and enforces what an assistant session can't touch.
+export interface StoredCredential {
+  code?: string;
+  access_token?: string;
+}
+
+// Reads whichever credential is currently stored for this device — the
+// owner's license_cache if present, otherwise an assistant's
+// assistant_session_cache. A device is only ever one or the other.
+export const getStoredCredential = (): StoredCredential | null => {
   try {
-    if (!code) return false;
-    
+    const ownerStr = localStorage.getItem('license_cache');
+    if (ownerStr) {
+      const cache = JSON.parse(ownerStr);
+      if (cache.code) return { code: cache.code };
+    }
+  } catch (e) {}
+
+  try {
+    const assistantStr = localStorage.getItem('assistant_session_cache');
+    if (assistantStr) {
+      const cache = JSON.parse(assistantStr);
+      if (cache.access_token) return { access_token: cache.access_token };
+    }
+  } catch (e) {}
+
+  return null;
+};
+
+export const saveToCloud = async (credential: StoredCredential): Promise<boolean> => {
+  try {
+    if (!credential || (!credential.code && !credential.access_token)) return false;
+
     const backupData = {
       meta: {
         version: "2.5.3",
@@ -53,7 +87,7 @@ export const saveToCloud = async (code: string): Promise<boolean> => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ code, data: backupData })
+      body: JSON.stringify({ ...credential, data: backupData })
     });
     
     const result = await res.json();
@@ -64,16 +98,16 @@ export const saveToCloud = async (code: string): Promise<boolean> => {
   }
 };
 
-export const loadFromCloud = async (code: string): Promise<boolean> => {
+export const loadFromCloud = async (credential: StoredCredential): Promise<boolean> => {
   try {
-    if (!code) return false;
+    if (!credential || (!credential.code && !credential.access_token)) return false;
 
     const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/data/load', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ code })
+      body: JSON.stringify(credential)
     });
 
     const result = await res.json();
@@ -136,11 +170,9 @@ export const syncNow = () => {
   if (syncTimer) clearTimeout(syncTimer);
   syncTimer = setTimeout(() => {
     try {
-      const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
-      const licenseCache = JSON.parse(licenseCacheStr);
-      const code = licenseCache.code;
-      if (code) {
-        saveToCloud(code);
+      const credential = getStoredCredential();
+      if (credential) {
+        saveToCloud(credential);
       }
     } catch (e) {
       // silent fail

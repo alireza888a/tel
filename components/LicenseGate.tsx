@@ -132,6 +132,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
             console.warn('loadFromCloud error during cached check:', e);
           }
           if (loaded) {
+              localStorage.removeItem('assistant_session_cache');
               setIsAuthenticated(true);
               setIsLoading(false);
               return;
@@ -198,6 +199,10 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           validUntil: data.expires_at || '',
         };
         localStorage.setItem('license_cache', JSON.stringify(newCache));
+        // A device is only ever one role at a time — clear any stale
+        // assistant session so Settings.tsx (and anything else checking
+        // role) never gets confused by leftover state from an earlier test.
+        localStorage.removeItem('assistant_session_cache');
         
         // Load state from cloud before showing children
         setIsLoading(true);
@@ -273,6 +278,8 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           validUntil: data.expires_at || '',
         };
         localStorage.setItem('assistant_session_cache', JSON.stringify(newCache));
+        // Same reasoning as the owner path above, in reverse.
+        localStorage.removeItem('license_cache');
 
         setIsLoading(true);
         try {

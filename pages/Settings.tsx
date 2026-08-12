@@ -26,7 +26,12 @@ export const Settings: React.FC = () => {
     // redacts those fields in the load response, so there's nothing real
     // to show there anyway; hiding the tabs just avoids a confusing
     // dead-end UI for a field that will always look empty.
-    const isAssistantSession = !!localStorage.getItem('assistant_session_cache');
+    // A fresh owner login (license_cache present) always wins, even if a
+    // stale assistant_session_cache is still sitting in this browser's
+    // storage from an earlier test — a device should never be treated as
+    // "assistant" just because it once was, if it's now actively logged in
+    // as the owner.
+    const isAssistantSession = !localStorage.getItem('license_cache') && !!localStorage.getItem('assistant_session_cache');
 
     const [token, setToken] = useState(localStorage.getItem('bot_token') || '');
     // Initialize directly from localStorage

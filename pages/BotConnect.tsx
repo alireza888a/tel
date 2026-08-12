@@ -150,7 +150,7 @@ export const BotConnect: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-10">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+        <h2 className="text-3xl font-bold dark:text-white text-slate-800">
           اتصال به شبکه تلگرام
         </h2>
         <p className="dark:text-white/60 text-slate-500">

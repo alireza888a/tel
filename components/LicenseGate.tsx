@@ -283,7 +283,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
             </div>
           </div>
           
-          <h1 className="text-2xl font-black bg-gradient-to-r from-white via-slate-100 to-purple-300 bg-clip-text text-transparent mb-2">
+          <h1 className="text-2xl font-black dark:text-white text-slate-800 mb-2">
             فعالسازی پنل مدیریت
           </h1>
           <p className="text-xs dark:text-slate-400 text-slate-500 max-w-sm leading-relaxed">

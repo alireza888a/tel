@@ -113,48 +113,53 @@ export const loadFromCloud = async (credential: StoredCredential): Promise<boole
     const result = await res.json();
     if (result.ok && result.data) {
       const json = result.data;
+      const config = json.config || {};
+      const data = json.data || {};
 
-      // Restore Config
-      if (json.config) {
-        if (json.config.token) localStorage.setItem('bot_token', json.config.token);
-        if (json.config.db_channel) localStorage.setItem('bot_db_channel', json.config.db_channel);
-        if (json.config.webhook_url) localStorage.setItem('bot_webhook_url', json.config.webhook_url);
-        if (json.config.force_join) localStorage.setItem('force_join_enabled', json.config.force_join);
-        if (json.config.payment_card_number) localStorage.setItem('payment_card_number', json.config.payment_card_number);
-        if (json.config.payment_card_owner) localStorage.setItem('payment_card_owner', json.config.payment_card_owner);
-        if (json.config.admin_chat_id) localStorage.setItem('admin_chat_id', json.config.admin_chat_id);
-        if (json.config.support_chat_id) localStorage.setItem('support_chat_id', json.config.support_chat_id);
-        if (json.config.post_confirm_menu_id) localStorage.setItem('post_confirm_menu_id', json.config.post_confirm_menu_id);
-        if (json.config.miniapp_modules) localStorage.setItem('miniapp_modules', JSON.stringify(json.config.miniapp_modules));
-        if (json.config.booking_hours) localStorage.setItem('booking_hours', JSON.stringify(json.config.booking_hours));
-        if (json.config.admins) localStorage.setItem('bot_admins', JSON.stringify(json.config.admins));
-        if (json.config.auto_backup_enabled !== undefined) localStorage.setItem('auto_backup_enabled', String(json.config.auto_backup_enabled));
-        if (json.config.auto_backup_frequency) localStorage.setItem('auto_backup_frequency', json.config.auto_backup_frequency);
-        if (json.config.custom_texts) localStorage.setItem('custom_texts', JSON.stringify(json.config.custom_texts));
-        if (json.config.profile_photo_file_id) localStorage.setItem('profile_photo_file_id', json.config.profile_photo_file_id);
-      }
+      // Restore Config — every field is written unconditionally (with an
+      // explicit empty fallback), never "only if truthy". A brand-new shop
+      // that hasn't set its bot token yet has an EMPTY token, and the old
+      // conditional version would then just skip writing it — silently
+      // leaving whatever token a *previous* shop's session had left behind
+      // on this same browser still sitting in localStorage. That's exactly
+      // how a switch to shop B ended up still showing shop A's bot: nothing
+      // ever told the browser "this field is now empty for this shop."
+      localStorage.setItem('bot_token', config.token || '');
+      localStorage.setItem('bot_db_channel', config.db_channel || '');
+      localStorage.setItem('bot_webhook_url', config.webhook_url || '');
+      localStorage.setItem('force_join_enabled', config.force_join || '');
+      localStorage.setItem('payment_card_number', config.payment_card_number || '');
+      localStorage.setItem('payment_card_owner', config.payment_card_owner || '');
+      localStorage.setItem('admin_chat_id', config.admin_chat_id || '');
+      localStorage.setItem('support_chat_id', config.support_chat_id || '');
+      localStorage.setItem('post_confirm_menu_id', config.post_confirm_menu_id || '');
+      localStorage.setItem('miniapp_modules', JSON.stringify(config.miniapp_modules || ['shop']));
+      localStorage.setItem('booking_hours', JSON.stringify(config.booking_hours || {}));
+      localStorage.setItem('bot_admins', JSON.stringify(config.admins || []));
+      localStorage.setItem('auto_backup_enabled', String(!!config.auto_backup_enabled));
+      localStorage.setItem('auto_backup_frequency', config.auto_backup_frequency || 'daily');
+      localStorage.setItem('custom_texts', JSON.stringify(config.custom_texts || {}));
+      localStorage.setItem('profile_photo_file_id', config.profile_photo_file_id || '');
 
-      // Restore Data
-      if (json.data) {
-        localStorage.setItem('kb_menus', JSON.stringify(json.data.menus || {}));
-        localStorage.setItem('kb_forms', JSON.stringify(json.data.forms || {}));
-        localStorage.setItem('bot_commands', JSON.stringify(json.data.commands || []));
-        localStorage.setItem('saved_channels', JSON.stringify(json.data.channels || []));
-        localStorage.setItem('broadcast_templates', JSON.stringify(json.data.templates || []));
-        localStorage.setItem('bot_users', JSON.stringify(json.data.users || []));
-        localStorage.setItem('bot_logs', JSON.stringify(json.data.logs || []));
-        localStorage.setItem('channel_queue', JSON.stringify(json.data.queue || []));
-        localStorage.setItem('bot_products', JSON.stringify(json.data.products || []));
-        localStorage.setItem('bot_carts', JSON.stringify(json.data.carts || {}));
-        localStorage.setItem('bot_orders', JSON.stringify(json.data.orders || []));
-        if (json.data.tickets) localStorage.setItem('bot_tickets', JSON.stringify(json.data.tickets));
-        if (json.data.automations) localStorage.setItem('bot_automations', JSON.stringify(json.data.automations));
-        if (json.data.gallery) localStorage.setItem('gallery_images', JSON.stringify(json.data.gallery));
-        if (json.data.services) localStorage.setItem('booking_services', JSON.stringify(json.data.services));
-        if (json.data.providers) localStorage.setItem('booking_providers', JSON.stringify(json.data.providers));
-        if (json.data.bookings) localStorage.setItem('bookings_cache', JSON.stringify(json.data.bookings));
-        if (json.data.coupons) localStorage.setItem('coupons', JSON.stringify(json.data.coupons));
-      }
+      // Restore Data — same reasoning, unconditional for every key.
+      localStorage.setItem('kb_menus', JSON.stringify(data.menus || {}));
+      localStorage.setItem('kb_forms', JSON.stringify(data.forms || {}));
+      localStorage.setItem('bot_commands', JSON.stringify(data.commands || []));
+      localStorage.setItem('saved_channels', JSON.stringify(data.channels || []));
+      localStorage.setItem('broadcast_templates', JSON.stringify(data.templates || []));
+      localStorage.setItem('bot_users', JSON.stringify(data.users || []));
+      localStorage.setItem('bot_logs', JSON.stringify(data.logs || []));
+      localStorage.setItem('channel_queue', JSON.stringify(data.queue || []));
+      localStorage.setItem('bot_products', JSON.stringify(data.products || []));
+      localStorage.setItem('bot_carts', JSON.stringify(data.carts || {}));
+      localStorage.setItem('bot_orders', JSON.stringify(data.orders || []));
+      localStorage.setItem('bot_tickets', JSON.stringify(data.tickets || []));
+      localStorage.setItem('bot_automations', JSON.stringify(data.automations || []));
+      localStorage.setItem('gallery_images', JSON.stringify(data.gallery || []));
+      localStorage.setItem('booking_services', JSON.stringify(data.services || []));
+      localStorage.setItem('booking_providers', JSON.stringify(data.providers || []));
+      localStorage.setItem('bookings_cache', JSON.stringify(data.bookings || []));
+      localStorage.setItem('coupons', JSON.stringify(data.coupons || []));
       return true;
     }
     return false;

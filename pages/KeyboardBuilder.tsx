@@ -778,7 +778,7 @@ export const KeyboardBuilder: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 relative h-[calc(100vh-9rem)]">
+    <div className="flex flex-col lg:grid lg:grid-cols-[3fr_2fr] gap-6 relative lg:h-[calc(100vh-9rem)]">
       <input type="file" ref={fileInputRef} onChange={handleMediaUpload} className="hidden" accept="image/*,video/*,audio/*" />
 
 <FormDesignerModal
@@ -838,9 +838,9 @@ export const KeyboardBuilder: React.FC = () => {
       />
 
       {/* --- EDITOR COLUMN --- */}
-      <div className="space-y-6 overflow-y-auto pl-2 pr-1 pb-8 custom-scrollbar h-full">
+      <div className="space-y-6 lg:overflow-y-auto pl-2 pr-1 pb-8 custom-scrollbar lg:h-full">
          {/* Top Actions Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap sm:overflow-x-auto pb-2">
             <button
               onClick={() => setShowMenuSidebar(!showMenuSidebar)}
               className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-slate-300 transition-colors whitespace-nowrap"
@@ -955,7 +955,7 @@ export const KeyboardBuilder: React.FC = () => {
          />
       </div>
 
-      <div className="overflow-y-auto custom-scrollbar h-full flex justify-center items-start pt-2 pb-8">
+      <div className="lg:overflow-y-auto custom-scrollbar lg:h-full flex justify-center items-start pt-2 pb-8">
         <LiveSimulatorPreview
           currentMenu={currentMenu}
           handlePreviewAction={handlePreviewAction}

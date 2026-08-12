@@ -24,7 +24,7 @@ export const LiveSimulatorPreview: React.FC<LiveSimulatorPreviewProps> = ({
           پیش‌نمایش تعاملی (کلیک کنید)
        </div>
 
-      <div className="telegram-simulator mt-8 w-[300px] bg-[#1c2431] rounded-[30px] border-[6px] border-[#252f3f] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] overflow-hidden relative h-[600px] flex flex-col shrink-0">
+      <div className="telegram-simulator mt-8 w-full max-w-[300px] bg-[#1c2431] rounded-[30px] border-[6px] border-[#252f3f] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] overflow-hidden relative h-[600px] flex flex-col shrink-0">
              {/* MESSAGE BUBBLE */}
              <div className="flex-1 bg-[#0e1621] p-2 overflow-y-auto space-y-2 bg-[url('https://web.telegram.org/img/bg_0.png')] bg-repeat custom-scrollbar mt-12">
              <div className="bg-[#182533] rounded-tl-xl rounded-tr-xl rounded-br-xl rounded-bl-none max-w-[95%] shadow-sm overflow-hidden animate-slide-up">

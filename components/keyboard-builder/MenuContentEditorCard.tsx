@@ -28,22 +28,22 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
     <GlassCard title={`ویرایش محتوای: ${currentMenu?.title || 'منو'}`}>
       <div className="space-y-4">
         <div>
-          <label className="text-sm dark:text-white/60 text-slate-500 mb-2 block">عنوان داخلی (برای مدیریت)</label>
+          <label className="text-sm text-brand-navy/50 mb-2 block">عنوان داخلی (برای مدیریت)</label>
           <input
             type="text"
             value={currentMenu?.title || ''}
             onChange={(e) => updateMenu(currentMenuId, { title: e.target.value })}
-            className="w-full dark:bg-black/20 bg-slate-50 border dark:border-white/10 border-slate-300 rounded-lg p-2 text-sm outline-none dark:text-white text-slate-800"
+            className="w-full bg-black/[0.03] border border-black/10 rounded-lg p-2 text-sm outline-none focus:border-brand-teal text-brand-navy"
           />
         </div>
 
         <div>
-          <label className="text-sm dark:text-white/60 text-slate-500 mb-2 block">متن پیام (Caption)</label>
+          <label className="text-sm text-brand-navy/50 mb-2 block">متن پیام (Caption)</label>
           <textarea
             id="message-content"
             value={currentMenu?.content || ''}
             onChange={(e) => updateMenu(currentMenuId, { content: e.target.value })}
-            className="w-full dark:bg-black/20 bg-slate-50 border dark:border-white/10 border-slate-300 rounded-xl p-3 min-h-[100px] focus:outline-none dark:text-white text-slate-800 resize-none font-vazir mb-2"
+            className="w-full bg-black/[0.03] border border-black/10 rounded-xl p-3 min-h-[100px] focus:outline-none focus:border-brand-teal text-brand-navy resize-none font-vazir mb-2"
             placeholder="متنی که ربات در این منو نمایش می‌دهد..."
           />
           <div className="flex flex-wrap gap-2 mb-3">
@@ -51,10 +51,10 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
               <button
                 key={v.code}
                 onClick={() => insertVariable(v.code)}
-                className="text-[10px] px-2 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full hover:bg-blue-500/20 transition-colors"
+                className="text-xs px-2.5 py-1 bg-brand-light/25 text-brand-navy border border-brand-teal/30 rounded-full hover:bg-brand-light/40 transition-colors font-medium"
                 title={`درج ${v.label}`}
               >
-                {v.label} <span className="opacity-50 ml-1">{v.code}</span>
+                {v.label} <span className="text-brand-navy/50 ml-1">{v.code}</span>
               </button>
             ))}
           </div>
@@ -62,26 +62,26 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-sm dark:text-white/60 text-slate-500 block">پیوست فایل</label>
+            <label className="text-sm text-brand-navy/50 block">پیوست فایل</label>
             {isUploading && (
-              <span className="text-xs text-blue-400 flex items-center gap-1 animate-pulse">
+              <span className="text-xs text-brand-teal flex items-center gap-1 animate-pulse">
                 <Cloud size={12} /> در حال آپلود به فضای ابری...
               </span>
             )}
           </div>
 
           <div className="flex gap-2 mb-3">
-            <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 border border-dashed dark:border-white/20 border-slate-300 rounded-xl hover:bg-white/5 transition-colors text-slate-500 dark:text-white/50">
+            <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 border border-dashed border-black/15 rounded-xl hover:bg-black/[0.03] transition-colors text-brand-navy/50">
               <ImageIcon size={20} className="mb-1" />
               <span className="text-xs">عکس</span>
               <input type="file" accept="image/*" className="hidden" onChange={(e) => handleMediaUpload(e, 'image')} />
             </label>
-            <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 border border-dashed dark:border-white/20 border-slate-300 rounded-xl hover:bg-white/5 transition-colors text-slate-500 dark:text-white/50">
+            <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 border border-dashed border-black/15 rounded-xl hover:bg-black/[0.03] transition-colors text-brand-navy/50">
               <Video size={20} className="mb-1" />
               <span className="text-xs">ویدیو</span>
               <input type="file" accept="video/*" className="hidden" onChange={(e) => handleMediaUpload(e, 'video')} />
             </label>
-            <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 border border-dashed dark:border-white/20 border-slate-300 rounded-xl hover:bg-white/5 transition-colors text-slate-500 dark:text-white/50">
+            <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 border border-dashed border-black/15 rounded-xl hover:bg-black/[0.03] transition-colors text-brand-navy/50">
               <Music size={20} className="mb-1" />
               <span className="text-xs">صدا</span>
               <input type="file" accept="audio/*" className="hidden" onChange={(e) => handleMediaUpload(e, 'audio')} />

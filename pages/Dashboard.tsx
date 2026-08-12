@@ -287,7 +287,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const renderLicenseStatus = () => {
       if (!healthData) {
           return (
-              <span className="text-xs text-slate-400 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+              <span className="text-xs text-brand-navy/50 bg-black/[0.03] px-3 py-1.5 rounded-xl border border-black/5">
                   در حال دریافت اطلاعات لایسنس...
               </span>
           );
@@ -295,7 +295,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       if (healthData.is_active === false) {
           return (
-              <span className="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <span className="text-xs font-bold text-red-600 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                   ⛔️ لایسنس غیرفعال شده
               </span>
           );
@@ -303,7 +303,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       if (!healthData.expires_at) {
           return (
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <span className="text-xs font-bold text-green-600 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                   ✅ لایسنس دائمی (Lifetime)
               </span>
           );
@@ -313,19 +313,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       if (daysLeft > 7) {
           return (
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <span className="text-xs font-bold text-green-600 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                   ✅ {daysLeft} روز تا انقضا
               </span>
           );
       } else if (daysLeft >= 1) {
           return (
-              <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <span className="text-xs font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                   ⚠️ فقط {daysLeft} روز تا انقضا — نزدیک به پایان
               </span>
           );
       } else {
           return (
-              <span className="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <span className="text-xs font-bold text-red-600 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                   ❌ لایسنس منقضی شده
               </span>
           );
@@ -338,7 +338,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       if (!lastAt) {
           return {
               text: '🔴 ممکنه مشکلی باشه، بررسی کن',
-              color: 'text-red-400 bg-red-500/10 border-red-500/20'
+              color: 'text-red-600 bg-red-500/10 border-red-500/20'
           };
       }
 
@@ -349,17 +349,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       if (diffMs < tenMins) {
           return {
               text: '🟢 آنلاین و فعال',
-              color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+              color: 'text-green-600 bg-emerald-500/10 border-emerald-500/20'
           };
       } else if (diffMs <= twentyFourHours) {
           return {
               text: '🟡 مدتیه پیامی نیومده (طبیعیه اگه کاربری فعال نبوده)',
-              color: 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+              color: 'text-amber-600 bg-amber-500/10 border-amber-500/20'
           };
       } else {
           return {
               text: '🔴 ممکنه مشکلی باشه، بررسی کن',
-              color: 'text-red-400 bg-red-500/10 border-red-500/20'
+              color: 'text-red-600 bg-red-500/10 border-red-500/20'
           };
       }
   };
@@ -372,41 +372,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       return (
           <div className="h-[calc(100vh-140px)] flex items-center justify-center animate-fade-in relative">
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] animate-pulse"></div>
-                  <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px] animate-pulse" style={{animationDelay: '1s'}}></div>
+                  <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-brand-light/30 rounded-full blur-[100px]"></div>
+                  <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-brand-teal/20 rounded-full blur-[100px]"></div>
               </div>
 
-              <GlassCard className="max-w-2xl w-full text-center p-10 relative border-t-4 border-t-blue-500 shadow-2xl">
-                  <div className="w-24 h-24 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-600/30">
+              <GlassCard className="max-w-2xl w-full text-center p-10 relative border-t-4 border-t-brand-teal">
+                  <div className="w-24 h-24 bg-brand-teal rounded-full mx-auto mb-6 flex items-center justify-center">
                       <Bot size={48} className="text-white" />
                   </div>
                   
-                  <h2 className="text-3xl font-bold text-white mb-4">
+                  <h2 className="text-3xl font-bold text-brand-navy mb-4">
                       به پنل مدیریت پیشرفته خوش آمدید
                   </h2>
                   
-                  <p className="text-slate-400 text-lg mb-8 leading-relaxed max-w-lg mx-auto">
+                  <p className="text-brand-navy/60 text-lg mb-8 leading-relaxed max-w-lg mx-auto">
                       برای دسترسی به امکانات مدیریت کانال‌ها، ارسال پیام‌های زمان‌بندی شده، نظرسنجی و مشاهده آمار دقیق، ابتدا باید ربات تلگرام خود را متصل کنید.
                   </p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-sm text-slate-300">
-                      <div className="bg-white/5 p-3 rounded-xl border border-white/5 flex flex-col items-center gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-sm text-brand-navy/70">
+                      <div className="bg-black/[0.03] p-3 rounded-xl border border-black/5 flex flex-col items-center gap-2">
                           <Zap className="text-yellow-400"/>
                           <span>سرعت بالا</span>
                       </div>
-                      <div className="bg-white/5 p-3 rounded-xl border border-white/5 flex flex-col items-center gap-2">
+                      <div className="bg-black/[0.03] p-3 rounded-xl border border-black/5 flex flex-col items-center gap-2">
                           <ShieldCheck className="text-green-400"/>
                           <span>امنیت کامل</span>
                       </div>
-                      <div className="bg-white/5 p-3 rounded-xl border border-white/5 flex flex-col items-center gap-2">
-                          <Activity className="text-blue-400"/>
+                      <div className="bg-black/[0.03] p-3 rounded-xl border border-black/5 flex flex-col items-center gap-2">
+                          <Activity className="text-brand-teal"/>
                           <span>آمار لحظه‌ای</span>
                       </div>
                   </div>
 
                   <button 
                     onClick={() => onNavigate('bot-connect')}
-                    className="group bg-white text-blue-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 mx-auto"
+                    className="group bg-white text-brand-navy px-8 py-4 rounded-xl font-bold text-lg hover:bg-brand-light/20 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 mx-auto"
                   >
                       اتصال ربات جدید
                       <ArrowRight className="group-hover:-translate-x-1 transition-transform" />
@@ -421,40 +421,40 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     <div className="space-y-6 animate-fade-in pb-10">
         
         {/* 0. BOT HEALTH & LICENSE STATUS WIDGET */}
-        <GlassCard className="border border-white/10 hover:border-blue-500/30 transition-all">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-4">
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">
-                        <Activity size={22} />
+        <GlassCard className="!p-4 border border-black/5 hover:border-brand-teal/30 transition-all">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-black/5 pb-3 mb-3">
+                <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-brand-teal/10 text-brand-teal border border-brand-teal/20 shrink-0">
+                        <Activity size={18} />
                     </div>
                     <div>
-                        <h2 className="text-base font-bold text-white flex items-center gap-2">
+                        <h2 className="text-sm font-bold text-brand-navy flex items-center gap-2">
                             وضعیت ربات و لایسنس
                         </h2>
-                        <p className="text-xs text-slate-400">بررسی آنی اعتبار لایسنس و سلامت ارتباط وب‌هوک ربات</p>
+                        <p className="text-[11px] text-brand-navy/50">بررسی آنی اعتبار لایسنس و سلامت ارتباط وب‌هوک ربات</p>
                     </div>
                 </div>
 
                 <button
                     onClick={fetchHealthAndStatus}
                     disabled={healthLoading}
-                    className="bg-white/5 hover:bg-white/10 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-white/10 shrink-0 self-end sm:self-auto disabled:opacity-50"
+                    className="bg-black/[0.03] hover:bg-black/5 text-brand-navy/70 px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-all border border-black/5 shrink-0 self-end sm:self-auto disabled:opacity-50"
                 >
-                    <RefreshCw size={14} className={healthLoading ? 'animate-spin text-blue-400' : ''} />
+                    <RefreshCw size={12} className={healthLoading ? 'animate-spin text-brand-teal' : ''} />
                     <span>بروزرسانی وضعیت</span>
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* بخش ۱: وضعیت لایسنس */}
-                <div className="bg-black/20 p-4 rounded-2xl border border-white/5 space-y-3">
+                <div className="p-1 space-y-2">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-                            <Key size={16} className="text-amber-400" />
+                        <div className="flex items-center gap-2 text-xs font-bold text-brand-navy/70">
+                            <Key size={16} className="text-amber-600" />
                             <span>وضعیت لایسنس</span>
                         </div>
                         {healthData?.plan && (
-                            <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                            <span className="text-[10px] font-mono text-brand-navy/50 bg-black/[0.03] px-2 py-0.5 rounded border border-black/5">
                                 پلن: {healthData.plan}
                             </span>
                         )}
@@ -465,25 +465,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     </div>
 
                     {/* Self-service renewal — enter a top-up code the admin gave the customer */}
-                    <div className="pt-2 border-t border-white/5">
+                    <div className="pt-2 border-t border-black/5">
                         <div className="flex items-center gap-2">
                             <input
                                 type="text"
                                 value={voucherInput}
                                 onChange={(e) => { setVoucherInput(e.target.value); setRedeemMsg(null); }}
                                 placeholder="کد شارژ / تمدید اشتراک"
-                                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 outline-none focus:border-amber-500/50 dir-ltr text-left"
+                                className="flex-1 bg-black/[0.03] border border-black/10 rounded-lg px-3 py-1.5 text-xs text-brand-navy placeholder:text-brand-navy/40 outline-none focus:border-brand-teal dir-ltr text-left"
                             />
                             <button
                                 onClick={handleRedeemVoucher}
                                 disabled={redeeming || !voucherInput.trim()}
-                                className="px-3 py-2 bg-amber-500/20 hover:bg-amber-500 border border-amber-500/30 text-amber-300 hover:text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                                className="px-3 py-1.5 bg-brand-teal hover:bg-brand-teal/90 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                             >
                                 {redeeming ? '...' : 'اعمال کد'}
                             </button>
                         </div>
                         {redeemMsg && (
-                            <p className={`text-[11px] mt-1.5 ${redeemMsg.type === 'ok' ? 'text-emerald-400' : 'text-red-400'}`}>
+                            <p className={`text-[11px] mt-1.5 ${redeemMsg.type === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
                                 {redeemMsg.text}
                             </p>
                         )}
@@ -491,10 +491,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 </div>
 
                 {/* بخش ۲: وضعیت سلامت ربات */}
-                <div className="bg-black/20 p-4 rounded-2xl border border-white/5 space-y-3">
+                <div className="p-1 border-t border-black/5 md:border-t-0 md:border-r md:pr-6 space-y-2">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-                            <Wifi size={16} className="text-blue-400" />
+                        <div className="flex items-center gap-2 text-xs font-bold text-brand-navy/70">
+                            <Wifi size={16} className="text-brand-teal" />
                             <span>سلامت ارتباط و وب‌هوک</span>
                         </div>
                     </div>
@@ -502,8 +502,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     <div className="space-y-2 pt-1">
                         {/* Status Badge */}
                         <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <span className="text-xs text-slate-400">
-                                آخرین پیام دریافتی: <strong className="text-slate-200">{formatTimeAgo(healthData?.last_webhook_at)}</strong>
+                            <span className="text-xs text-brand-navy/50">
+                                آخرین پیام دریافتی: <strong className="text-brand-navy">{formatTimeAgo(healthData?.last_webhook_at)}</strong>
                             </span>
                             <span className={`text-xs font-bold px-2.5 py-1 rounded-xl border ${botActivity.color}`}>
                                 {botActivity.text}
@@ -515,11 +515,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
             {/* Warnings & Alerts */}
             {(isWebhookMismatch || webhookData?.last_error_message) && (
-                <div className="mt-4 space-y-2 pt-3 border-t border-white/5">
+                <div className="mt-4 space-y-2 pt-3 border-t border-black/5">
                     {isWebhookMismatch && (
-                        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between gap-3 text-xs text-amber-300">
+                        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between gap-3 text-xs text-amber-700">
                             <div className="flex items-center gap-2">
-                                <AlertTriangle size={16} className="shrink-0 text-amber-400" />
+                                <AlertTriangle size={16} className="shrink-0 text-amber-600" />
                                 <span>⚠️ وب‌هوک درست تنظیم نشده — به Bot Connect برو و توکن رو دوباره تایید کن</span>
                             </div>
                             <button
@@ -533,7 +533,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
                     {webhookData?.last_error_message && (
                         <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 text-xs text-red-300">
-                            <AlertCircle size={16} className="shrink-0 text-red-400" />
+                            <AlertCircle size={16} className="shrink-0 text-red-600" />
                             <span>⚠️ خطای اخیر تلگرام: {webhookData.last_error_message}</span>
                         </div>
                     )}
@@ -542,16 +542,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </GlassCard>
 
         {/* 1. STATUS HEADER & BOT PROFILE */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <GlassCard className="lg:col-span-2 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <Bot size={150} className="text-white"/>
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
-                    <div className="relative">
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px] shadow-lg">
-                            <div className="w-full h-full rounded-full bg-[#1e293b] flex items-center justify-center text-3xl font-bold text-white uppercase overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <GlassCard className="lg:col-span-2 !p-4">
+                <div className="flex flex-col md:flex-row items-center gap-4 relative z-10">
+                    <div className="relative shrink-0">
+                        <div className="w-16 h-16 rounded-full bg-brand-teal p-[2px]">
+                            <div className="w-full h-full rounded-full bg-brand-navy flex items-center justify-center text-xl font-bold text-white uppercase overflow-hidden">
                                 {botPhotoUrl ? (
                                     <img src={botPhotoUrl} alt={botInfo?.first_name || 'bot'} className="w-full h-full object-cover" />
                                 ) : (
@@ -559,54 +555,54 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                                 )}
                             </div>
                         </div>
-                        <div className={`absolute bottom-1 right-1 w-6 h-6 rounded-full border-4 border-[#1e293b] ${isOnline ? 'bg-green-500' : 'bg-red-500'} shadow-sm`}></div>
+                        <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
                     </div>
                     
-                    <div className="text-center md:text-right flex-1">
-                        <h2 className="text-2xl font-bold text-white flex items-center justify-center md:justify-start gap-2">
+                    <div className="text-center md:text-right flex-1 min-w-0">
+                        <h2 className="text-base font-bold text-brand-navy flex items-center justify-center md:justify-start gap-1.5">
                             {botInfo?.first_name || 'در حال بارگذاری...'}
-                            {isOnline && <CheckCircle size={20} className="text-blue-400 fill-blue-400/20"/>}
+                            {isOnline && <CheckCircle size={16} className="text-brand-teal fill-brand-teal/20"/>}
                         </h2>
-                        <div className="font-mono text-slate-400 mt-1 mb-3 bg-white/5 px-2 py-1 rounded inline-block text-sm">
+                        <div className="font-mono text-brand-navy/50 mt-1 mb-2 text-xs">
                             @{botInfo?.username || 'checking...'}
                         </div>
-                        <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                            <div className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 text-xs flex items-center gap-1">
-                                <Zap size={12}/> وضعیت: {isOnline ? 'آنلاین' : 'آفلاین'}
+                        <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                            <div className="px-2.5 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 text-[11px] flex items-center gap-1">
+                                <Zap size={11}/> وضعیت: {isOnline ? 'آنلاین' : 'آفلاین'}
                             </div>
-                            <div className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs flex items-center gap-1">
-                                <Clock size={12}/> پاسخگویی: خودکار
+                            <div className="px-2.5 py-0.5 rounded-full bg-brand-light/30 text-brand-teal border border-brand-teal/20 text-[11px] flex items-center gap-1">
+                                <Clock size={11}/> پاسخگویی: خودکار
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 text-center w-full md:w-auto">
-                        <div className="bg-black/20 p-3 rounded-xl border border-white/5">
-                            <div className="text-2xl font-bold text-white">{stats.channelsCount}</div>
-                            <div className="text-[10px] text-slate-400">کانال متصل</div>
+                    <div className="grid grid-cols-2 gap-2 text-center w-full md:w-auto shrink-0">
+                        <div className="bg-black/[0.03] px-4 py-2 rounded-xl border border-black/5">
+                            <div className="text-lg font-bold text-brand-navy">{stats.channelsCount}</div>
+                            <div className="text-[10px] text-brand-navy/50">کانال متصل</div>
                         </div>
-                        <div className="bg-black/20 p-3 rounded-xl border border-white/5">
-                            <div className="text-2xl font-bold text-orange-400">{stats.queuePending}</div>
-                            <div className="text-[10px] text-slate-400">در صف</div>
+                        <div className="bg-black/[0.03] px-4 py-2 rounded-xl border border-black/5">
+                            <div className="text-lg font-bold text-brand-orange">{stats.queuePending}</div>
+                            <div className="text-[10px] text-brand-navy/50">در صف</div>
                         </div>
                     </div>
                 </div>
             </GlassCard>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-white/10 rounded-2xl p-5 flex flex-col justify-between backdrop-blur-md">
-                    <div className="p-2 bg-purple-500 rounded-lg w-fit text-white mb-2 shadow-lg shadow-purple-500/30"><Command size={20}/></div>
+            <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white border border-black/5 shadow-sm rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+                    <div className="p-1.5 bg-brand-teal rounded-lg w-fit text-white mb-1.5"><Command size={18}/></div>
                     <div>
-                        <div className="text-2xl font-bold text-white">{stats.commandsCount}</div>
-                        <div className="text-xs text-slate-400">دستور فعال</div>
+                        <div className="text-lg font-bold text-brand-navy">{stats.commandsCount}</div>
+                        <div className="text-[11px] text-brand-navy/50">دستور فعال</div>
                     </div>
                 </div>
-                <div className="bg-gradient-to-br from-orange-600/20 to-red-600/20 border border-white/10 rounded-2xl p-5 flex flex-col justify-between backdrop-blur-md">
-                    <div className="p-2 bg-orange-500 rounded-lg w-fit text-white mb-2 shadow-lg shadow-orange-500/30"><Activity size={20}/></div>
+                <div className="bg-white border border-black/5 shadow-sm rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+                    <div className="p-1.5 bg-brand-orange rounded-lg w-fit text-white mb-1.5"><Activity size={18}/></div>
                     <div>
-                        <div className="text-2xl font-bold text-white">{stats.totalLogs}</div>
-                        <div className="text-xs text-slate-400">فعالیت ثبت شده</div>
+                        <div className="text-lg font-bold text-brand-navy">{stats.totalLogs}</div>
+                        <div className="text-[11px] text-brand-navy/50">فعالیت ثبت شده</div>
                     </div>
                 </div>
             </div>
@@ -614,46 +610,46 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
         {/* 1.5 SALES DASHBOARD — real revenue/order data from D1 (confirmed orders only) */}
         <div>
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><TrendingUp size={20} className="text-emerald-400"/> آمار فروش</h3>
+            <h3 className="text-lg font-bold text-brand-navy mb-4 flex items-center gap-2"><TrendingUp size={20} className="text-brand-teal"/> آمار فروش</h3>
 
             {!salesData && salesLoading ? (
-                <div className="text-center py-10 text-slate-500 text-sm">در حال بارگیری آمار فروش...</div>
+                <div className="text-center py-10 text-brand-navy/40 text-sm">در حال بارگیری آمار فروش...</div>
             ) : !salesData ? (
-                <div className="text-center py-10 text-slate-500 text-sm">هنوز داده‌ی فروشی ثبت نشده.</div>
+                <div className="text-center py-10 text-brand-navy/40 text-sm">هنوز داده‌ی فروشی ثبت نشده.</div>
             ) : (
             <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-emerald-600/20 to-teal-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                    <div className="bg-white border-t-[3px] border-brand-teal shadow-sm rounded-2xl p-3 sm:p-5">
                         <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-emerald-500 rounded-lg text-white shadow-lg shadow-emerald-500/30"><Wallet size={18}/></div>
-                            <span className="text-[10px] text-slate-400">امروز</span>
+                            <div className="p-1.5 sm:p-2 bg-brand-teal/10 rounded-lg text-brand-teal"><Wallet size={16} className="sm:w-[18px] sm:h-[18px]"/></div>
+                            <span className="text-[10px] text-brand-navy/50">امروز</span>
                         </div>
-                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.today.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
-                        <div className="text-[11px] text-slate-400 mt-1">{salesData.today.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
+                        <div className="text-base sm:text-xl font-bold text-brand-navy dir-ltr text-right">{salesData.today.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-brand-navy/50"> تومان</span></div>
+                        <div className="text-[11px] text-brand-navy/50 mt-1">{salesData.today.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
                     </div>
-                    <div className="bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                    <div className="bg-white border-t-[3px] border-brand-amber shadow-sm rounded-2xl p-3 sm:p-5">
                         <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-blue-500 rounded-lg text-white shadow-lg shadow-blue-500/30"><TrendingUp size={18}/></div>
-                            <span className="text-[10px] text-slate-400">۷ روز اخیر</span>
+                            <div className="p-1.5 sm:p-2 bg-brand-amber/10 rounded-lg text-brand-orange"><TrendingUp size={16} className="sm:w-[18px] sm:h-[18px]"/></div>
+                            <span className="text-[10px] text-brand-navy/50">۷ روز اخیر</span>
                         </div>
-                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.week.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
-                        <div className="text-[11px] text-slate-400 mt-1">{salesData.week.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
+                        <div className="text-base sm:text-xl font-bold text-brand-navy dir-ltr text-right">{salesData.week.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-brand-navy/50"> تومان</span></div>
+                        <div className="text-[11px] text-brand-navy/50 mt-1">{salesData.week.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                    <div className="bg-white border-t-[3px] border-brand-navy shadow-sm rounded-2xl p-3 sm:p-5">
                         <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-purple-500 rounded-lg text-white shadow-lg shadow-purple-500/30"><ShoppingBag size={18}/></div>
-                            <span className="text-[10px] text-slate-400">۳۰ روز اخیر</span>
+                            <div className="p-1.5 sm:p-2 bg-brand-navy/10 rounded-lg text-brand-navy"><ShoppingBag size={16} className="sm:w-[18px] sm:h-[18px]"/></div>
+                            <span className="text-[10px] text-brand-navy/50">۳۰ روز اخیر</span>
                         </div>
-                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.month.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
-                        <div className="text-[11px] text-slate-400 mt-1">{salesData.month.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
+                        <div className="text-base sm:text-xl font-bold text-brand-navy dir-ltr text-right">{salesData.month.revenue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-brand-navy/50"> تومان</span></div>
+                        <div className="text-[11px] text-brand-navy/50 mt-1">{salesData.month.orders.toLocaleString('fa-IR')} سفارش تایید شده</div>
                     </div>
-                    <div className="bg-gradient-to-br from-amber-600/20 to-orange-600/20 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+                    <div className="bg-white border-t-[3px] border-brand-orange shadow-sm rounded-2xl p-3 sm:p-5">
                         <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-amber-500 rounded-lg text-white shadow-lg shadow-amber-500/30"><Clock size={18}/></div>
-                            <span className="text-[10px] text-slate-400">میانگین سفارش</span>
+                            <div className="p-1.5 sm:p-2 bg-brand-orange/10 rounded-lg text-brand-orange"><Clock size={16} className="sm:w-[18px] sm:h-[18px]"/></div>
+                            <span className="text-[10px] text-brand-navy/50">میانگین سفارش</span>
                         </div>
-                        <div className="text-xl font-bold text-white dir-ltr text-right">{salesData.avgOrderValue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-slate-400"> تومان</span></div>
-                        <div className="text-[11px] text-slate-400 mt-1">{salesData.pendingCount.toLocaleString('fa-IR')} سفارش در انتظار تایید</div>
+                        <div className="text-base sm:text-xl font-bold text-brand-navy dir-ltr text-right">{salesData.avgOrderValue.toLocaleString('fa-IR')}<span className="text-xs font-normal text-brand-navy/50"> تومان</span></div>
+                        <div className="text-[11px] text-brand-navy/50 mt-1">{salesData.pendingCount.toLocaleString('fa-IR')} سفارش در انتظار تایید</div>
                     </div>
                 </div>
 
@@ -662,21 +658,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                         <div className="h-[260px] w-full dir-ltr">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={salesData.dailySeries}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(2,48,71,0.08)" />
                                     <XAxis
                                         dataKey="date"
-                                        stroke="#64748b"
+                                        stroke="#8b96a0"
                                         fontSize={10}
                                         tickLine={false}
                                         tickFormatter={(d: string) => d.slice(5)}
                                     />
-                                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+                                    <YAxis stroke="#8b96a0" fontSize={11} tickLine={false} />
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                                        contentStyle={{ backgroundColor: '#fff', border: '1px solid rgba(2,48,71,0.08)', borderRadius: '8px', color: '#023047' }}
                                         formatter={(value: number) => [value.toLocaleString('fa-IR') + ' تومان', 'فروش']}
                                         labelFormatter={(d: string) => d}
                                     />
-                                    <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="revenue" fill="#209EBB" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -685,18 +681,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     <GlassCard title="پرفروش‌ترین محصولات (۳۰ روز اخیر)">
                         <div className="space-y-3">
                             {salesData.topProducts.length === 0 ? (
-                                <div className="text-center py-10 text-slate-500 text-sm">هنوز فروشی ثبت نشده.</div>
+                                <div className="text-center py-10 text-brand-navy/40 text-sm">هنوز فروشی ثبت نشده.</div>
                             ) : (
                                 salesData.topProducts.map((p, idx) => (
-                                    <div key={p.productId} className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/5">
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${idx === 0 ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-slate-400'}`}>
+                                    <div key={p.productId} className="flex items-center gap-3 p-2.5 rounded-xl bg-black/[0.03] border border-black/5">
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${idx === 0 ? 'bg-brand-amber/20 text-brand-orange' : 'bg-black/5 text-brand-navy/50'}`}>
                                             {idx === 0 ? <Trophy size={14}/> : idx + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-xs font-bold text-white truncate">{p.name}</div>
-                                            <div className="text-[10px] text-slate-400">{p.qty.toLocaleString('fa-IR')} عدد فروخته شده</div>
+                                            <div className="text-xs font-bold text-brand-navy truncate">{p.name}</div>
+                                            <div className="text-[10px] text-brand-navy/50">{p.qty.toLocaleString('fa-IR')} عدد فروخته شده</div>
                                         </div>
-                                        <div className="text-[11px] font-bold text-emerald-400 shrink-0 dir-ltr">{p.revenue.toLocaleString('fa-IR')}</div>
+                                        <div className="text-[11px] font-bold text-green-600 shrink-0 dir-ltr">{p.revenue.toLocaleString('fa-IR')}</div>
                                     </div>
                                 ))
                             )}
@@ -709,31 +705,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
         {/* 2. QUICK ACTIONS */}
         <div>
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Layers size={20} className="text-blue-400"/> دسترسی سریع</h3>
+            <h3 className="text-lg font-bold text-brand-navy mb-4 flex items-center gap-2"><Layers size={20} className="text-brand-teal"/> دسترسی سریع</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button onClick={() => onNavigate('broadcast')} className="group p-4 bg-white/5 hover:bg-blue-600 hover:text-white border border-white/10 rounded-xl transition-all flex items-center gap-4 text-slate-300">
-                    <div className="p-3 rounded-full bg-white/5 group-hover:bg-white/20 transition-colors"><Megaphone size={20}/></div>
+                <button onClick={() => onNavigate('broadcast')} className="group p-4 bg-white hover:bg-brand-teal hover:text-white border border-black/5 rounded-xl transition-all flex items-center gap-4 text-brand-navy shadow-sm">
+                    <div className="p-3 rounded-full bg-black/[0.03] group-hover:bg-white/20 transition-colors"><Megaphone size={20}/></div>
                     <div className="text-right">
                         <div className="font-bold">ارسال پیام</div>
                         <div className="text-[10px] opacity-60">همگانی یا زمان‌دار</div>
                     </div>
                 </button>
-                <button onClick={() => onNavigate('channels')} className="group p-4 bg-white/5 hover:bg-purple-600 hover:text-white border border-white/10 rounded-xl transition-all flex items-center gap-4 text-slate-300">
-                    <div className="p-3 rounded-full bg-white/5 group-hover:bg-white/20 transition-colors"><Users size={20}/></div>
+                <button onClick={() => onNavigate('channels')} className="group p-4 bg-white hover:bg-brand-teal hover:text-white border border-black/5 rounded-xl transition-all flex items-center gap-4 text-brand-navy shadow-sm">
+                    <div className="p-3 rounded-full bg-black/[0.03] group-hover:bg-white/20 transition-colors"><Users size={20}/></div>
                     <div className="text-right">
                         <div className="font-bold">مدیریت کانال</div>
                         <div className="text-[10px] opacity-60">افزودن و ویرایش</div>
                     </div>
                 </button>
-                <button onClick={() => onNavigate('keyboard')} className="group p-4 bg-white/5 hover:bg-green-600 hover:text-white border border-white/10 rounded-xl transition-all flex items-center gap-4 text-slate-300">
-                    <div className="p-3 rounded-full bg-white/5 group-hover:bg-white/20 transition-colors"><Layers size={20}/></div>
+                <button onClick={() => onNavigate('keyboard')} className="group p-4 bg-white hover:bg-brand-teal hover:text-white border border-black/5 rounded-xl transition-all flex items-center gap-4 text-brand-navy shadow-sm">
+                    <div className="p-3 rounded-full bg-black/[0.03] group-hover:bg-white/20 transition-colors"><Layers size={20}/></div>
                     <div className="text-right">
                         <div className="font-bold">دکمه‌ساز</div>
                         <div className="text-[10px] opacity-60">طراحی کیبورد شیشه‌ای</div>
                     </div>
                 </button>
-                <button onClick={() => onNavigate('bot-connect')} className="group p-4 bg-white/5 hover:bg-orange-600 hover:text-white border border-white/10 rounded-xl transition-all flex items-center gap-4 text-slate-300">
-                    <div className="p-3 rounded-full bg-white/5 group-hover:bg-white/20 transition-colors"><Settings size={20}/></div>
+                <button onClick={() => onNavigate('bot-connect')} className="group p-4 bg-white hover:bg-brand-orange hover:text-white border border-black/5 rounded-xl transition-all flex items-center gap-4 text-brand-navy shadow-sm">
+                    <div className="p-3 rounded-full bg-black/[0.03] group-hover:bg-white/20 transition-colors"><Settings size={20}/></div>
                     <div className="text-right">
                         <div className="font-bold">تنظیمات ربات</div>
                         <div className="text-[10px] opacity-60">توکن و وب‌هوک</div>
@@ -750,18 +746,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                         <AreaChart data={chartData}>
                             <defs>
                                 <linearGradient id="colorActivity" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                                    <stop offset="5%" stopColor="#209EBB" stopOpacity={0.8}/>
+                                    <stop offset="95%" stopColor="#209EBB" stopOpacity={0}/>
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                             <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
                             <YAxis stroke="#64748b" fontSize={12} tickLine={false} />
                             <Tooltip 
-                                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                                contentStyle={{ backgroundColor: '#fff', border: '1px solid rgba(2,48,71,0.08)', borderRadius: '8px', color: '#023047' }}
                                 itemStyle={{ color: '#8884d8' }}
                             />
-                            <Area type="monotone" dataKey="activity" stroke="#8884d8" strokeWidth={3} fillOpacity={1} fill="url(#colorActivity)" />
+                            <Area type="monotone" dataKey="activity" stroke="#209EBB" strokeWidth={3} fillOpacity={1} fill="url(#colorActivity)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
@@ -770,23 +766,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <GlassCard title="آخرین فعالیت‌ها">
                 <div className="space-y-4">
                     {recentLogs.length === 0 ? (
-                        <div className="text-center py-10 text-slate-500 text-sm">هنوز فعالیتی ثبت نشده است.</div>
+                        <div className="text-center py-10 text-brand-navy/40 text-sm">هنوز فعالیتی ثبت نشده است.</div>
                     ) : (
                         recentLogs.map((log) => (
-                            <div key={log.id} className="flex items-start gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5">
-                                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${log.type === 'incoming' ? 'bg-green-400' : log.type === 'outgoing' ? 'bg-blue-400' : 'bg-yellow-400'}`}></div>
+                            <div key={log.id} className="flex items-start gap-3 p-3 rounded-xl bg-black/[0.03] hover:bg-black/5 transition-colors border border-black/5">
+                                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${log.type === 'incoming' ? 'bg-green-500' : log.type === 'outgoing' ? 'bg-brand-teal' : 'bg-amber-500'}`}></div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className="text-xs font-bold text-white">{log.user || 'System'}</span>
-                                        <span className="text-[10px] text-slate-500 font-mono">{log.time}</span>
+                                        <span className="text-xs font-bold text-brand-navy">{log.user || 'System'}</span>
+                                        <span className="text-[10px] text-brand-navy/40 font-mono">{log.time}</span>
                                     </div>
-                                    <p className="text-xs text-slate-300 truncate dir-ltr text-right">{log.text}</p>
+                                    <p className="text-xs text-brand-navy/70 truncate dir-ltr text-right">{log.text}</p>
                                 </div>
                             </div>
                         ))
                     )}
                     {recentLogs.length > 0 && (
-                        <button onClick={() => onNavigate('bot-connect')} className="w-full py-2 text-xs text-blue-400 hover:text-blue-300 transition-colors border-t border-white/5 mt-2">
+                        <button onClick={() => onNavigate('bot-connect')} className="w-full py-2 text-xs text-brand-teal hover:text-brand-teal transition-colors border-t border-black/5 mt-2">
                             مشاهده تمام لاگ‌ها
                         </button>
                     )}

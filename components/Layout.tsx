@@ -1,7 +1,8 @@
 
 import React, { useState, useRef } from 'react';
-import { Menu, Home, Settings, Layers, Users, Command, Bell, Search, Moon, Sun, Megaphone, LogOut, Download, AlertTriangle, X, Cloud, UserCog, ShoppingBag, ShoppingCart, MessageCircle, HelpCircle, Zap, Calendar, Tag, Camera } from 'lucide-react';
+import { Menu, Home, Settings, Layers, Users, Command, Bell, Search, Megaphone, LogOut, Download, AlertTriangle, X, Cloud, UserCog, ShoppingBag, ShoppingCart, MessageCircle, HelpCircle, Zap, Calendar, Tag, Camera } from 'lucide-react';
 import { LOGO_ICON_DATA_URI } from '../assets/logoIcon';
+import { LOGO_WORDMARK_DATA_URI } from '../assets/logoWordmark';
 import { telegramService } from '../services/telegramService';
 import { getDisplayableImageUrl } from '../utils/image';
 import { syncNow } from '../services/cloudSync';
@@ -73,20 +74,20 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
   })();
 
   const menuItems = [
-    { id: 'dashboard', label: 'داشبورد', icon: <Home size={20} />, color: 'dark:text-blue-400 text-blue-600' },
-    { id: 'broadcast', label: 'پیام همگانی', icon: <Megaphone size={20} />, color: 'dark:text-purple-400 text-purple-600' },
-    { id: 'keyboard', label: 'دکمه‌ساز', icon: <Layers size={20} />, color: 'dark:text-indigo-400 text-indigo-600' },
-    { id: 'channels', label: 'مدیریت کانال‌ها', icon: <Users size={20} />, color: 'dark:text-pink-400 text-pink-600' },
-    { id: 'commands', label: 'دستورات', icon: <Command size={20} />, color: 'dark:text-cyan-400 text-cyan-600' },
-    { id: 'users', label: 'کاربران ربات', icon: <UserCog size={20} />, color: 'dark:text-emerald-400 text-emerald-600' },
-    { id: 'products', label: 'محصولات', icon: <ShoppingBag size={20} />, color: 'dark:text-amber-400 text-amber-600' },
-    { id: 'orders', label: 'سفارش‌ها', icon: <ShoppingCart size={20} />, color: 'dark:text-orange-400 text-orange-600' },
-    { id: 'coupons', label: 'کدهای تخفیف', icon: <Tag size={20} />, color: 'dark:text-rose-400 text-rose-600' },
-    { id: 'booking', label: 'نوبت‌دهی', icon: <Calendar size={20} />, color: 'dark:text-teal-400 text-teal-600' },
-    { id: 'customer-tickets', label: 'تیکت‌های پشتیبانی', icon: <HelpCircle size={20} />, color: 'dark:text-sky-400 text-sky-600' },
-    { id: 'automations', label: 'قوانین خودکار', icon: <Zap size={20} />, color: 'dark:text-yellow-400 text-yellow-600' },
-    { id: 'support', label: 'پشتیبانی', icon: <MessageCircle size={20} />, color: 'dark:text-green-400 text-green-600' },
-    { id: 'settings', label: 'تنظیمات', icon: <Settings size={20} />, color: 'dark:text-slate-400 text-slate-500' },
+    { id: 'dashboard', label: 'داشبورد', icon: <Home size={20} /> },
+    { id: 'broadcast', label: 'پیام همگانی', icon: <Megaphone size={20} /> },
+    { id: 'keyboard', label: 'دکمه‌ساز', icon: <Layers size={20} /> },
+    { id: 'channels', label: 'مدیریت کانال‌ها', icon: <Users size={20} /> },
+    { id: 'commands', label: 'دستورات', icon: <Command size={20} /> },
+    { id: 'users', label: 'کاربران ربات', icon: <UserCog size={20} /> },
+    { id: 'products', label: 'محصولات', icon: <ShoppingBag size={20} /> },
+    { id: 'orders', label: 'سفارش‌ها', icon: <ShoppingCart size={20} /> },
+    { id: 'coupons', label: 'کدهای تخفیف', icon: <Tag size={20} /> },
+    { id: 'booking', label: 'نوبت‌دهی', icon: <Calendar size={20} /> },
+    { id: 'customer-tickets', label: 'تیکت‌های پشتیبانی', icon: <HelpCircle size={20} /> },
+    { id: 'automations', label: 'قوانین خودکار', icon: <Zap size={20} /> },
+    { id: 'support', label: 'پشتیبانی', icon: <MessageCircle size={20} /> },
+    { id: 'settings', label: 'تنظیمات', icon: <Settings size={20} /> },
   ];
 
   // Helper function to trigger quick backup
@@ -134,37 +135,37 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
   };
 
   return (
-    <div className="flex min-h-screen dark:text-white/90 text-slate-800 overflow-hidden">
+    <div className="flex min-h-screen text-brand-navy overflow-hidden">
       
       {/* EXIT MODAL */}
       {showExitModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-4">
-              <div className="bg-[#1e293b] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in p-4">
+              <div className="bg-white border border-black/5 rounded-2xl shadow-lg w-full max-w-md overflow-hidden transform transition-all scale-100">
                   <div className="p-6 text-center">
-                      <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-500">
+                      <div className="w-16 h-16 bg-brand-amber/15 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-orange">
                           <AlertTriangle size={32}/>
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-2">آیا می‌خواهید خارج شوید؟</h3>
-                      <p className="text-slate-400 text-sm mb-6">برای جلوگیری از حذف احتمالی اطلاعات در مرورگر، پیشنهاد می‌کنیم قبل از خروج یک نسخه پشتیبان بگیرید.</p>
+                      <h3 className="text-xl font-bold text-brand-navy mb-2">آیا می‌خواهید خارج شوید؟</h3>
+                      <p className="text-brand-navy/60 text-sm mb-6">برای جلوگیری از حذف احتمالی اطلاعات در مرورگر، پیشنهاد می‌کنیم قبل از خروج یک نسخه پشتیبان بگیرید.</p>
                       
                       <div className="flex flex-col gap-3">
                           <button 
                               onClick={() => handleConfirmExit(true)}
-                              className="w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-green-600/20"
+                              className="w-full py-3 bg-brand-teal hover:bg-brand-teal/90 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
                           >
                               <Download size={18}/>
                               بله، دانلود بکاپ و خروج
                           </button>
                           <button 
                               onClick={() => handleConfirmExit(false)}
-                              className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white rounded-xl font-medium transition-colors"
+                              className="w-full py-3 bg-black/5 hover:bg-black/10 border border-black/5 text-brand-navy/70 hover:text-brand-navy rounded-xl font-medium transition-colors"
                           >
                               خیر، فقط خارج شو
                           </button>
                       </div>
                   </div>
-                  <div className="bg-black/20 p-3 flex justify-center border-t border-white/5">
-                      <button onClick={() => setShowExitModal(false)} className="text-xs text-slate-500 hover:text-white transition-colors">
+                  <div className="bg-black/[0.03] p-3 flex justify-center border-t border-black/5">
+                      <button onClick={() => setShowExitModal(false)} className="text-xs text-brand-navy/50 hover:text-brand-navy transition-colors">
                           انصراف و بازگشت به پنل
                       </button>
                   </div>
@@ -191,27 +192,27 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
         className={`w-64 ${isSidebarOpen ? 'md:w-64' : 'md:w-20'} 
         fixed md:relative inset-y-0 right-0 z-40 md:z-20
         ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'} md:translate-x-0
-        dark:bg-white/5 bg-white/60 backdrop-blur-xl border-l dark:border-white/10 border-white/40 transition-transform md:transition-[width] duration-300 flex flex-col shadow-lg`}
+        bg-brand-navy transition-transform md:transition-[width] duration-300 flex flex-col shadow-lg`}
       >
-        <div className="p-6 flex items-center gap-3.5">
-           <div className="w-11 h-11 rounded-xl bg-white shadow-lg flex items-center justify-center shrink-0 p-1.5 border dark:border-white/10 border-slate-200">
-             <img src={LOGO_ICON_DATA_URI} alt="AsanHub" className="w-full h-full object-contain" />
+        <div className="p-4 flex items-center gap-2">
+           <div className="bg-white rounded-xl shadow-lg flex-1 flex items-center justify-center gap-2 px-3 py-3 min-w-0">
+             <img src={LOGO_ICON_DATA_URI} alt="AsanHub" className="w-8 h-8 object-contain shrink-0" />
+             {isSidebarOpen && (
+               <img src={LOGO_WORDMARK_DATA_URI} alt="AsanHub" className="h-6 w-auto object-contain block" />
+             )}
            </div>
-           {isSidebarOpen && (
-             <h1 className="font-bold text-2xl whitespace-nowrap tracking-wider dark:text-white text-slate-800">
-               Asan<span className="text-purple-600 dark:text-purple-400">Hub</span>
-             </h1>
-           )}
            {/* Mobile-only close (X) button — the desktop collapse-to-icons
                button below is hidden on mobile since it doesn't apply to an
                overlay drawer; this is the mobile equivalent of "close it". */}
            <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="md:hidden mr-auto p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-500 dark:text-white/60"
+              className="md:hidden shrink-0 p-2 rounded-lg hover:bg-white/10 text-white/60"
            >
               <X size={20} />
            </button>
         </div>
+
+        <div className="mx-4 mt-1 border-t-2 border-white/20"></div>
 
         <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => (
@@ -220,29 +221,24 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
               onClick={() => { onNavigate(item.id); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden
                 ${currentPage === item.id 
-                  ? 'bg-gradient-to-l from-blue-600/80 to-purple-600/80 shadow-[0_0_20px_rgba(59,130,246,0.5)] text-white' 
-                  : 'hover:bg-black/5 dark:hover:bg-white/5 dark:text-white/60 text-slate-600 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-brand-teal text-white' 
+                  : 'hover:bg-white/5 text-brand-light/70 hover:text-white'
                 }
               `}
             >
-              <div className={`${currentPage === item.id ? 'text-white' : item.color} transition-transform group-hover:scale-110`}>
+              <div className="transition-transform group-hover:scale-110">
                 {item.icon}
               </div>
               
               {isSidebarOpen && (
                 <span className="font-medium animate-fade-in">{item.label}</span>
               )}
-              
-              {/* Active Indicator Strip */}
-              {currentPage === item.id && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-l-full shadow-[0_0_10px_white]" />
-              )}
             </button>
           ))}
         </nav>
         
         {/* Footer Actions */}
-        <div className={`p-4 border-t dark:border-white/5 border-black/5 flex items-center gap-2 ${isSidebarOpen ? 'flex-row' : 'flex-col'}`}>
+        <div className={`p-4 border-t border-white/10 flex items-center gap-2 ${isSidebarOpen ? 'flex-row' : 'flex-col'}`}>
             <button 
                 onClick={() => { setShowExitModal(true); setIsMobileMenuOpen(false); }}
                 className={`flex-1 flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden hover:bg-red-500/10 text-red-400 min-w-0`}
@@ -257,7 +253,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                 Mobile closes via the X button above or the backdrop instead. */}
             <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="hidden md:block shrink-0 p-2.5 rounded-lg dark:bg-white/5 bg-black/5 hover:bg-black/10 dark:hover:bg-white/10 dark:text-white/50 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="hidden md:block shrink-0 p-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-brand-light/70 hover:text-white transition-colors"
             >
                 <Menu size={20} />
             </button>
@@ -273,40 +269,32 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                  desktop where the sidebar is already always visible. */}
              <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="md:hidden p-2.5 rounded-full dark:bg-white/5 bg-white/60 backdrop-blur-md border dark:border-white/5 border-white/40 shadow-sm dark:text-white text-slate-700 shrink-0"
+                className="md:hidden p-2.5 rounded-full bg-white shadow-sm text-brand-navy shrink-0"
              >
                 <Menu size={20} />
              </button>
-             <div className="flex items-center gap-4 dark:bg-white/5 bg-white/60 backdrop-blur-md px-4 py-2 rounded-full border dark:border-white/5 border-white/40 shadow-sm min-w-0">
-                <Search size={18} className="dark:text-white/40 text-slate-400 shrink-0" />
+             <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-full shadow-sm min-w-0">
+                <Search size={18} className="text-brand-navy/40 shrink-0" />
                 <input 
                    type="text" 
                    placeholder="جستجو..." 
-                   className="bg-transparent border-none outline-none text-sm dark:text-white text-slate-800 dark:placeholder-white/40 placeholder-slate-400 w-24 sm:w-48"
+                   className="bg-transparent border-none outline-none text-sm text-brand-navy placeholder-brand-navy/40 w-24 sm:w-48"
                 />
              </div>
           </div>
 
           <div className="flex items-center gap-4">
              {/* Stats Capsule */}
-             <div className="hidden md:flex items-center gap-4 dark:bg-white/5 bg-white/60 backdrop-blur-md px-5 py-2 rounded-full border dark:border-white/5 border-white/40 text-sm shadow-sm">
+             <div className="hidden md:flex items-center gap-4 bg-white px-5 py-2 rounded-full text-sm shadow-sm">
                 <div className="flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                   <span className="dark:text-white/80 text-slate-700">سیستم آنلاین</span>
+                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                   <span className="text-brand-navy/80">سیستم آنلاین</span>
                 </div>
-                <div className="w-[1px] h-4 dark:bg-white/10 bg-black/10" />
-                <span className="dark:text-white/60 text-slate-500">نسخه 2.5.1</span>
+                <div className="w-[1px] h-4 bg-black/10" />
+                <span className="text-brand-navy/50">نسخه 2.5.1</span>
              </div>
 
-             {/* Theme Toggle */}
-             <button 
-                onClick={toggleTheme}
-                className="relative p-3 rounded-full dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white text-slate-700"
-             >
-                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-             </button>
-
-             <button className="relative p-3 rounded-full dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white text-slate-700">
+             <button className="relative p-3 rounded-full hover:bg-black/5 transition-colors text-brand-navy">
                 <Bell size={20} />
                 <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />
              </button>
@@ -321,7 +309,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                 />
                 <button
                    onClick={() => setShowProfileMenu(!showProfileMenu)}
-                   className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 dark:border-white/20 border-white/50 shadow-lg cursor-pointer transform hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-sm overflow-hidden"
+                   className="w-10 h-10 rounded-full bg-brand-navy shadow-sm cursor-pointer transform hover:scale-105 transition-transform flex items-center justify-center text-brand-light font-bold text-sm overflow-hidden"
                 >
                    {profilePhotoFileId && getDisplayableImageUrl(profilePhotoFileId) ? (
                       <img src={getDisplayableImageUrl(profilePhotoFileId)!} alt="پروفایل" className="w-full h-full object-cover" />
@@ -334,21 +322,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                    <>
                      {/* click-outside overlay */}
                      <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
-                     <div className="absolute left-0 top-full mt-2 w-64 z-50 dark:bg-[#1e293b] bg-white border dark:border-white/10 border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
-                        <div className="p-4 border-b dark:border-white/10 border-slate-100">
-                           <p className="text-[11px] dark:text-slate-500 text-slate-400 mb-1">لایسنس‌کد</p>
-                           <p className="text-sm font-mono dark:text-white text-slate-800 dir-ltr text-left">
+                     <div className="absolute left-0 top-full mt-2 w-64 z-50 bg-white border border-black/5 rounded-2xl shadow-lg overflow-hidden animate-fade-in">
+                        <div className="p-4 border-b border-black/5">
+                           <p className="text-[11px] text-brand-navy/50 mb-1">لایسنس‌کد</p>
+                           <p className="text-sm font-mono text-brand-navy dir-ltr text-left">
                               {licenseInfo.maskedCode || '—'}
                            </p>
                         </div>
-                        <div className="p-4 border-b dark:border-white/10 border-slate-100">
-                           <p className="text-[11px] dark:text-slate-500 text-slate-400 mb-1">اعتبار اشتراک</p>
+                        <div className="p-4 border-b border-black/5">
+                           <p className="text-[11px] text-brand-navy/50 mb-1">اعتبار اشتراک</p>
                            {licenseInfo.daysLeft === null ? (
-                              <p className="text-sm dark:text-white text-slate-800">نامشخص</p>
+                              <p className="text-sm text-brand-navy">نامشخص</p>
                            ) : licenseInfo.daysLeft < 0 ? (
                               <p className="text-sm font-bold text-red-500">منقضی شده</p>
                            ) : (
-                              <p className={`text-sm font-bold ${licenseInfo.daysLeft <= 7 ? 'text-amber-500' : 'dark:text-white text-slate-800'}`}>
+                              <p className={`text-sm font-bold ${licenseInfo.daysLeft <= 7 ? 'text-brand-orange' : 'text-brand-navy'}`}>
                                  {licenseInfo.daysLeft} روز مونده
                               </p>
                            )}
@@ -356,19 +344,19 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
                         <button
                            onClick={() => { setShowProfileMenu(false); profilePhotoInputRef.current?.click(); }}
                            disabled={isUploadingProfilePhoto}
-                           className="w-full text-right px-4 py-3 text-sm dark:text-white/80 text-slate-700 dark:hover:bg-white/5 hover:bg-slate-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                           className="w-full text-right px-4 py-3 text-sm text-brand-navy/80 hover:bg-black/5 transition-colors flex items-center gap-2 disabled:opacity-50"
                         >
                            <Camera size={16} /> {isUploadingProfilePhoto ? 'در حال آپلود...' : 'تغییر عکس پروفایل'}
                         </button>
                         <button
                            onClick={() => { setShowProfileMenu(false); onNavigate('settings'); }}
-                           className="w-full text-right px-4 py-3 text-sm dark:text-white/80 text-slate-700 dark:hover:bg-white/5 hover:bg-slate-50 transition-colors flex items-center gap-2"
+                           className="w-full text-right px-4 py-3 text-sm text-brand-navy/80 hover:bg-black/5 transition-colors flex items-center gap-2"
                         >
                            <Settings size={16} /> تنظیمات
                         </button>
                         <button
                            onClick={() => { setShowProfileMenu(false); setShowExitModal(true); }}
-                           className="w-full text-right px-4 py-3 text-sm text-red-400 dark:hover:bg-red-500/10 hover:bg-red-50 transition-colors flex items-center gap-2"
+                           className="w-full text-right px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"
                         >
                            <LogOut size={16} /> خروج از پنل
                         </button>
@@ -381,12 +369,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
 
         {/* Dynamic Content Area */}
         <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 relative">
-           {/* Background Decor */}
-           <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1]">
-              <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px]" />
-              <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px]" />
-           </div>
-
            {children}
         </div>
       </main>

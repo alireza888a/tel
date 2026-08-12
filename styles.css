@@ -3,6 +3,12 @@
 
 @theme {
   --font-vazir: 'Vazirmatn', sans-serif;
+  --color-brand-teal: #209EBB;
+  --color-brand-navy: #023047;
+  --color-brand-light: #8ECAE6;
+  --color-brand-amber: #FFB701;
+  --color-brand-orange: #FC8500;
+  --color-page-bg: #F4F6F7;
 }
 
 @keyframes fadeIn {

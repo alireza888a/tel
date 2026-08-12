@@ -38,13 +38,9 @@ const App: React.FC = () => {
   // Call cloud autosave hook
   useCloudAutoSave(currentPage);
   
-  // Theme Management
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    if (typeof window !== 'undefined') {
-       return localStorage.getItem('theme') as 'dark' | 'light' || 'dark';
-    }
-    return 'dark';
-  });
+  // Theme Management — dark mode retired; always start light regardless of
+  // any previously saved preference from before this change.
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
   useEffect(() => {
     const didMigrate = migrateMiniAppButtonUrls();

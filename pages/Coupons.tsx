@@ -229,11 +229,11 @@ export const CouponsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold dark:text-white text-slate-800 flex items-center gap-2">
-            <Tag className="text-blue-500" size={28} />
+          <h1 className="text-2xl font-bold text-brand-navy flex items-center gap-2">
+            <Tag className="text-brand-teal" size={28} />
             مدیریت کدهای تخفیف
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-brand-navy/50 text-sm mt-1">
             ایجاد، ویرایش و تنظیم کدهای تخفیف درصدی و نقدی همراه با سقف استفاده و انقضا
           </p>
         </div>
@@ -242,16 +242,16 @@ export const CouponsPage: React.FC = () => {
           <button
             onClick={fetchUsageStats}
             disabled={isLoadingUsage}
-            className="p-2.5 rounded-xl dark:bg-white/5 bg-black/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-400 hover:text-white transition-all border border-white/10 flex items-center gap-2 cursor-pointer text-xs"
+            className="p-2.5 rounded-xl bg-black/[0.03] hover:bg-black/5 text-brand-navy/50 hover:text-brand-navy transition-all border border-black/5 flex items-center gap-2 cursor-pointer text-xs"
             title="به‌روزرسانی آمار استفاده"
           >
-            <RefreshCw size={16} className={isLoadingUsage ? 'animate-spin text-blue-400' : ''} />
+            <RefreshCw size={16} className={isLoadingUsage ? 'animate-spin text-blue-600' : ''} />
             <span className="hidden sm:inline">به‌روزرسانی آمار</span>
           </button>
 
           <button
             onClick={() => handleOpenModal()}
-            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-600/25 transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 bg-brand-teal hover:bg-brand-teal/90 text-brand-navy font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-2 cursor-pointer"
           >
             <Plus size={18} />
             <span>کد تخفیف جدید</span>
@@ -263,44 +263,44 @@ export const CouponsPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <GlassCard className="p-4 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 block mb-1">کل کدهای تخفیف</span>
-            <span className="text-2xl font-bold text-white font-mono">{totalCoupons}</span>
+            <span className="text-xs text-brand-navy/50 block mb-1">کل کدهای تخفیف</span>
+            <span className="text-2xl font-bold text-brand-navy font-mono">{totalCoupons}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+          <div className="w-10 h-10 rounded-xl bg-brand-teal/10 border border-brand-teal/20 flex items-center justify-center text-brand-teal">
             <Tag size={20} />
           </div>
         </GlassCard>
 
         <GlassCard className="p-4 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 block mb-1">کدهای فعال</span>
-            <span className="text-2xl font-bold text-emerald-400 font-mono">{activeCoupons}</span>
+            <span className="text-xs text-brand-navy/50 block mb-1">کدهای فعال</span>
+            <span className="text-2xl font-bold text-green-600 font-mono">{activeCoupons}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="w-10 h-10 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center text-green-600">
             <CheckCircle2 size={20} />
           </div>
         </GlassCard>
 
         <GlassCard className="p-4 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 block mb-1">مجموع استفاده‌ها</span>
-            <span className="text-2xl font-bold text-amber-400 font-mono">
+            <span className="text-xs text-brand-navy/50 block mb-1">مجموع استفاده‌ها</span>
+            <span className="text-2xl font-bold text-brand-orange font-mono">
               {isLoadingUsage ? '...' : totalUsesCount.toLocaleString('fa-IR')}
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+          <div className="w-10 h-10 rounded-xl bg-brand-amber/10 border border-brand-amber/30 flex items-center justify-center text-brand-orange">
             <Users size={20} />
           </div>
         </GlassCard>
 
         <GlassCard className="p-4 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 block mb-1">مجموع تخفیف داده‌شده</span>
-            <span className="text-xl font-bold text-cyan-400 font-mono">
+            <span className="text-xs text-brand-navy/50 block mb-1">مجموع تخفیف داده‌شده</span>
+            <span className="text-xl font-bold text-sky-600 font-mono">
               {isLoadingUsage ? '...' : `${totalDiscountGiven.toLocaleString('fa-IR')} تومان`}
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+          <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
             <TrendingUp size={20} />
           </div>
         </GlassCard>
@@ -309,13 +309,13 @@ export const CouponsPage: React.FC = () => {
       {/* Search and Filters Bar */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
-          <Search size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-navy/50" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="جستجوی کد تخفیف..."
-            className="w-full bg-slate-900/60 border border-white/10 rounded-xl pr-10 pl-4 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:border-blue-500 transition-colors font-mono"
+            className="w-full bg-black/[0.03] border border-black/10 rounded-xl pr-10 pl-4 py-2.5 text-xs text-brand-navy placeholder-brand-navy/40 outline-none focus:border-brand-teal transition-colors font-mono"
           />
         </div>
       </div>
@@ -323,17 +323,17 @@ export const CouponsPage: React.FC = () => {
       {/* Coupons List / Grid */}
       {filteredCoupons.length === 0 ? (
         <GlassCard className="p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-slate-400">
+          <div className="w-16 h-16 rounded-full bg-black/[0.03] border border-black/10 flex items-center justify-center mx-auto mb-4 text-brand-navy/40">
             <Tag size={32} />
           </div>
-          <h3 className="text-lg font-bold text-white mb-1">هیچ کد تخفیفی یافت نشد</h3>
-          <p className="text-slate-400 text-xs mb-6 max-w-sm mx-auto">
+          <h3 className="text-lg font-bold text-brand-navy mb-1">هیچ کد تخفیفی یافت نشد</h3>
+          <p className="text-brand-navy/50 text-xs mb-6 max-w-sm mx-auto">
             {searchTerm ? 'کد تخفیفی با این شناسه پیدا نشد.' : 'هنوز هیچ کد تخفیفی تعریف نکرده‌اید. با کلیک بر روی دکمه زیر نخستین کد را بسازید.'}
           </p>
           {!searchTerm && (
             <button
               onClick={() => handleOpenModal()}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all inline-flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 bg-brand-teal hover:bg-brand-teal/90 text-brand-navy font-bold text-xs rounded-xl shadow-sm transition-all inline-flex items-center gap-2 cursor-pointer"
             >
               <Plus size={16} />
               <span>افزودن کد تخفیف جدید</span>
@@ -351,24 +351,24 @@ export const CouponsPage: React.FC = () => {
                 key={coupon.code}
                 className={`p-5 relative flex flex-col justify-between transition-all duration-200 border ${
                   !coupon.active || isExpired
-                    ? 'opacity-60 border-white/5'
-                    : 'border-white/10 hover:border-blue-500/40'
+                    ? 'opacity-60 border-black/5'
+                    : 'border-black/5 hover:border-brand-teal/40'
                 }`}
               >
                 <div>
                   {/* Top Bar: Code & Active Toggle */}
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-base font-extrabold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-lg tracking-wider">
+                      <span className="font-mono text-base font-extrabold text-blue-600 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-lg tracking-wider">
                         {coupon.code}
                       </span>
                       <button
                         onClick={() => handleCopyCode(coupon.code)}
-                        className="p-1.5 text-slate-400 hover:text-white rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+                        className="p-1.5 text-brand-navy/50 hover:text-brand-navy rounded-md hover:bg-white/10 transition-colors cursor-pointer"
                         title="کپی کد"
                       >
                         {copiedCode === coupon.code ? (
-                          <Check size={14} className="text-emerald-400" />
+                          <Check size={14} className="text-green-600" />
                         ) : (
                           <Copy size={14} />
                         )}
@@ -379,8 +379,8 @@ export const CouponsPage: React.FC = () => {
                       onClick={() => handleToggleActive(coupon.code)}
                       className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
                         coupon.active && !isExpired
-                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-red-500/15 text-red-400 border border-red-500/30'
+                          ? 'bg-emerald-500/15 text-green-600 border border-emerald-500/30'
+                          : 'bg-red-500/15 text-red-600 border border-red-500/30'
                       }`}
                     >
                       {coupon.active && !isExpired ? (
@@ -399,15 +399,15 @@ export const CouponsPage: React.FC = () => {
 
                   {/* Discount Value Display */}
                   <div className="mb-4">
-                    <div className="text-xl font-bold text-white flex items-center gap-1.5">
+                    <div className="text-xl font-bold text-brand-navy flex items-center gap-1.5">
                       {coupon.discountType === 'percent' ? (
                         <>
-                          <Percent size={20} className="text-purple-400" />
+                          <Percent size={20} className="text-purple-600" />
                           <span>{coupon.discountValue}٪ تخفیف</span>
                         </>
                       ) : (
                         <>
-                          <DollarSign size={20} className="text-emerald-400" />
+                          <DollarSign size={20} className="text-green-600" />
                           <span>{coupon.discountValue.toLocaleString('fa-IR')} تومان تخفیف</span>
                         </>
                       )}
@@ -415,23 +415,23 @@ export const CouponsPage: React.FC = () => {
                   </div>
 
                   {/* Info badges */}
-                  <div className="space-y-2 text-xs text-slate-300">
+                  <div className="space-y-2 text-xs text-brand-navy/70">
                     {/* Usage Stats */}
-                    <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
-                      <span className="text-slate-400 text-[11px]">تعداد استفاده:</span>
-                      <span className="font-mono font-bold text-white">
+                    <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-black/5">
+                      <span className="text-brand-navy/50 text-[11px]">تعداد استفاده:</span>
+                      <span className="font-mono font-bold text-brand-navy">
                         {stats.uses} {coupon.maxUses ? `/ ${coupon.maxUses}` : ''} بار
                       </span>
                     </div>
 
                     {/* Expiration Date */}
                     {coupon.expiresAt && (
-                      <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
-                        <span className="text-slate-400 text-[11px] flex items-center gap-1">
+                      <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-black/5">
+                        <span className="text-brand-navy/50 text-[11px] flex items-center gap-1">
                           <Calendar size={12} />
                           تاریخ انقضا:
                         </span>
-                        <span className={`font-mono text-[11px] ${isExpired ? 'text-red-400 font-bold' : 'text-slate-200'}`}>
+                        <span className={`font-mono text-[11px] ${isExpired ? 'text-red-500 font-bold' : 'text-brand-navy'}`}>
                           {new Date(coupon.expiresAt).toLocaleDateString('fa-IR')}
                         </span>
                       </div>
@@ -439,12 +439,12 @@ export const CouponsPage: React.FC = () => {
 
                     {/* Minimum order requirement */}
                     {coupon.minOrderAmount && (
-                      <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
-                        <span className="text-slate-400 text-[11px] flex items-center gap-1">
+                      <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-black/5">
+                        <span className="text-brand-navy/50 text-[11px] flex items-center gap-1">
                           <ShoppingBag size={12} />
                           حداقل خرید:
                         </span>
-                        <span className="font-mono text-[11px] text-amber-300">
+                        <span className="font-mono text-[11px] text-amber-700">
                           {coupon.minOrderAmount.toLocaleString('fa-IR')} تومان
                         </span>
                       </div>
@@ -452,12 +452,12 @@ export const CouponsPage: React.FC = () => {
 
                     {/* Per user limit */}
                     {coupon.perUserLimit && (
-                      <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
-                        <span className="text-slate-400 text-[11px] flex items-center gap-1">
+                      <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-black/5">
+                        <span className="text-brand-navy/50 text-[11px] flex items-center gap-1">
                           <Users size={12} />
                           سقف هر کاربر:
                         </span>
-                        <span className="font-mono text-[11px] text-cyan-300">
+                        <span className="font-mono text-[11px] text-sky-700">
                           {coupon.perUserLimit} بار
                         </span>
                       </div>
@@ -466,10 +466,10 @@ export const CouponsPage: React.FC = () => {
                 </div>
 
                 {/* Bottom Actions */}
-                <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-white/5">
+                <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-black/5">
                   <button
                     onClick={() => handleOpenModal(coupon)}
-                    className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer"
+                    className="p-2 text-brand-navy/50 hover:text-blue-600 hover:bg-brand-teal/10 rounded-lg transition-colors cursor-pointer"
                     title="ویرایش"
                   >
                     <Edit3 size={16} />
@@ -477,7 +477,7 @@ export const CouponsPage: React.FC = () => {
 
                   <button
                     onClick={() => handleDeleteCoupon(coupon.code)}
-                    className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                    className="p-2 text-brand-navy/50 hover:text-red-600 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
                     title="حذف"
                   >
                     <Trash2 size={16} />
@@ -492,16 +492,16 @@ export const CouponsPage: React.FC = () => {
       {/* Add / Edit Coupon Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-[#1e293b] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="bg-white border border-black/5 rounded-2xl shadow-lg w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="p-5 border-b border-white/10 flex items-center justify-between bg-black/20">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Tag size={18} className="text-blue-400" />
+            <div className="p-5 border-b border-black/5 flex items-center justify-between bg-black/[0.02]">
+              <h3 className="text-base font-bold text-brand-navy flex items-center gap-2">
+                <Tag size={18} className="text-brand-teal" />
                 <span>{editingCoupon ? 'ویرایش کد تخفیف' : 'تعریف کد تخفیف جدید'}</span>
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                className="text-brand-navy/50 hover:text-brand-navy p-1 rounded-lg hover:bg-black/5 transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -510,7 +510,7 @@ export const CouponsPage: React.FC = () => {
             {/* Modal Body / Form */}
             <form onSubmit={handleSaveCoupon} className="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
               {formError && (
-                <div className="bg-red-500/15 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs flex items-center gap-2">
+                <div className="bg-red-500/15 border border-red-500/30 p-3 rounded-xl text-red-600 text-xs flex items-center gap-2">
                   <AlertCircle size={16} className="shrink-0" />
                   <span>{formError}</span>
                 </div>
@@ -518,21 +518,21 @@ export const CouponsPage: React.FC = () => {
 
               {/* Code Input */}
               <div>
-                <label className="block text-xs font-bold text-slate-200 mb-1">
-                  کد تخفیف <span className="text-red-400">*</span>
+                <label className="block text-xs font-bold text-brand-navy/70 mb-1">
+                  کد تخفیف <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   value={formCode}
                   onChange={(e) => setFormCode(e.target.value.toUpperCase())}
                   placeholder="مثلاً: WELCOME50"
-                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono tracking-wider uppercase"
+                  className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono tracking-wider uppercase"
                 />
               </div>
 
               {/* Discount Type */}
               <div>
-                <label className="block text-xs font-bold text-slate-200 mb-1.5">
+                <label className="block text-xs font-bold text-brand-navy/70 mb-1.5">
                   نوع تخفیف
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -540,8 +540,8 @@ export const CouponsPage: React.FC = () => {
                     onClick={() => setFormType('percent')}
                     className={`p-3 rounded-xl border flex items-center gap-2.5 cursor-pointer transition-all ${
                       formType === 'percent'
-                        ? 'bg-purple-600/20 border-purple-500 text-white'
-                        : 'bg-slate-900/60 border-white/10 text-slate-400 hover:border-white/20'
+                        ? 'bg-purple-50 border-purple-400 text-purple-800'
+                        : 'bg-black/[0.02] border-black/10 text-brand-navy/50 hover:border-black/20'
                     }`}
                   >
                     <input
@@ -553,7 +553,7 @@ export const CouponsPage: React.FC = () => {
                     />
                     <div>
                       <span className="block text-xs font-bold">درصدی (٪)</span>
-                      <span className="block text-[10px] text-slate-400">مثلاً ۱۰٪ کسر از فاکتور</span>
+                      <span className="block text-[10px] text-brand-navy/50">مثلاً ۱۰٪ کسر از فاکتور</span>
                     </div>
                   </label>
 
@@ -561,8 +561,8 @@ export const CouponsPage: React.FC = () => {
                     onClick={() => setFormType('fixed')}
                     className={`p-3 rounded-xl border flex items-center gap-2.5 cursor-pointer transition-all ${
                       formType === 'fixed'
-                        ? 'bg-emerald-600/20 border-emerald-500 text-white'
-                        : 'bg-slate-900/60 border-white/10 text-slate-400 hover:border-white/20'
+                        ? 'bg-green-50 border-green-400 text-green-800'
+                        : 'bg-black/[0.02] border-black/10 text-brand-navy/50 hover:border-black/20'
                     }`}
                   >
                     <input
@@ -574,7 +574,7 @@ export const CouponsPage: React.FC = () => {
                     />
                     <div>
                       <span className="block text-xs font-bold">مبلغ ثابت (تومان)</span>
-                      <span className="block text-[10px] text-slate-400">مثلاً ۵۰,۰۰۰ تومان کسر</span>
+                      <span className="block text-[10px] text-brand-navy/50">مثلاً ۵۰,۰۰۰ تومان کسر</span>
                     </div>
                   </label>
                 </div>
@@ -582,8 +582,8 @@ export const CouponsPage: React.FC = () => {
 
               {/* Value Input */}
               <div>
-                <label className="block text-xs font-bold text-slate-200 mb-1">
-                  مقدار تخفیف {formType === 'percent' ? '(درصد)' : '(تومان)'} <span className="text-red-400">*</span>
+                <label className="block text-xs font-bold text-brand-navy/70 mb-1">
+                  مقدار تخفیف {formType === 'percent' ? '(درصد)' : '(تومان)'} <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="number"
@@ -592,13 +592,13 @@ export const CouponsPage: React.FC = () => {
                   placeholder={formType === 'percent' ? 'مثلاً: 20' : 'مثلاً: 50000'}
                   min="1"
                   max={formType === 'percent' ? '100' : undefined}
-                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono"
                 />
               </div>
 
               {/* Minimum order amount */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-brand-navy/60 mb-1">
                   حداقل مبلغ سفارش به تومان (اختیاری)
                 </label>
                 <input
@@ -606,14 +606,14 @@ export const CouponsPage: React.FC = () => {
                   value={formMinOrderAmount}
                   onChange={(e) => setFormMinOrderAmount(e.target.value)}
                   placeholder="خالی بگذارید یعنی بدون حد کف سفارش"
-                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono"
                 />
               </div>
 
               {/* Usage limits */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-brand-navy/60 mb-1">
                     سقف کل استفاده (اختیاری)
                   </label>
                   <input
@@ -622,12 +622,12 @@ export const CouponsPage: React.FC = () => {
                     onChange={(e) => setFormMaxUses(e.target.value)}
                     placeholder="مثلاً: 100"
                     min="1"
-                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
+                    className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-brand-navy/60 mb-1">
                     سقف هر کاربر (اختیاری)
                   </label>
                   <input
@@ -636,31 +636,31 @@ export const CouponsPage: React.FC = () => {
                     onChange={(e) => setFormPerUserLimit(e.target.value)}
                     placeholder="مثلاً: 1 (فقط یکبار)"
                     min="1"
-                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
+                    className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono"
                   />
                 </div>
               </div>
 
               {/* Expiration date */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-brand-navy/60 mb-1">
                   تاریخ انقضا (اختیاری)
                 </label>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setShowExpiryDatePicker(true)}
-                    className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500 text-right hover:border-blue-500/50 transition-colors"
+                    className="flex-1 bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal text-right hover:border-brand-teal/50 transition-colors"
                   >
                     {formExpiresDate
                       ? new Date(formExpiresDate + 'T00:00:00').toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })
-                      : <span className="text-slate-500">بدون انقضا (کلیک برای انتخاب)</span>}
+                      : <span className="text-brand-navy/40">بدون انقضا (کلیک برای انتخاب)</span>}
                   </button>
                   {formExpiresDate && (
                     <button
                       type="button"
                       onClick={() => setFormExpiresDate('')}
-                      className="px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-medium transition-colors cursor-pointer"
+                      className="px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 border border-red-500/20 text-xs font-medium transition-colors cursor-pointer"
                       title="حذف تاریخ انقضا"
                     >
                       حذف
@@ -676,24 +676,24 @@ export const CouponsPage: React.FC = () => {
                     type="checkbox"
                     checked={formActive}
                     onChange={(e) => setFormActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 bg-slate-900 border-white/20 focus:ring-0"
+                    className="w-4 h-4 rounded text-brand-teal bg-black/[0.03] border-black/20 focus:ring-0"
                   />
-                  <span className="text-xs text-slate-200">این کد تخفیف فعال باشد</span>
+                  <span className="text-xs text-brand-navy/70">این کد تخفیف فعال باشد</span>
                 </label>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-black/5">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-colors"
+                  className="px-4 py-2.5 rounded-xl bg-black/5 hover:bg-black/10 text-brand-navy/70 text-xs font-medium transition-colors"
                 >
                   انصراف
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-600/20"
+                  className="px-5 py-2.5 rounded-xl bg-brand-teal hover:bg-brand-teal/90 text-white text-xs font-bold transition-all shadow-sm"
                 >
                   ذخیره کد تخفیف
                 </button>

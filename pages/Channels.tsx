@@ -579,7 +579,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
     if (!token) return <div className="text-center p-10">ابتدا ربات را متصل کنید</div>;
 
     return (
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)] gap-6 animate-fade-in relative pb-10">
+        <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-120px)] gap-6 animate-fade-in relative pb-10">
             {toast && <Toast {...toast} onClose={() => setToast(null)} />}
             <PersianDatePicker isOpen={showDatePicker} onClose={() => setShowDatePicker(false)} initialDate={scheduledDateObj} onSelect={(d) => { setScheduledDateObj(d); setIsScheduledEnabled(true); }}/>
 
@@ -598,7 +598,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                          </div>
                          <h3 className="font-bold dark:text-white text-slate-800 flex items-center gap-2"><Users size={18}/> لیست کانال‌ها</h3>
                          <div className="flex gap-2 mt-3">
-                             <input value={newChannelId} onChange={e=>setNewChannelId(e.target.value)} placeholder="@channel" className="w-full dark:bg-black/20 bg-slate-100 rounded px-2 text-sm dark:text-white text-slate-800 border dark:border-white/10 border-slate-200 outline-none dir-ltr text-left"/>
+                             <input value={newChannelId} onChange={e=>setNewChannelId(e.target.value)} placeholder="@channel" dir="ltr" className="w-full dark:bg-black/20 bg-slate-100 rounded px-2 text-sm dark:text-white text-slate-800 border dark:border-white/10 border-slate-200 outline-none text-left"/>
                              <button onClick={handleAddChannel} disabled={verifyingChannel} className="bg-blue-600 rounded px-2 dark:text-white text-slate-800 hover:bg-blue-500 disabled:opacity-50">
                                  {verifyingChannel ? <RefreshCw className="animate-spin" size={16}/> : <Plus size={20}/>}
                              </button>
@@ -637,7 +637,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
             </div>
             
             {/* MAIN CONTENT */}
-            <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+            <div className="flex-1 flex flex-col gap-4 lg:overflow-hidden">
                 {/* TABS */}
                 <div className="flex justify-between items-center dark:bg-black/20 bg-slate-100 p-1 rounded-xl border dark:border-white/5 border-slate-100 shrink-0 overflow-x-auto">
                     <div className="flex gap-2">
@@ -657,10 +657,10 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                     </div>
                 </div>
 
-                <GlassCard className="flex-1 !p-0 overflow-hidden relative flex flex-col">
+                <GlassCard className="flex-1 !p-0 lg:overflow-hidden relative flex flex-col">
                     {/* --- COMPOSE TAB --- */}
                     {activeTab === 'compose' && (
-                        <div className="flex flex-col xl:flex-row h-full">
+                        <div className="flex flex-col xl:flex-row xl:h-full">
                             {/* Editor Column */}
                             <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
                                  {/* Toolbar */}
@@ -716,13 +716,13 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                  </div>
 
                                  {/* ADVANCED SETTINGS */}
-                                 <div className="mt-6 dark:bg-white/5 bg-slate-100 border dark:border-white/5 border-slate-100 rounded-2xl p-5">
+                                 <div className="mt-6 bg-black/[0.03] border border-black/5 rounded-2xl p-5">
                                      <div className="flex items-center gap-2 mb-4">
-                                         <Settings size={18} className="dark:text-purple-400 text-purple-600"/>
-                                         <span className="text-sm font-bold dark:text-white text-slate-800">تنظیمات پیشرفته پیام</span>
+                                         <Settings size={18} className="text-brand-teal"/>
+                                         <span className="text-sm font-bold text-brand-navy">تنظیمات پیشرفته پیام</span>
                                      </div>
                                      <div className="flex flex-wrap gap-3">
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.pin ? 'bg-orange-500/10 border-orange-500/50 text-orange-200' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.pin ? 'bg-orange-50 border-orange-300 text-orange-700' : 'bg-white border-black/5 text-brand-navy/50 hover:border-black/10'}`}>
                                              <Pin size={18} className={settings.pin ? 'text-orange-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">سنجاق کردن</span>
@@ -731,7 +731,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                              <input type="checkbox" className="hidden" checked={settings.pin} onChange={() => setSettings(s => ({...s, pin: !s.pin}))}/>
                                              {settings.pin && <CheckCircle size={14} className="mr-auto text-orange-500"/>}
                                          </label>
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.silent ? 'bg-blue-500/10 border-blue-500/50 dark:text-blue-200 text-blue-700' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.silent ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-black/5 text-brand-navy/50 hover:border-black/10'}`}>
                                              <BellOff size={18} className={settings.silent ? 'text-blue-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">ارسال بی‌صدا</span>
@@ -740,7 +740,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                              <input type="checkbox" className="hidden" checked={settings.silent} onChange={() => setSettings(s => ({...s, silent: !s.silent}))}/>
                                              {settings.silent && <CheckCircle size={14} className="mr-auto text-blue-500"/>}
                                          </label>
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.protect ? 'bg-green-500/10 border-green-500/50 text-green-200' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.protect ? 'bg-green-50 border-green-300 text-green-700' : 'bg-white border-black/5 text-brand-navy/50 hover:border-black/10'}`}>
                                              <ShieldAlert size={18} className={settings.protect ? 'text-green-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">محافظت محتوا</span>
@@ -749,7 +749,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                              <input type="checkbox" className="hidden" checked={settings.protect} onChange={() => setSettings(s => ({...s, protect: !s.protect}))}/>
                                              {settings.protect && <CheckCircle size={14} className="mr-auto text-green-500"/>}
                                          </label>
-                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.addReactions ? 'bg-purple-500/10 border-purple-500/50 text-purple-200' : 'dark:bg-black/20 bg-slate-100 dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 dark:hover:border-white/10 hover:border-slate-300'}`}>
+                                         <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all flex-1 min-w-[140px] ${settings.addReactions ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-white border-black/5 text-brand-navy/50 hover:border-black/10'}`}>
                                              <Vote size={18} className={settings.addReactions ? 'text-purple-500' : 'opacity-50'}/>
                                              <div className="flex flex-col">
                                                  <span className="text-xs font-bold">دکمه لایک/دیس‌لایک</span>

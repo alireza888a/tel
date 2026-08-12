@@ -269,7 +269,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
       <div className="relative max-w-md w-full bg-white border border-black/5 rounded-3xl shadow-xl z-10 overflow-hidden transform hover:scale-[1.015] transition-transform duration-300">
 
         {/* Colored header band — separates the brand identity from the plain form below */}
-        <div className="bg-gradient-to-l from-brand-teal to-brand-light px-8 pt-8 pb-14 text-center relative">
+        <div className="bg-gradient-to-l from-brand-teal to-brand-light px-8 pt-8 pb-8 text-center relative">
           <div className="relative inline-block">
             <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg">
               <Key size={28} className="text-brand-teal" />
@@ -283,12 +283,10 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           </h1>
         </div>
 
-        <div className="px-8 pb-8 -mt-8">
-          <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 text-center">
-            <p className="text-sm text-brand-navy leading-relaxed">
-              جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.
-            </p>
-          </div>
+        <div className="px-8 pb-8 pt-6">
+          <p className="text-sm text-brand-navy/80 leading-relaxed text-center mb-6">
+            جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.
+          </p>
 
         {/* Status Messages */}
         {errorMsg && (

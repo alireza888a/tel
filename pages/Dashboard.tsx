@@ -152,22 +152,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               const queue = JSON.parse(localStorage.getItem('channel_queue') || '[]');
               const cmds = JSON.parse(localStorage.getItem('bot_commands') || '[]');
 
-              let licenseCode = '';
-              try {
-                  const cache = JSON.parse(localStorage.getItem('license_cache') || '{}');
-                  licenseCode = cache.code || (typeof cache === 'string' ? cache : '');
-              } catch {
-                  licenseCode = localStorage.getItem('license_cache') || '';
-              }
-
+              const credential = getStoredCredential();
               let totalLogsCount = 0;
 
-              if (licenseCode) {
+              if (credential) {
                   try {
                       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/logs/list', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ code: licenseCode, limit: 5 })
+                          body: JSON.stringify({ ...credential, limit: 5 })
                       });
                       const result = await res.json();
                       if (result && result.ok) {
@@ -183,7 +176,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       const salesRes = await fetch('https://corepanel-api.tajikr450.workers.dev/api/dashboard/sales', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ code: licenseCode })
+                          body: JSON.stringify(credential)
                       });
                       const salesResult = await salesRes.json();
                       if (salesResult && salesResult.ok) {

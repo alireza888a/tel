@@ -9,6 +9,7 @@ import {
     Wallet, TrendingUp, ShoppingBag, Trophy
 } from 'lucide-react';
 import { telegramService, TelegramUser } from '../services/telegramService';
+import { getStoredCredential } from '../services/cloudSync';
 
 // --- TYPES ---
 interface LogItem {
@@ -85,23 +86,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   // Fetch Bot Health API & Telegram Webhook Status
   const fetchHealthAndStatus = async () => {
       setHealthLoading(true);
-      let code = '';
-      try {
-          const cache = JSON.parse(localStorage.getItem('license_cache') || '{}');
-          code = cache.code || '';
-      } catch {
-          code = '';
-      }
-      if (code) setLicenseCode(code);
-      const botToken = localStorage.getItem('bot_token') || token;
+      const credential = getStoredCredential();
+      if (credential?.code) setLicenseCode(credential.code);
 
-      // 1. Fetch /api/bot/health
-      if (code) {
+      // 1. Fetch /api/bot/health — works for owner (code) or assistant (access_token)
+      if (credential) {
           try {
               const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/bot/health', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ code })
+                  body: JSON.stringify(credential)
               });
               const data = await res.json();
               if (data && data.ok) {
@@ -114,18 +108,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           }
       }
 
-      // 2. Fetch getWebhookInfo from Telegram
-      if (botToken) {
-          try {
-              const wbRes = await telegramService.getWebhookInfo(botToken);
-              if (wbRes && wbRes.ok && wbRes.result) {
-                  setWebhookData(wbRes.result);
-              }
-          } catch (e) {
-              console.error("Error fetching webhook info:", e);
-          }
-      }
-
       setHealthLoading(false);
   };
 
@@ -133,20 +115,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   useEffect(() => {
       fetchHealthAndStatus();
 
-      if (!token) return;
+      const credential = getStoredCredential();
+      if (!credential) return;
 
       const loadDashboardData = async () => {
           setIsLoading(true);
 
-          // 1. Check Bot Status (Live)
+          // 1. Check Bot Status (Live) — via the server-side proxy, so an
+          // assistant session (whose bot_token is deliberately blank) still
+          // sees the connected bot's name/photo/webhook status without the
+          // browser ever needing the actual token.
           try {
-              const me = await telegramService.getMe(token);
-              if (me.ok && me.result) {
-                  setBotInfo(me.result);
-                  setIsOnline(true);
-                  // Best-effort — a fresh bot with no photo set just falls
-                  // back to the initials circle, no error shown.
-                  telegramService.getBotProfilePhotoUrl(token, me.result.id).then(setBotPhotoUrl);
+              const infoRes = await fetch('https://corepanel-api.tajikr450.workers.dev/api/bot/info', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(credential)
+              });
+              const infoData = await infoRes.json();
+              if (infoData.ok && infoData.connected && infoData.botInfo) {
+                  setBotInfo(infoData.botInfo);
+                  setIsOnline(!!infoData.isOnline);
+                  if (infoData.webhookData) setWebhookData(infoData.webhookData);
+                  if (infoData.hasPhoto) {
+                      setBotPhotoUrl('https://corepanel-api.tajikr450.workers.dev/api/bot/photo?' + new URLSearchParams(credential as Record<string, string>).toString());
+                  }
               } else {
                   setIsOnline(false);
               }

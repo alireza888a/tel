@@ -3,7 +3,6 @@ import { GlassCard } from '../components/GlassCard';
 import { Send, CornerUpRight, BarChart3, Users } from 'lucide-react';
 import { InlineRow, MediaAttachment, InlineButton, QueueItem } from '../types';
 import { telegramService } from '../services/telegramService';
-import { generateBroadcastMessage } from '../services/geminiService';
 import { syncNow } from '../services/cloudSync';
 
 import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { GlassCard } from '../GlassCard';
-import { Sparkles, Cloud, Image as ImageIcon, Video, Music, AlertTriangle, Trash2 } from 'lucide-react';
+import { Cloud, Image as ImageIcon, Video, Music, AlertTriangle, Trash2 } from 'lucide-react';
 import { MenuPage } from '../../types';
 
 interface MenuContentEditorCardProps {
@@ -8,8 +8,6 @@ interface MenuContentEditorCardProps {
   currentMenuId: string;
   updateMenu: (menuId: string, updates: Partial<MenuPage>) => void;
   insertVariable: (variable: string) => void;
-  handleSuggest: () => void;
-  loadingSuggestions: boolean;
   isUploading: boolean;
   handleMediaUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'audio') => void;
   removeMedia: (id: string) => void;
@@ -21,8 +19,6 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
   currentMenuId,
   updateMenu,
   insertVariable,
-  handleSuggest,
-  loadingSuggestions,
   isUploading,
   handleMediaUpload,
   removeMedia,
@@ -62,15 +58,6 @@ export const MenuContentEditorCard: React.FC<MenuContentEditorCardProps> = ({
               </button>
             ))}
           </div>
-
-          <button
-            onClick={handleSuggest}
-            disabled={loadingSuggestions}
-            className="text-xs flex items-center gap-1 text-purple-400 hover:text-purple-300 transition-colors"
-          >
-            <Sparkles size={12} />
-            {loadingSuggestions ? 'در حال فکر کردن...' : 'پیشنهاد دکمه با هوش مصنوعی'}
-          </button>
         </div>
 
         <div>

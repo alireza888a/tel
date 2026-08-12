@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
-import { Users, Send, Plus, Trash2, Calendar as CalIcon, Clock, Image as ImageIcon, Link as LinkIcon, Lock, Unlock, CheckCircle, X, AlertTriangle, Music, Video, RefreshCw, Pin, BellOff, ShieldAlert, Bold, Italic, Code, Eye, Sparkles, Cloud, ListChecks, Megaphone, Layers, LayoutGrid, Settings, AlertCircle, Check, ChevronRight, ChevronLeft, Vote, Trophy, HelpCircle, Save } from 'lucide-react';
+import { Users, Send, Plus, Trash2, Calendar as CalIcon, Clock, Image as ImageIcon, Link as LinkIcon, Lock, Unlock, CheckCircle, X, AlertTriangle, Music, Video, RefreshCw, Pin, BellOff, ShieldAlert, Bold, Italic, Code, Eye, Cloud, ListChecks, Megaphone, Layers, LayoutGrid, Settings, AlertCircle, Check, ChevronRight, ChevronLeft, Vote, Trophy, HelpCircle, Save } from 'lucide-react';
 import { QueueItem, InlineRow, SavedChannel, SentMessageLog, MediaFile } from '../types';
 import { telegramService } from '../services/telegramService';
-import { generateBroadcastMessage } from '../services/geminiService';
 import { syncNow } from '../services/cloudSync';
 import { sanitizeTelegramHtml } from '../utils/sanitizeTelegramHtml';
 
@@ -212,7 +211,6 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
     const [text, setText] = useState('');
     const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
     const [inlineRows, setInlineRows] = useState<InlineRow[]>([]); 
-    const [isLoadingAI, setIsLoadingAI] = useState(false);
     const [isUploading, setIsUploading] = useState(false); 
 
     // Settings
@@ -577,7 +575,6 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
             setText(text.substring(0, start) + `<${tagCode}>${text.substring(start, end)}</${tagCode}>` + text.substring(end)); 
         } 
     };
-    const handleAIWrite = async () => { setIsLoadingAI(true); setText(await generateBroadcastMessage(text)); setIsLoadingAI(false); };
 
     if (!token) return <div className="text-center p-10">ابتدا ربات را متصل کنید</div>;
 
@@ -672,10 +669,6 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                      <button onClick={() => insertTag('i')} className="p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900" title="Italic"><Italic size={14}/></button>
                                      <button onClick={() => insertTag('code')} className="p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900" title="Monospace"><Code size={14}/></button>
                                      <button onClick={() => insertTag('spoiler')} className="p-1.5 dark:hover:bg-white/10 hover:bg-slate-200 rounded dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900" title="Spoiler"><Eye size={14}/></button>
-                                     <div className="w-[1px] h-4 dark:bg-white/10 bg-slate-200 mx-1"></div>
-                                     <button onClick={handleAIWrite} disabled={isLoadingAI} className="p-1.5 hover:bg-purple-500/20 rounded dark:text-purple-400 text-purple-600 hover:text-purple-300 flex items-center gap-1 text-xs px-2">
-                                         {isLoadingAI ? <RefreshCw className="animate-spin" size={12}/> : <Sparkles size={12}/>} هوش مصنوعی
-                                     </button>
                                  </div>
 
                                  <textarea ref={textAreaRef} value={text} onChange={e => setText(e.target.value)} placeholder="متن پست خود را بنویسید..." className="w-full h-40 bg-black/10 border dark:border-white/10 border-slate-200 rounded-xl p-4 dark:text-white text-slate-800 resize-none outline-none focus:border-blue-500 transition-colors font-vazir text-sm"/>

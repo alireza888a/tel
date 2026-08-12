@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { List, Download, Upload, RefreshCcw, LayoutTemplate, Home, ArrowRight, LayoutGrid, MessageSquare } from 'lucide-react';
 import { InlineRow, InlineButton, MediaAttachment, MenuPage, FormConfig, FormQuestion, InquiryConfig, Product } from '../types';
-import { suggestButtonLabels } from '../services/geminiService';
 import { telegramService } from '../services/telegramService';
 import { syncNow } from '../services/cloudSync';
 
@@ -57,7 +56,6 @@ export const KeyboardBuilder: React.FC = () => {
   const [currentMenuId, setCurrentMenuId] = useState<string>('root');
   const [history, setHistory] = useState<string[]>([]);
   const [selectedButton, setSelectedButton] = useState<{rowId: string, btnId: string} | null>(null);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [showMenuSidebar, setShowMenuSidebar] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
 
@@ -779,21 +777,6 @@ export const KeyboardBuilder: React.FC = () => {
     updateMenu(currentMenuId, { media: currentMenu.media.filter(m => m.id !== id) });
   };
 
-  const handleSuggest = async () => {
-    if (!currentMenu.content) return;
-    setLoadingSuggestions(true);
-    const result = await suggestButtonLabels(currentMenu.content);
-    if(result.length > 0) {
-        const btns = result.slice(0, 2).map((text, i) => ({
-             id: Date.now() + i + '', text, type: 'callback' as const
-        }));
-        updateMenu(currentMenuId, {
-            rows: [...currentMenu.rows, { id: Date.now().toString(), buttons: btns }]
-        });
-    }
-    setLoadingSuggestions(false);
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 relative h-[calc(100vh-9rem)]">
       <input type="file" ref={fileInputRef} onChange={handleMediaUpload} className="hidden" accept="image/*,video/*,audio/*" />
@@ -936,8 +919,6 @@ export const KeyboardBuilder: React.FC = () => {
            currentMenuId={currentMenuId}
            updateMenu={updateMenu}
            insertVariable={insertVariable}
-           handleSuggest={handleSuggest}
-           loadingSuggestions={loadingSuggestions}
            isUploading={isUploading}
            handleMediaUpload={handleMediaUpload}
            removeMedia={removeMedia}

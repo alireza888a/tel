@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
 import { MessageCircle, Send, AlertTriangle, CheckCircle, Clock, MessageSquare, Loader2, Paperclip, X } from 'lucide-react';
+import { getStoredCredential } from '../services/cloudSync';
 
 interface Ticket {
     id?: string | number;
@@ -25,16 +26,10 @@ export const Support: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [statusMsg, setStatusMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
-    let licenseCode = '';
-    try {
-        const licenseCache = JSON.parse(localStorage.getItem('license_cache') || '{}');
-        licenseCode = licenseCache.code || '';
-    } catch (e) {
-        console.error('Error reading license_cache', e);
-    }
+    const credential = getStoredCredential();
 
     const fetchTickets = async () => {
-        if (!licenseCode) return;
+        if (!credential) return;
         setIsLoading(true);
         try {
             const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/tickets/list', {
@@ -42,7 +37,7 @@ export const Support: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ code: licenseCode })
+                body: JSON.stringify(credential)
             });
             if (!res.ok) throw new Error('API request failed');
             const data = await res.json();
@@ -66,10 +61,10 @@ export const Support: React.FC = () => {
     };
 
     useEffect(() => {
-        if (licenseCode) {
+        if (credential) {
             fetchTickets();
         }
-    }, [licenseCode]);
+    }, []);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -100,8 +95,8 @@ export const Support: React.FC = () => {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
-        if (!licenseCode) {
-            setStatusMsg({ text: 'خطا: لایسنس‌کد معتبر یافت نشد. لطفا ابتدا پنل را فعال کنید.', type: 'error' });
+        if (!credential) {
+            setStatusMsg({ text: 'خطا: نشست معتبر یافت نشد. لطفا ابتدا پنل را فعال کنید.', type: 'error' });
             return;
         }
 
@@ -109,7 +104,7 @@ export const Support: React.FC = () => {
         setStatusMsg(null);
         try {
             const bodyPayload: any = { 
-                code: licenseCode, 
+                ...credential, 
                 message: newMessage.trim() 
             };
             if (selectedImage) {
@@ -170,14 +165,14 @@ export const Support: React.FC = () => {
             </div>
 
             {/* Check Activation Status */}
-            {!licenseCode && (
+            {!credential && (
                 <div className="p-4 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl flex items-center gap-3">
                     <AlertTriangle size={20} />
                     <span>خطا: لایسنس‌کد معتبر یافت نشد. لطفا ابتدا از بخش داشبورد یا اتصال، پنل را فعال کنید.</span>
                 </div>
             )}
 
-            {licenseCode && (
+            {credential && (
                 <div className="grid grid-cols-1 gap-8">
                     {/* Send Ticket Form */}
                     <GlassCard title="ثبت تیکت پشتیبانی جدید">

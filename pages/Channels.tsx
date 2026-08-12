@@ -3,7 +3,7 @@ import { GlassCard } from '../components/GlassCard';
 import { Users, Send, Plus, Trash2, Calendar as CalIcon, Clock, Image as ImageIcon, Link as LinkIcon, Lock, Unlock, CheckCircle, X, AlertTriangle, Music, Video, RefreshCw, Pin, BellOff, ShieldAlert, Bold, Italic, Code, Eye, Cloud, ListChecks, Megaphone, Layers, LayoutGrid, Settings, AlertCircle, Check, ChevronRight, ChevronLeft, Vote, Trophy, HelpCircle, Save } from 'lucide-react';
 import { QueueItem, InlineRow, SavedChannel, SentMessageLog, MediaFile } from '../types';
 import { telegramService } from '../services/telegramService';
-import { syncNow } from '../services/cloudSync';
+import { syncNow, getStoredCredential } from '../services/cloudSync';
 import { sanitizeTelegramHtml } from '../utils/sanitizeTelegramHtml';
 
 // --- UTILITIES (Accurate Jalali/Gregorian Conversion) ---
@@ -193,6 +193,32 @@ interface ChannelsProps {
 export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
     const token = localStorage.getItem('bot_token') || '';
     const dbChannel = localStorage.getItem('bot_db_channel') || '';
+
+    // Whether A bot is connected at all — checked server-side via
+    // /api/bot/info so this works for an assistant session too, whose local
+    // `token` above is always blank on purpose. Everything below that
+    // actually NEEDS the raw token for a direct Telegram API call still
+    // only works for the owner (unavoidable), but the page itself should
+    // never falsely claim "no bot connected" when one clearly is.
+    const [hasBotConnected, setHasBotConnected] = useState(!!token);
+    useEffect(() => {
+        if (token) { setHasBotConnected(true); return; }
+        let cancelled = false;
+        (async () => {
+            try {
+                const credential = getStoredCredential();
+                if (!credential) return;
+                const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/bot/info', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credential)
+                });
+                const data = await res.json();
+                if (!cancelled) setHasBotConnected(!!data.connected);
+            } catch (e) {}
+        })();
+        return () => { cancelled = true; };
+    }, [token]);
     
     // TAB STATE
     const [activeTab, setActiveTab] = useState<'compose' | 'calendar' | 'queue' | 'poll' | 'quiz'>(() => {
@@ -576,7 +602,7 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
         } 
     };
 
-    if (!token) return <div className="text-center p-10">ابتدا ربات را متصل کنید</div>;
+    if (!hasBotConnected) return <div className="text-center p-10">ابتدا ربات را متصل کنید</div>;
 
     return (
         <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-120px)] gap-6 animate-fade-in relative pb-10">

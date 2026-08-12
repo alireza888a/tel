@@ -261,26 +261,34 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#F4F6F7] text-brand-navy flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
-      <div className="relative max-w-md w-full bg-white border border-black/5 rounded-3xl p-8 shadow-lg z-10">
-        
-        {/* Header decoration */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="relative mb-4">
-            <div className="w-16 h-16 bg-brand-teal rounded-2xl flex items-center justify-center shadow-md">
-              <Key size={28} className="text-white" />
+      {/* Background Decor — soft brand-colored blobs, kept light enough to stay readable */}
+      <div className="fixed -top-24 -right-24 w-[420px] h-[420px] bg-gradient-to-br from-brand-teal to-brand-light rounded-[40%_60%_65%_35%/45%_45%_55%_55%] opacity-40 blur-[40px] pointer-events-none" />
+      <div className="fixed -bottom-32 -left-24 w-[460px] h-[460px] bg-gradient-to-tr from-brand-amber to-brand-orange rounded-[55%_45%_35%_65%/55%_35%_65%_45%] opacity-30 blur-[50px] pointer-events-none" />
+      <div className="fixed top-1/3 -left-16 w-[220px] h-[220px] bg-brand-navy rounded-full opacity-[0.05] blur-[30px] pointer-events-none" />
+
+      <div className="relative max-w-md w-full bg-white border border-black/5 rounded-3xl shadow-xl z-10 overflow-hidden transform hover:scale-[1.015] transition-transform duration-300">
+
+        {/* Colored header band — separates the brand identity from the plain form below */}
+        <div className="bg-gradient-to-l from-brand-teal to-brand-light px-8 pt-8 pb-14 text-center relative">
+          <div className="relative inline-block">
+            <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg">
+              <Key size={28} className="text-brand-teal" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-amber rounded-full flex items-center justify-center text-[10px] text-brand-navy font-bold border-2 border-white">
               🔑
             </div>
           </div>
-          
-          <h1 className="text-2xl font-black text-brand-navy mb-2">
+          <h1 className="text-2xl font-black text-white mt-4">
             فعالسازی پنل مدیریت
           </h1>
-          <p className="text-xs text-brand-navy/50 max-w-sm leading-relaxed">
-            جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.
-          </p>
         </div>
+
+        <div className="px-8 pb-8 -mt-8">
+          <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 text-center">
+            <p className="text-sm text-brand-navy leading-relaxed">
+              جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.
+            </p>
+          </div>
 
         {/* Status Messages */}
         {errorMsg && (
@@ -293,7 +301,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
         {/* Main form */}
         <form onSubmit={handleActivate} className="space-y-5">
           <div>
-            <label className="block text-xs text-brand-navy/50 mb-2 font-medium">لایسنس‌کد:</label>
+            <label className="block text-sm text-brand-navy mb-2 font-bold">لایسنس‌کد:</label>
             <div className="relative">
               <input
                 type="text"
@@ -397,14 +405,15 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
         )}
 
         {/* Device Information section */}
-        <div className="mt-8 pt-6 border-t border-black/5 flex items-center justify-between text-[10px] text-brand-navy/40 font-mono">
+        <div className="mt-8 pt-6 border-t border-black/5 flex items-center justify-between text-[10px] text-brand-navy/60 font-mono">
           <div className="flex items-center gap-1.5">
-            <Smartphone size={12} className="text-brand-navy/40" />
+            <Smartphone size={12} className="text-brand-navy/60" />
             <span>دستگاه شما:</span>
           </div>
           <span className="bg-black/[0.03] px-2 py-1 rounded border border-black/5 max-w-[200px] truncate" title={deviceId}>
             {deviceId}
           </span>
+        </div>
         </div>
 
       </div>

@@ -359,8 +359,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const isWebhookMismatch = webhookData && healthData?.expected_webhook_url && webhookData.url !== healthData.expected_webhook_url;
   const botActivity = getBotActivityInfo();
 
-  // --- WELCOME SCREEN (No Token) ---
-  if (!token) {
+  // --- WELCOME SCREEN (No Bot Connected) ---
+  // Gated on botInfo (populated via the server-side /api/bot/info proxy),
+  // not the raw `token` state — an assistant session never holds the real
+  // bot_token (it's redacted server-side on purpose), so gating on `token`
+  // directly showed this screen for an assistant even when a bot WAS
+  // connected. botInfo comes back correctly for both roles since the
+  // lookup happens server-side using the real token either way.
+  if (!botInfo && !isLoading) {
       return (
           <div className="h-[calc(100vh-140px)] flex items-center justify-center animate-fade-in relative">
               <div className="absolute inset-0 overflow-hidden pointer-events-none">

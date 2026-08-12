@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Plus, Trash2, Edit3, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Loader2, Save, User, Tag, Phone, Zap, Users } from 'lucide-react';
 import { BookableService, WorkingHours, Booking, Provider } from '../types';
-import { syncNow } from '../services/cloudSync';
+import { syncNow, getStoredCredential } from '../services/cloudSync';
 import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
 
 export const BookingPage: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<'bookings' | 'services' | 'providers' | 'hours'>('bookings');
 
   // License code
-  const [code, setCode] = useState<string>('');
+  const [hasCredential, setHasCredential] = useState(false);
 
   // 1. Services state
   const [services, setServices] = useState<BookableService[]>(() => {
@@ -107,25 +107,8 @@ export const BookingPage: React.FC = () => {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const licenseStr = localStorage.getItem('license_cache') || '{}';
-      const license = JSON.parse(licenseStr);
-      if (license.code) setCode(license.code);
-    } catch (e) {
-      console.error(e);
-    }
+    setHasCredential(!!getStoredCredential());
   }, []);
-
-  const getLicenseCode = (): string => {
-    if (code) return code;
-    try {
-      const licenseStr = localStorage.getItem('license_cache') || '{}';
-      const parsed = JSON.parse(licenseStr);
-      return parsed.code || licenseStr;
-    } catch {
-      return localStorage.getItem('license_cache') || '';
-    }
-  };
 
   const handleAddBookingButtonToRoot = () => {
     try {
@@ -155,9 +138,10 @@ export const BookingPage: React.FC = () => {
 
   // Fetch bookings from cloud D1 API
   const fetchBookingsApi = async (statusVal: 'all' | 'pending' | 'confirmed' | 'cancelled', beforeCursor?: number | null) => {
-    const licenseCode = getLicenseCode();
+    const credential = getStoredCredential();
+    if (!credential) return { ok: false, reason: 'missing_fields' };
     const payload: any = {
-      code: licenseCode,
+      ...credential,
       limit: 30
     };
     if (statusVal !== 'all') {
@@ -216,7 +200,7 @@ export const BookingPage: React.FC = () => {
 
   useEffect(() => {
     refreshBookings();
-  }, [code, statusFilter]);
+  }, [hasCredential, statusFilter]);
 
   // Service Handlers
   const handleOpenServiceModal = (service?: BookableService) => {
@@ -469,13 +453,14 @@ export const BookingPage: React.FC = () => {
 
   // Booking action handlers
   const handleConfirmBooking = async (bookingId: string) => {
-    if (!code) return;
+    const credential = getStoredCredential();
+    if (!credential) return;
     setActionLoadingId(bookingId);
     try {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/booking/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, bookingId })
+        body: JSON.stringify({ ...credential, bookingId })
       });
       const data = await res.json();
       if (data.ok !== false) {
@@ -492,14 +477,15 @@ export const BookingPage: React.FC = () => {
   };
 
   const handleRejectBooking = async (bookingId: string) => {
-    if (!code) return;
+    const credential = getStoredCredential();
+    if (!credential) return;
     if (!confirm('آیا از رد این نوبت اطمینان دارید؟')) return;
     setActionLoadingId(bookingId);
     try {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/booking/reject', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, bookingId })
+        body: JSON.stringify({ ...credential, bookingId })
       });
       const data = await res.json();
       if (data.ok !== false) {

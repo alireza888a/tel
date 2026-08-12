@@ -19,7 +19,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { Coupon } from '../types';
-import { syncNow } from '../services/cloudSync';
+import { syncNow, getStoredCredential } from '../services/cloudSync';
 import { GlassCard } from '../components/GlassCard';
 import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
 
@@ -57,16 +57,14 @@ export const CouponsPage: React.FC = () => {
   const fetchUsageStats = async () => {
     setIsLoadingUsage(true);
     try {
-      const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
-      const licenseCache = JSON.parse(licenseCacheStr);
-      const code = licenseCache.code;
-      if (code) {
+      const credential = getStoredCredential();
+      if (credential) {
         const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/coupons/usage', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ code })
+          body: JSON.stringify(credential)
         });
         const result = await res.json();
         if (result.ok && Array.isArray(result.usage)) {

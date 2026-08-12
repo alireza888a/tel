@@ -3,6 +3,7 @@ import { GlassCard } from '../components/GlassCard';
 import { Plus, Trash2, Edit, ShoppingBag, CheckCircle, X, DollarSign, Image as ImageIcon, ToggleLeft, ToggleRight, Check, Zap } from 'lucide-react';
 import { Product } from '../types';
 import { telegramService } from '../services/telegramService';
+import { getStoredCredential } from '../services/cloudSync';
 import { syncNow } from '../services/cloudSync';
 import { getDisplayableImageUrl } from '../utils/image';
 
@@ -37,13 +38,12 @@ export const Products: React.FC = () => {
 
  const fetchStockLevels = async () => {
  try {
- const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
- const code = JSON.parse(licenseCacheStr).code;
- if (!code) return;
+ const credential = getStoredCredential();
+ if (!credential) return;
  const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/products/stock/list', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ code })
+ body: JSON.stringify(credential)
  });
  const result = await res.json();
  if (result.ok) setStockLevels(result.stock || {});
@@ -58,13 +58,12 @@ export const Products: React.FC = () => {
 
  const saveStockToServer = async (productId: string, stock: number) => {
  try {
- const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
- const code = JSON.parse(licenseCacheStr).code;
- if (!code) return;
+ const credential = getStoredCredential();
+ if (!credential) return;
  await fetch('https://corepanel-api.tajikr450.workers.dev/api/products/stock/set', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ code, productId, stock })
+ body: JSON.stringify({ ...credential, productId, stock })
  });
  setStockLevels(prev => ({ ...prev, [productId]: stock }));
  } catch (e) {

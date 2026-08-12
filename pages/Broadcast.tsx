@@ -3,7 +3,7 @@ import { GlassCard } from '../components/GlassCard';
 import { Send, CornerUpRight, BarChart3, Users } from 'lucide-react';
 import { InlineRow, MediaAttachment, InlineButton, QueueItem } from '../types';
 import { telegramService } from '../services/telegramService';
-import { syncNow } from '../services/cloudSync';
+import { syncNow, getStoredCredential } from '../services/cloudSync';
 
 import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
 import { BroadcastToast } from '../components/broadcast/BroadcastToast';
@@ -120,15 +120,13 @@ export const Broadcast: React.FC = () => {
   useEffect(() => {
       const fetchRealUsers = async () => {
           try {
-              const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
-              let code = '';
-              try { code = JSON.parse(licenseCacheStr).code || ''; } catch { code = licenseCacheStr; }
-              if (!code) return;
+              const credential = getStoredCredential();
+              if (!credential) return;
 
               const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/users/list', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ code, limit: 500 })
+                  body: JSON.stringify({ ...credential, limit: 500 })
               });
               const result = await res.json();
               if (result.ok) {

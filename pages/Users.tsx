@@ -5,6 +5,7 @@ import {
     MessageSquare, RefreshCw, BarChart2, Filter, ChevronLeft, ChevronRight, CheckCircle, Info
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getStoredCredential } from '../services/cloudSync';
 
 interface BotUser {
     id: string;
@@ -36,24 +37,15 @@ export const Users: React.FC = () => {
     const [selectedUser, setSelectedUser] = useState<BotUser | null>(null);
     const [newTagInput, setNewTagInput] = useState('');
 
-    const getLicenseCode = (): string => {
-        const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
-        try {
-            const parsed = JSON.parse(licenseCacheStr);
-            return parsed.code || '';
-        } catch {
-            return licenseCacheStr;
-        }
-    };
-
     const fetchUsers = async () => {
         setIsLoading(true);
         try {
-            const code = getLicenseCode();
+            const credential = getStoredCredential();
+            if (!credential) { setIsLoading(false); return; }
             const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/users/list', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, limit: 500 })
+                body: JSON.stringify({ ...credential, limit: 500 })
             });
             const result = await res.json();
             if (result.ok) {
@@ -78,14 +70,15 @@ export const Users: React.FC = () => {
         const user = users.find(u => u.id === userId);
         if (!user) return;
         const newStatus = user.status === 'active' ? 'blocked' : 'active';
-        const code = getLicenseCode();
+        const credential = getStoredCredential();
+        if (!credential) return;
 
         try {
             const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/users/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    code,
+                    ...credential,
                     userId,
                     status: newStatus
                 })
@@ -116,14 +109,15 @@ export const Users: React.FC = () => {
         }
 
         const newTagsArray = [...currentTags, newTag];
-        const code = getLicenseCode();
+        const credential = getStoredCredential();
+        if (!credential) return;
 
         try {
             const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/users/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    code,
+                    ...credential,
                     userId: selectedUser.id,
                     tags: newTagsArray
                 })
@@ -147,14 +141,15 @@ export const Users: React.FC = () => {
         if (!selectedUser) return;
         const currentTags = selectedUser.tags || [];
         const newTagsArray = currentTags.filter(t => t !== tagToRemove);
-        const code = getLicenseCode();
+        const credential = getStoredCredential();
+        if (!credential) return;
 
         try {
             const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/users/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    code,
+                    ...credential,
                     userId: selectedUser.id,
                     tags: newTagsArray
                 })

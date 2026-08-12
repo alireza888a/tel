@@ -3,6 +3,7 @@ import { GlassCard } from '../components/GlassCard';
 import { ShoppingCart, Check, X, Clock, User, DollarSign, Calendar, Info, AlertCircle, RefreshCw } from 'lucide-react';
 import { Order, Product } from '../types';
 import { getDisplayableImageUrl } from '../utils/image';
+import { getStoredCredential } from '../services/cloudSync';
 
 export const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -27,16 +28,6 @@ export const Orders: React.FC = () => {
     return getDisplayableImageUrl(product.imageUrl);
   };
 
-  const getLicenseCode = (): string => {
-    const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
-    try {
-      const parsed = JSON.parse(licenseCacheStr);
-      return parsed.code || '';
-    } catch {
-      return licenseCacheStr;
-    }
-  };
-
   const getDateRangeCutoff = (range: 'all' | 'today' | 'week' | 'month'): number | undefined => {
     if (range === 'all') return undefined;
     const now = new Date();
@@ -56,9 +47,10 @@ export const Orders: React.FC = () => {
     range: 'all' | 'today' | 'week' | 'month',
     beforeCursor?: number | null
   ) => {
-    const code = getLicenseCode();
+    const credential = getStoredCredential();
+    if (!credential) return { ok: false, reason: 'missing_fields' };
     const payload: any = {
-      code,
+      ...credential,
       limit: 30
     };
 
@@ -128,13 +120,14 @@ export const Orders: React.FC = () => {
   }, [filter, dateRange]);
 
   const handleConfirmOrder = async (orderId: string) => {
-    const code = getLicenseCode();
+    const credential = getStoredCredential();
+    if (!credential) return;
 
     try {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/order/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, orderId })
+        body: JSON.stringify({ ...credential, orderId })
       });
       const result = await res.json();
 
@@ -152,13 +145,14 @@ export const Orders: React.FC = () => {
   };
 
   const handleRejectOrder = async (orderId: string) => {
-    const code = getLicenseCode();
+    const credential = getStoredCredential();
+    if (!credential) return;
 
     try {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/order/reject', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, orderId })
+        body: JSON.stringify({ ...credential, orderId })
       });
       const result = await res.json();
 

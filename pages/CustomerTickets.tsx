@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
 import { MessageSquare, RefreshCw, Send, CheckCircle2, Clock, User, MessageCircle } from 'lucide-react';
 import { BotTicket } from '../types';
+import { getStoredCredential } from '../services/cloudSync';
 
 export const CustomerTickets: React.FC = () => {
   const [tickets, setTickets] = useState<BotTicket[]>([]);
@@ -13,20 +14,11 @@ export const CustomerTickets: React.FC = () => {
   const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
   const [sendingId, setSendingId] = useState<string | null>(null);
 
-  const getLicenseCode = (): string => {
-    const licenseCacheStr = localStorage.getItem('license_cache') || '{}';
-    try {
-      const parsed = JSON.parse(licenseCacheStr);
-      return parsed.code || licenseCacheStr;
-    } catch {
-      return licenseCacheStr;
-    }
-  };
-
   const fetchTicketsApi = async (statusFilter: 'all' | 'open' | 'answered', beforeCursor?: number | null) => {
-    const code = getLicenseCode();
+    const credential = getStoredCredential();
+    if (!credential) return { ok: false, reason: 'missing_fields' };
     const payload: any = {
-      code,
+      ...credential,
       limit: 30
     };
 
@@ -101,9 +93,9 @@ export const CustomerTickets: React.FC = () => {
       return;
     }
 
-    const code = getLicenseCode();
-    if (!code) {
-      alert('کد لایسنس یافت نشد. لطفاً ابتدا لایسنس خود را بررسی کنید.');
+    const credential = getStoredCredential();
+    if (!credential) {
+      alert('نشست شما معتبر نیست. لطفاً دوباره وارد شوید.');
       return;
     }
 
@@ -112,7 +104,7 @@ export const CustomerTickets: React.FC = () => {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/ticket/reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, ticketId: ticket.id, reply: replyText })
+        body: JSON.stringify({ ...credential, ticketId: ticket.id, reply: replyText })
       });
       const result = await res.json();
 

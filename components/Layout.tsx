@@ -117,12 +117,18 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
   const handleConfirmExit = (withBackup: boolean) => {
       // Actually log out — the previous version only navigated to a
       // different page inside the panel while staying fully logged in, so
-      // "خروج از پنل" never exited anything. Clearing the same key
-      // LicenseGate itself uses, then a full reload, makes LicenseGate
-      // re-mount with no cached license and show the login form again —
+      // "خروج از پنل" never exited anything. Clearing the same keys
+      // LicenseGate itself checks, then a full reload, makes LicenseGate
+      // re-mount with no cached session and show the login form again —
       // the same reliable reset every other logout flow in the app uses.
+      // Both keys are cleared unconditionally since this same button is
+      // shown to both an owner (license_cache) and an assistant
+      // (assistant_session_cache) session — only one of the two will ever
+      // actually be set, but clearing both is harmless and avoids needing
+      // to know which role is currently logged in here.
       const doLogout = () => {
           localStorage.removeItem('license_cache');
+          localStorage.removeItem('assistant_session_cache');
           window.location.reload();
       };
 

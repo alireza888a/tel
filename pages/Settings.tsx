@@ -18,12 +18,22 @@ import { RestoreBackupModal } from '../components/settings/RestoreBackupModal';
 import { AssistantAccessCard } from '../components/settings/AssistantAccessCard';
 
 export const Settings: React.FC = () => {
+    // An assistant session (logged in via a shop's assistant link) has its
+    // own storage key instead of license_cache — same signal cloudSync.ts
+    // and LicenseGate already use to tell the two roles apart. Owner-only
+    // tabs (payment, admins, assistant-access itself) are hidden entirely
+    // for this role — not just blanked — because the server already
+    // redacts those fields in the load response, so there's nothing real
+    // to show there anyway; hiding the tabs just avoids a confusing
+    // dead-end UI for a field that will always look empty.
+    const isAssistantSession = !!localStorage.getItem('assistant_session_cache');
+
     const [token, setToken] = useState(localStorage.getItem('bot_token') || '');
     // Initialize directly from localStorage
     const [dbChannel, setDbChannel] = useState(localStorage.getItem('bot_db_channel') || '');
     const [activeSettingsTab, setActiveSettingsTab] = useState<
         'database' | 'payment' | 'admins' | 'assistantAccess' | 'postConfirm' | 'miniapp' | 'gallery' | 'autoMessages'
-    >('database');
+    >(isAssistantSession ? 'postConfirm' : 'database');
 
     // Custom automated-message texts (booking/order confirm/reject, etc.)
     const [customTexts, setCustomTexts] = useState<CustomTexts>(() => {
@@ -533,6 +543,7 @@ export const Settings: React.FC = () => {
 
             {/* Tab Navigation */}
             <div className="flex items-center gap-2 bg-black/30 p-1.5 rounded-xl border border-white/5 flex-wrap mb-6">
+                {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('database')}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
@@ -544,6 +555,8 @@ export const Settings: React.FC = () => {
                     <Database size={16} />
                     <span>دیتابیس و بکاپ</span>
                 </button>
+                )}
+                {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('payment')}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
@@ -555,6 +568,8 @@ export const Settings: React.FC = () => {
                     <CreditCard size={16} />
                     <span>پرداخت</span>
                 </button>
+                )}
+                {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('admins')}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
@@ -566,6 +581,8 @@ export const Settings: React.FC = () => {
                     <Users size={16} />
                     <span>ادمین‌ها و دسترسی</span>
                 </button>
+                )}
+                {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('assistantAccess')}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
@@ -577,6 +594,7 @@ export const Settings: React.FC = () => {
                     <UserCog size={16} />
                     <span>دسترسی دستیار</span>
                 </button>
+                )}
                 <button
                     onClick={() => setActiveSettingsTab('postConfirm')}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${

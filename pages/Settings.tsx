@@ -104,6 +104,7 @@ export const Settings: React.FC = () => {
 
     // Post Confirm Menu State
     const [postConfirmMenuId, setPostConfirmMenuId] = useState(localStorage.getItem('post_confirm_menu_id') || '');
+    const [postOrderFormId, setPostOrderFormId] = useState(localStorage.getItem('post_order_form_id') || '');
 
     // Mini App Modules State
     const [miniappModules, setMiniappModules] = useState<MiniAppModule[]>(() => {
@@ -206,6 +207,11 @@ export const Settings: React.FC = () => {
     }, [postConfirmMenuId]);
 
     useEffect(() => {
+        localStorage.setItem('post_order_form_id', postOrderFormId);
+        syncNow();
+    }, [postOrderFormId]);
+
+    useEffect(() => {
         localStorage.setItem('miniapp_modules', JSON.stringify(miniappModules));
         syncNow();
     }, [miniappModules]);
@@ -274,6 +280,14 @@ export const Settings: React.FC = () => {
     const getKbMenus = (): Record<string, { id?: string; title?: string; content?: string }> => {
         try {
             return JSON.parse(localStorage.getItem('kb_menus') || '{}');
+        } catch {
+            return {};
+        }
+    };
+
+    const getKbForms = (): Record<string, { id?: string; title?: string }> => {
+        try {
+            return JSON.parse(localStorage.getItem('kb_forms') || '{}');
         } catch {
             return {};
         }
@@ -386,6 +400,7 @@ export const Settings: React.FC = () => {
                 admin_chat_id: localStorage.getItem('admin_chat_id'),
                 support_chat_id: localStorage.getItem('support_chat_id'),
                 post_confirm_menu_id: localStorage.getItem('post_confirm_menu_id'),
+                post_order_form_id: localStorage.getItem('post_order_form_id'),
                 custom_texts: JSON.parse(localStorage.getItem('custom_texts') || '{}')
             },
             data: {
@@ -437,6 +452,7 @@ export const Settings: React.FC = () => {
                 if (json.config.admin_chat_id) localStorage.setItem('admin_chat_id', json.config.admin_chat_id);
                 if (json.config.support_chat_id) localStorage.setItem('support_chat_id', json.config.support_chat_id);
                 if (json.config.post_confirm_menu_id) localStorage.setItem('post_confirm_menu_id', json.config.post_confirm_menu_id);
+                if (json.config.post_order_form_id) localStorage.setItem('post_order_form_id', json.config.post_order_form_id);
                 if (json.config.custom_texts) localStorage.setItem('custom_texts', JSON.stringify(json.config.custom_texts));
 
                 // Restore Data
@@ -720,6 +736,9 @@ export const Settings: React.FC = () => {
                         postConfirmMenuId={postConfirmMenuId}
                         setPostConfirmMenuId={setPostConfirmMenuId}
                         getKbMenus={getKbMenus}
+                        postOrderFormId={postOrderFormId}
+                        setPostOrderFormId={setPostOrderFormId}
+                        getKbForms={getKbForms}
                     />
                 )}
 

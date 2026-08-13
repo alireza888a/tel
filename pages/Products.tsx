@@ -6,6 +6,7 @@ import { telegramService } from '../services/telegramService';
 import { getStoredCredential } from '../services/cloudSync';
 import { syncNow } from '../services/cloudSync';
 import { getDisplayableImageUrl } from '../utils/image';
+import { FormsManagerCard } from '../components/products/FormsManagerCard';
 
 export const Products: React.FC = () => {
  const [products, setProducts] = useState<Product[]>(() => {
@@ -353,6 +354,8 @@ export const Products: React.FC = () => {
  <span>افزودن دکمه‌ی فروشگاه به منوی اصلی</span>
  </button>
  </div>
+
+ <FormsManagerCard />
 
  {products.length === 0 ? (
  <div className="bg-black/[0.03] border-2 border-dashed border-black/5 rounded-2xl p-12 text-center flex flex-col items-center gap-4">

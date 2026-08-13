@@ -7,6 +7,7 @@ import { MiniAppModule, GalleryImage } from '../types';
 import { DatabaseChannelCard } from '../components/settings/DatabaseChannelCard';
 import { BackupRestoreCard } from '../components/settings/BackupRestoreCard';
 import { PaymentSettingsCard } from '../components/settings/PaymentSettingsCard';
+import { PaymentSmsAutoConfirmCard } from '../components/settings/PaymentSmsAutoConfirmCard';
 import { AdminSupportCard } from '../components/settings/AdminSupportCard';
 import { TeamAccessCard } from '../components/settings/TeamAccessCard';
 import { PostConfirmMenuCard } from '../components/settings/PostConfirmMenuCard';
@@ -675,12 +676,15 @@ export const Settings: React.FC = () => {
 
                 {activeSettingsTab === 'payment' && (
                     /* 3. CARD PAYMENT SETTINGS */
+                    <>
                     <PaymentSettingsCard
                         cardNumber={cardNumber}
                         setCardNumber={setCardNumber}
                         cardOwner={cardOwner}
                         setCardOwner={setCardOwner}
                     />
+                    <PaymentSmsAutoConfirmCard />
+                    </>
                 )}
 
                 {activeSettingsTab === 'admins' && (

@@ -1,10 +1,10 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
+import React from'react';
+import { GlassCard } from'../GlassCard';
 import {
   ArrowUp, ArrowDown, Zap, Link as LinkIcon, Layers, ShoppingBag,
   FileText, Command, PhoneCall, Globe, MessageSquare, Copy, Trash2, Lock
-} from 'lucide-react';
-import { MenuPage, InlineRow, InlineButton } from '../../types';
+} from'lucide-react';
+import { MenuPage, InlineRow, InlineButton } from'../../types';
 
 interface MenuButtonsCardProps {
   currentMenu: MenuPage;
@@ -40,11 +40,11 @@ export const MenuButtonsCard: React.FC<MenuButtonsCardProps> = ({
             <button
               key={num}
               onClick={() => addRow(num)}
-              className="flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/30 text-blue-500 dark:text-blue-300 rounded-xl flex flex-col items-center justify-center gap-1 transition-all active:scale-95 min-w-[70px]"
+              className="flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/30 text-blue-500 rounded-xl flex flex-col items-center justify-center gap-1 transition-all active:scale-95 min-w-[70px]"
             >
               <div className="flex gap-0.5">
                 {Array(num).fill(0).map((_, i) => (
-                  <div key={i} className="w-3 h-3 bg-current rounded-[2px]" />
+                  <div key={i} className="w-3 h-3 bg-current rounded-[2px]"/>
                 ))}
               </div>
               <span className="text-xs font-bold">{num} تایی</span>
@@ -52,7 +52,7 @@ export const MenuButtonsCard: React.FC<MenuButtonsCardProps> = ({
           ))}
           <button
             onClick={addSupportButton}
-            className="py-3 px-3 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/30 text-emerald-500 dark:text-emerald-300 rounded-xl flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-xs font-bold"
+            className="py-3 px-3 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/30 text-emerald-500 rounded-xl flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-xs font-bold"
             title="افزودن مستقیم دکمه پشتیبانی"
           >
             <div className="flex items-center gap-1">
@@ -64,7 +64,7 @@ export const MenuButtonsCard: React.FC<MenuButtonsCardProps> = ({
 
        <div className="space-y-3">
          {(!currentMenu?.rows || currentMenu.rows.length === 0) && (
-           <div className="text-center py-6 dark:text-white/20 text-slate-400 border-2 border-dashed dark:border-white/10 border-slate-300 rounded-xl mb-4">
+           <div className="text-center py-6 text-slate-400 border-2 border-dashed border-slate-300 rounded-xl mb-4">
              هنوز دکمه‌ای اضافه نکرده‌اید.
            </div>
          )}
@@ -87,34 +87,34 @@ export const MenuButtonsCard: React.FC<MenuButtonsCardProps> = ({
                       flex-1 py-3 px-3 rounded-lg text-sm truncate transition-all
                       flex items-center justify-center gap-2 relative overflow-hidden
                       ${selectedButton?.btnId === btn.id
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-[1.02] ring-2 ring-white/20'
-                        : 'dark:bg-white/5 bg-white border border-slate-200 dark:border-white/10 dark:hover:bg-white/10 hover:bg-slate-50 dark:text-white/80 text-slate-700'
+                        ?'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-[1.02] ring-2 ring-white/20'
+                        :'bg-white border border-slate-200 hover:bg-slate-50 text-slate-700'
                       }
-                      ${(btn as any).color === 'blue' ? 'border-r-4 border-r-blue-500' : ''}
-                      ${(btn as any).color === 'green' ? 'border-r-4 border-r-green-500' : ''}
-                      ${(btn as any).color === 'red' ? 'border-r-4 border-r-red-500' : ''}
-                      ${(btn as any).color === 'gold' ? 'border-r-4 border-r-amber-400' : ''}
-                      ${(btn as any).color === 'orange' ? 'border-r-4 border-r-orange-500' : ''}
+                      ${(btn as any).color ==='blue'?'border-r-4 border-r-blue-500':''}
+                      ${(btn as any).color ==='green'?'border-r-4 border-r-green-500':''}
+                      ${(btn as any).color ==='red'?'border-r-4 border-r-red-500':''}
+                      ${(btn as any).color ==='gold'?'border-r-4 border-r-amber-400':''}
+                      ${(btn as any).color ==='orange'?'border-r-4 border-r-orange-500':''}
                     `}
                   >
                      {/* Icons */}
-                     {btn.type === 'submenu' && (
-                       <div className="absolute top-0 right-0 w-3 h-3 border-t-[3px] border-l-[3px] border-orange-500/50 rounded-tl-sm" />
+                     {btn.type ==='submenu'&& (
+                       <div className="absolute top-0 right-0 w-3 h-3 border-t-[3px] border-l-[3px] border-orange-500/50 rounded-tl-sm"/>
                      )}
-                     {(btn as any).condition?.type && (btn as any).condition.type !== 'none' && (
-                       <div className="absolute top-1 left-1 text-amber-400 bg-amber-500/20 px-1 py-0.5 rounded text-[10px] flex items-center gap-0.5" title="دکمه شرطی">
+                     {(btn as any).condition?.type && (btn as any).condition.type !=='none'&& (
+                       <div className="absolute top-1 left-1 text-amber-400 bg-amber-500/20 px-1 py-0.5 rounded text-[10px] flex items-center gap-0.5"title="دکمه شرطی">
                          <Zap size={10} />
                        </div>
                      )}
 
-                     {(btn.type as any) === 'link' && <LinkIcon size={12} className="opacity-50" />}
-                     {btn.type === 'submenu' && <Layers size={12} className="opacity-50 text-orange-400" />}
-                     {btn.type === 'product' && <ShoppingBag size={12} className="opacity-50 text-blue-400" />}
-                     {btn.type === 'form' && <FileText size={12} className="opacity-50" />}
-                     {btn.type === 'command' && <Command size={12} className="opacity-50" />}
-                     {btn.type === 'inquiry' && <PhoneCall size={12} className="opacity-50 text-green-400" />}
-                     {(btn.type as any) === 'api' && <Globe size={12} className="opacity-50 text-purple-400" />}
-                     {((btn.type as any) === 'ticket' || (btn.type === 'callback' && (btn as any).value === 'support')) && <MessageSquare size={12} className="opacity-50 text-blue-400" />}
+                     {(btn.type as any) ==='link'&& <LinkIcon size={12} className="opacity-50"/>}
+                     {btn.type ==='submenu'&& <Layers size={12} className="opacity-50 text-orange-400"/>}
+                     {btn.type ==='product'&& <ShoppingBag size={12} className="opacity-50 text-blue-400"/>}
+                     {btn.type ==='form'&& <FileText size={12} className="opacity-50"/>}
+                     {btn.type ==='command'&& <Command size={12} className="opacity-50"/>}
+                     {btn.type ==='inquiry'&& <PhoneCall size={12} className="opacity-50 text-green-400"/>}
+                     {(btn.type as any) ==='api'&& <Globe size={12} className="opacity-50 text-purple-400"/>}
+                     {((btn.type as any) ==='ticket'|| (btn.type ==='callback'&& (btn as any).value ==='support')) && <MessageSquare size={12} className="opacity-50 text-blue-400"/>}
 
                      {getButtonDisplayText(btn)}
                   </button>
@@ -141,14 +141,14 @@ export const MenuButtonsCard: React.FC<MenuButtonsCardProps> = ({
          ))}
 
          {/* Auto Nav Footer - VISUAL INDICATOR FOR USER */}
-         {currentMenuId !== 'root' && (
-            <div className="relative opacity-70 mt-4 border-t border-dashed dark:border-white/10 border-slate-300 pt-4">
-                <div className="text-[10px] dark:text-slate-400 text-slate-500 mb-2 flex items-center gap-2">
+         {currentMenuId !=='root'&& (
+            <div className="relative opacity-70 mt-4 border-t border-dashed border-slate-300 pt-4">
+                <div className="text-[10px] text-slate-500 mb-2 flex items-center gap-2">
                 <Lock size={12}/> دکمه‌های ناوبری (سیستم به صورت خودکار اضافه می‌کند)
                 </div>
                 <div className="flex gap-2 cursor-not-allowed">
-                    <div className="flex-1 py-3 px-2 rounded-lg text-sm dark:bg-white/5 bg-slate-100 border dark:border-white/5 border-slate-200 dark:text-slate-500 text-slate-400 text-center flex items-center justify-center gap-2">🏠 منوی اصلی</div>
-                    <div className="flex-1 py-3 px-2 rounded-lg text-sm dark:bg-white/5 bg-slate-100 border dark:border-white/5 border-slate-200 dark:text-slate-500 text-slate-400 text-center flex items-center justify-center gap-2">🔙 بازگشت</div>
+                    <div className="flex-1 py-3 px-2 rounded-lg text-sm bg-slate-100 border border-slate-200 text-slate-400 text-center flex items-center justify-center gap-2">🏠 منوی اصلی</div>
+                    <div className="flex-1 py-3 px-2 rounded-lg text-sm bg-slate-100 border border-slate-200 text-slate-400 text-center flex items-center justify-center gap-2">🔙 بازگشت</div>
                 </div>
             </div>
          )}

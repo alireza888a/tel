@@ -1,6 +1,6 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { UserCog, Plus } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { UserCog, Plus } from'lucide-react';
 
 interface AdminSupportCardProps {
   adminChatId: string;
@@ -20,8 +20,8 @@ export const AdminSupportCard: React.FC<AdminSupportCardProps> = ({
   return (
     <GlassCard className="border-t-4 border-t-emerald-500">
       <div className="flex items-center gap-2 mb-4">
-        <UserCog className="text-emerald-400" />
-        <h3 className="font-bold text-lg dark:text-white text-slate-800">اعلان سفارش‌ها و پشتیبانی ادمین</h3>
+        <UserCog className="text-emerald-400"/>
+        <h3 className="font-bold text-lg text-slate-800">اعلان سفارش‌ها و پشتیبانی ادمین</h3>
       </div>
 
       <div className="space-y-4">

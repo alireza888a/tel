@@ -1,6 +1,6 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { CreditCard } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { CreditCard } from'lucide-react';
 
 interface PaymentSettingsCardProps {
   cardNumber: string;
@@ -18,8 +18,8 @@ export const PaymentSettingsCard: React.FC<PaymentSettingsCardProps> = ({
   return (
     <GlassCard className="border-t-4 border-t-yellow-500">
       <div className="flex items-center gap-2 mb-4">
-        <CreditCard className="text-yellow-400" />
-        <h3 className="font-bold text-lg dark:text-white text-slate-800">اطلاعات پرداخت کارت‌به‌کارت (فروشگاه)</h3>
+        <CreditCard className="text-yellow-400"/>
+        <h3 className="font-bold text-lg text-slate-800">اطلاعات پرداخت کارت‌به‌کارت (فروشگاه)</h3>
       </div>
 
       <div className="text-sm text-slate-400 mb-6 leading-relaxed bg-white/5 p-3 rounded-lg border border-white/5">

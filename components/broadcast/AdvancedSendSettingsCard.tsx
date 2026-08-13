@@ -1,13 +1,13 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { Users, Zap, BellOff, ShieldCheck, CheckCircle, Send, Play, Pause, Square, Calendar, X } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { Users, Zap, BellOff, ShieldCheck, CheckCircle, Send, Play, Pause, Square, Calendar, X } from'lucide-react';
 
 interface AdvancedSendSettingsCardProps {
-  targetAudience: 'all' | 'active' | 'vip' | 'new';
-  setTargetAudience: (val: 'all' | 'active' | 'vip' | 'new') => void;
+  targetAudience:'all'|'active'|'vip'|'new';
+  setTargetAudience: (val:'all'|'active'|'vip'|'new') => void;
   realUsers: any[];
-  sendSpeed: 'slow' | 'normal' | 'fast';
-  setSendSpeed: (val: 'slow' | 'normal' | 'fast') => void;
+  sendSpeed:'slow'|'normal'|'fast';
+  setSendSpeed: (val:'slow'|'normal'|'fast') => void;
   sendSilent: boolean;
   setSendSilent: (val: boolean) => void;
   contentProtect: boolean;
@@ -49,16 +49,16 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
 
         {/* Target Audience */}
         <div>
-          <label className="text-xs dark:text-slate-400 text-slate-500 mb-2 block flex items-center gap-1">
-            <Users className="dark:text-purple-400 text-purple-600" size={14}/> مخاطبین هدف:
+          <label className="text-xs text-slate-500 mb-2 block flex items-center gap-1">
+            <Users className="text-purple-600"size={14}/> مخاطبین هدف:
           </label>
           <select
             value={targetAudience}
             onChange={e => setTargetAudience(e.target.value as any)}
-            className="w-full dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl p-3 text-xs dark:text-white text-slate-800 outline-none focus:border-purple-500"
+            className="w-full bg-slate-100 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 outline-none focus:border-purple-500"
           >
             <option value="all">همه کاربران واقعی ({realUsers.filter(u => !u.isDemo).length} نفر)</option>
-            <option value="active">کاربران فعال (بدون مسدودیت) ({realUsers.filter(u => !u.isDemo && u.status !== 'blocked').length} نفر)</option>
+            <option value="active">کاربران فعال (بدون مسدودیت) ({realUsers.filter(u => !u.isDemo && u.status !=='blocked').length} نفر)</option>
             <option value="vip">کاربران ویژه (مشتری VIP) ({realUsers.filter(u => !u.isDemo && u.tags?.some((t: string) => t.toLowerCase().includes('vip') || t.includes('ویژه') || t.includes('VIP'))).length} نفر)</option>
             <option value="new">کاربران جدید (۳ روز اخیر) ({
               realUsers.filter(u => {
@@ -66,7 +66,7 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
                 const joined = u.joinedAt || u.joined_at;
                 if (!joined) return false;
                 const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
-                if (typeof joined === 'number') return joined >= threeDaysAgo;
+                if (typeof joined ==='number') return joined >= threeDaysAgo;
                 return new Date(joined).getTime() >= threeDaysAgo;
               }).length
             } نفر)</option>
@@ -76,14 +76,14 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
 
         {/* Speed Control */}
         <div>
-          <label className="text-xs dark:text-slate-400 text-slate-500 mb-2 block flex items-center gap-1"><Zap size={14} className="dark:text-yellow-400 text-yellow-600"/> سرعت ارسال (ضد محدودیت):</label>
-          <div className="grid grid-cols-3 gap-2 dark:bg-black/20 bg-slate-100 p-1 rounded-lg">
+          <label className="text-xs text-slate-500 mb-2 block flex items-center gap-1"><Zap size={14} className="text-yellow-600"/> سرعت ارسال (ضد محدودیت):</label>
+          <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-lg">
             {[
-              { id: 'slow', label: 'آهسته', desc: 'مطمئن' },
-              { id: 'normal', label: 'معمولی', desc: 'استاندارد' },
-              { id: 'fast', label: 'سریع', desc: 'خطرناک' }
+              { id:'slow', label:'آهسته', desc:'مطمئن'},
+              { id:'normal', label:'معمولی', desc:'استاندارد'},
+              { id:'fast', label:'سریع', desc:'خطرناک'}
             ].map(s => (
-              <button key={s.id} onClick={() => setSendSpeed(s.id as any)} className={`py-2 rounded-md text-xs transition-all ${sendSpeed === s.id ? 'bg-yellow-600 dark:text-white text-slate-800 shadow' : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900'}`}>
+              <button key={s.id} onClick={() => setSendSpeed(s.id as any)} className={`py-2 rounded-md text-xs transition-all ${sendSpeed === s.id ?'bg-yellow-600 text-slate-800 shadow':'text-slate-500 hover:text-slate-900'}`}>
                 <div className="font-bold">{s.label}</div>
                 <div className="text-[9px] opacity-70">{s.desc}</div>
               </button>
@@ -93,20 +93,20 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
 
         {/* Options Toggles */}
         <div className="space-y-2">
-          <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${sendSilent ? 'bg-blue-600/20 border-blue-500 dark:text-white text-slate-800' : 'dark:bg-white/5 bg-slate-100 dark:border-white/10 border-slate-200 dark:text-slate-400 text-slate-500'}`}>
+          <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${sendSilent ?'bg-blue-600/20 border-blue-500 text-slate-800':'bg-slate-100 border-slate-200 text-slate-500'}`}>
             <div className="flex items-center gap-3"><BellOff size={18}/> <span className="text-sm">ارسال بی‌صدا</span></div>
-            <input type="checkbox" className="hidden" checked={sendSilent} onChange={() => setSendSilent(!sendSilent)}/>
-            {sendSilent && <CheckCircle size={16} className="dark:text-blue-400 text-blue-600"/>}
+            <input type="checkbox"className="hidden"checked={sendSilent} onChange={() => setSendSilent(!sendSilent)}/>
+            {sendSilent && <CheckCircle size={16} className="text-blue-600"/>}
           </label>
-          <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${contentProtect ? 'bg-green-600/20 border-green-500 dark:text-white text-slate-800' : 'dark:bg-white/5 bg-slate-100 dark:border-white/10 border-slate-200 dark:text-slate-400 text-slate-500'}`}>
+          <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${contentProtect ?'bg-green-600/20 border-green-500 text-slate-800':'bg-slate-100 border-slate-200 text-slate-500'}`}>
             <div className="flex items-center gap-3"><ShieldCheck size={18}/> <span className="text-sm">محافظت محتوا (ضد کپی)</span></div>
-            <input type="checkbox" className="hidden" checked={contentProtect} onChange={() => setContentProtect(!contentProtect)}/>
-            {contentProtect && <CheckCircle size={16} className="dark:text-green-400 text-green-600"/>}
+            <input type="checkbox"className="hidden"checked={contentProtect} onChange={() => setContentProtect(!contentProtect)}/>
+            {contentProtect && <CheckCircle size={16} className="text-green-600"/>}
           </label>
         </div>
       </div>
 
-      <div className="mt-6 pt-6 border-t dark:border-white/5 border-slate-100">
+      <div className="mt-6 pt-6 border-t border-slate-100">
         {!isSending ? (
           <div className="space-y-2">
             <div className="flex gap-2">
@@ -114,20 +114,20 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
                 onClick={onOpenDatePicker}
                 className={`flex-1 py-3 border rounded-xl text-sm flex items-center justify-center gap-2 transition-all ${
                   isScheduledEnabled
-                    ? 'border-purple-500/50 dark:text-purple-400 text-purple-600 bg-purple-500/10'
-                    : 'dark:border-white/10 border-slate-200 dark:text-slate-400 text-slate-500 dark:hover:bg-white/5 hover:bg-slate-100'
+                    ?'border-purple-500/50 text-purple-600 bg-purple-500/10'
+                    :'border-slate-200 text-slate-500 hover:bg-slate-100'
                 }`}
               >
                 <Calendar size={16}/>
                 {isScheduledEnabled
-                  ? `زمان‌بندی: ${scheduledDateObj.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })} ${new Intl.DateTimeFormat('fa-IR').format(scheduledDateObj)}`
-                  : 'زمان‌بندی ارسال'}
+                  ?`زمان‌بندی: ${scheduledDateObj.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit'})} ${new Intl.DateTimeFormat('fa-IR').format(scheduledDateObj)}`
+                  :'زمان‌بندی ارسال'}
               </button>
               {isScheduledEnabled && (
                 <button
                   onClick={onCancelSchedule}
                   title="لغو زمان‌بندی"
-                  className="px-3 rounded-xl border dark:border-white/10 border-slate-200 dark:text-slate-400 text-slate-500 dark:hover:bg-white/5 hover:bg-slate-100"
+                  className="px-3 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100"
                 >
                   <X size={16}/>
                 </button>
@@ -136,22 +136,22 @@ export const AdvancedSendSettingsCard: React.FC<AdvancedSendSettingsCardProps> =
             <button
               onClick={handleBroadcast}
               disabled={realUsers.length === 0}
-              className={`w-full dark:text-white text-slate-800 py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full text-slate-800 py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed ${
                 isScheduledEnabled
-                  ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:shadow-purple-500/20'
-                  : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-cyan-500/20'
+                  ?'bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:shadow-purple-500/20'
+                  :'bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-cyan-500/20'
               }`}
             >
-              {isScheduledEnabled ? 'ثبت در صف ارسال' : 'شروع عملیات ارسال'}
+              {isScheduledEnabled ?'ثبت در صف ارسال':'شروع عملیات ارسال'}
               <Send size={20}/>
             </button>
           </div>
         ) : (
           <div className="flex gap-2">
-            <button onClick={() => setIsPaused(!isPaused)} className={`flex-1 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${isPaused ? 'bg-green-600' : 'bg-yellow-600'}`}>
+            <button onClick={() => setIsPaused(!isPaused)} className={`flex-1 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${isPaused ?'bg-green-600':'bg-yellow-600'}`}>
               {isPaused ? <><Play size={20}/> ادامه</> : <><Pause size={20}/> مکث</>}
             </button>
-            <button onClick={handleStop} className="px-6 bg-red-600 dark:text-white text-slate-800 rounded-xl flex items-center justify-center"><Square size={20}/></button>
+            <button onClick={handleStop} className="px-6 bg-red-600 text-slate-800 rounded-xl flex items-center justify-center"><Square size={20}/></button>
           </div>
         )}
       </div>

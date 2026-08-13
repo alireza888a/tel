@@ -1,19 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { GlassCard } from '../components/GlassCard';
-import { Send, CornerUpRight, BarChart3, Users } from 'lucide-react';
-import { InlineRow, MediaAttachment, InlineButton, QueueItem } from '../types';
-import { telegramService } from '../services/telegramService';
-import { syncNow, getStoredCredential } from '../services/cloudSync';
+import React, { useState, useRef, useEffect } from'react';
+import { GlassCard } from'../components/GlassCard';
+import { Send, CornerUpRight, BarChart3, Users } from'lucide-react';
+import { InlineRow, MediaAttachment, InlineButton, QueueItem } from'../types';
+import { telegramService } from'../services/telegramService';
+import { syncNow, getStoredCredential } from'../services/cloudSync';
 
-import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
-import { BroadcastToast } from '../components/broadcast/BroadcastToast';
-import { MessageContentCard } from '../components/broadcast/MessageContentCard';
-import { InlineButtonsCard } from '../components/broadcast/InlineButtonsCard';
-import { ForwardSettingsCard } from '../components/broadcast/ForwardSettingsCard';
-import { PollQuizSettingsCard } from '../components/broadcast/PollQuizSettingsCard';
-import { LiveMonitorPreview } from '../components/broadcast/LiveMonitorPreview';
-import { AdvancedSendSettingsCard } from '../components/broadcast/AdvancedSendSettingsCard';
-import { ProgressReportCard } from '../components/broadcast/ProgressReportCard';
+import { PersianDatePicker } from'../components/broadcast/PersianDatePicker';
+import { BroadcastToast } from'../components/broadcast/BroadcastToast';
+import { MessageContentCard } from'../components/broadcast/MessageContentCard';
+import { InlineButtonsCard } from'../components/broadcast/InlineButtonsCard';
+import { ForwardSettingsCard } from'../components/broadcast/ForwardSettingsCard';
+import { PollQuizSettingsCard } from'../components/broadcast/PollQuizSettingsCard';
+import { LiveMonitorPreview } from'../components/broadcast/LiveMonitorPreview';
+import { AdvancedSendSettingsCard } from'../components/broadcast/AdvancedSendSettingsCard';
+import { ProgressReportCard } from'../components/broadcast/ProgressReportCard';
 
 interface Template {
     id: string;
@@ -23,19 +23,19 @@ interface Template {
 }
 
 export const Broadcast: React.FC = () => {
-  const token = localStorage.getItem('bot_token') || '';
-  const dbChannel = localStorage.getItem('bot_db_channel') || '';
+  const token = localStorage.getItem('bot_token') ||'';
+  const dbChannel = localStorage.getItem('bot_db_channel') ||'';
   
   // --- CORE STATE ---
-  const [broadcastMode, setBroadcastMode] = useState<'compose' | 'forward' | 'poll'>('compose');
+  const [broadcastMode, setBroadcastMode] = useState<'compose'|'forward'|'poll'>('compose');
   const [messageA, setMessageA] = useState('');
   const [messageB, setMessageB] = useState(''); 
   const [forwardLink, setForwardLink] = useState('');
 
   // --- POLL / QUIZ STATE ---
   const [pollQuestion, setPollQuestion] = useState('');
-  const [pollOptions, setPollOptions] = useState<string[]>(['گزینه ۱', 'گزینه ۲']);
-  const [pollType, setPollType] = useState<'regular' | 'quiz'>('regular');
+  const [pollOptions, setPollOptions] = useState<string[]>(['گزینه ۱','گزینه ۲']);
+  const [pollType, setPollType] = useState<'regular'|'quiz'>('regular');
   const [allowMultipleAnswers, setAllowMultipleAnswers] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [quizCorrectOptionIndex, setQuizCorrectOptionIndex] = useState<number>(0);
@@ -45,7 +45,7 @@ export const Broadcast: React.FC = () => {
 
   const handleAddPollOption = () => {
     if (pollOptions.length >= 10) return;
-    setPollOptions([...pollOptions, '']);
+    setPollOptions([...pollOptions,'']);
     setPreviewVotes([...previewVotes, 0]);
   };
 
@@ -67,7 +67,7 @@ export const Broadcast: React.FC = () => {
   };
   
   const [abTestEnabled, setAbTestEnabled] = useState(false);
-  const [activeVariant, setActiveVariant] = useState<'A' | 'B'>('A');
+  const [activeVariant, setActiveVariant] = useState<'A'|'B'>('A');
 
   const [isSending, setIsSending] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -75,18 +75,18 @@ export const Broadcast: React.FC = () => {
   
   // --- STATS & REPORT ---
   const [realUsers, setRealUsers] = useState<any[]>(() => {
-      try { return JSON.parse(localStorage.getItem('bot_users') || '[]'); } catch { return []; }
+      try { return JSON.parse(localStorage.getItem('bot_users') ||'[]'); } catch { return []; }
   });
   const [stats, setStats] = useState({ total: realUsers.length, sent: 0, blocked: 0, failed: 0 });
   const [showReport, setShowReport] = useState(false);
-  const [toast, setToast] = useState<{message: string, type: 'success'|'error'} | null>(null);
+  const [toast, setToast] = useState<{message: string, type:'success'|'error'} | null>(null);
 
   // --- SETTINGS STATE ---
   const [sendSilent, setSendSilent] = useState(false);
   const [pinMessage, setPinMessage] = useState(false);
   const [contentProtect, setContentProtect] = useState(false);
-  const [targetAudience, setTargetAudience] = useState<'all' | 'active' | 'vip' | 'new'>('all');
-  const [sendSpeed, setSendSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
+  const [targetAudience, setTargetAudience] = useState<'all'|'active'|'vip'|'new'>('all');
+  const [sendSpeed, setSendSpeed] = useState<'slow'|'normal'|'fast'>('normal');
 
   // --- SCHEDULING STATE ---
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -102,19 +102,19 @@ export const Broadcast: React.FC = () => {
 
   // --- TEMPLATES ---
   const [savedTemplates, setSavedTemplates] = useState<Template[]>(() => {
-      try { return JSON.parse(localStorage.getItem('broadcast_templates') || '[]'); } catch { return []; }
+      try { return JSON.parse(localStorage.getItem('broadcast_templates') ||'[]'); } catch { return []; }
   });
 
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // --- EFFECT: FETCH REAL USERS FROM THE SERVER ---
-  // `bot_users` in localStorage is a leftover from before users were moved
+  //`bot_users`in localStorage is a leftover from before users were moved
   // to the D1 database (see upsertUser on the backend) — nothing writes to
   // it anymore, so without this it silently stays empty/stale forever and
   // both the audience-count display AND actual broadcast sending would
   // always treat the real audience as 0 users, even with real users in the
-  // bot. This refetches from the same endpoint the "کاربران ربات" page
+  // bot. This refetches from the same endpoint the"کاربران ربات"page
   // uses, and refreshes the local cache so the rest of this page's existing
   // logic (which reads/writes bot_users) keeps working unchanged.
   useEffect(() => {
@@ -124,8 +124,8 @@ export const Broadcast: React.FC = () => {
               if (!credential) return;
 
               const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/users/list', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  method:'POST',
+                  headers: {'Content-Type':'application/json'},
                   body: JSON.stringify({ ...credential, limit: 500 })
               });
               const result = await res.json();
@@ -184,7 +184,7 @@ export const Broadcast: React.FC = () => {
           const newFiles: MediaAttachment[] = [];
 
           for (const file of Array.from(e.target.files) as File[]) {
-              const type = (file.type.startsWith('video') ? 'video' : file.type.startsWith('audio') ? 'audio' : 'image') as 'image' | 'video' | 'audio';
+              const type = (file.type.startsWith('video') ?'video': file.type.startsWith('audio') ?'audio':'image') as'image'|'video'|'audio';
               const previewUrl = URL.createObjectURL(file);
               let finalUrl = previewUrl;
               let fileId = undefined;
@@ -217,10 +217,10 @@ export const Broadcast: React.FC = () => {
 
   const addInlineRow = (count: number) => {
     const newButtons: InlineButton[] = Array.from({ length: count }).map((_, i) => ({
-        id: `${Date.now()}_${i}`,
-        text: count === 1 ? 'دکمه جدید' : `گزینه ${i + 1}`,
-        type: 'link',
-        value: ''
+        id:`${Date.now()}_${i}`,
+        text: count === 1 ?'دکمه جدید':`گزینه ${i + 1}`,
+        type:'link',
+        value:''
     }));
     setInlineRows([...inlineRows, { id: Date.now().toString(), buttons: newButtons }]);
   };
@@ -230,7 +230,7 @@ export const Broadcast: React.FC = () => {
   const addButtonToRow = (rowId: string) => {
     const row = inlineRows.find(r => r.id === rowId);
     if (row && row.buttons.length >= 8) return;
-    const newBtn: InlineButton = { id: Date.now().toString(), text: 'دکمه', type: 'link', value: '' };
+    const newBtn: InlineButton = { id: Date.now().toString(), text:'دکمه', type:'link', value:''};
     setInlineRows(inlineRows.map(r => r.id === rowId ? { ...r, buttons: [...r.buttons, newBtn] } : r));
   };
 
@@ -238,7 +238,7 @@ export const Broadcast: React.FC = () => {
     setInlineRows(inlineRows.map(r => r.id === rowId ? { ...r, buttons: r.buttons.filter(b => b.id !== btnId) } : r).filter(r => r.buttons.length > 0)); 
   };
 
-  const updateButton = (rowId: string, btnId: string, field: 'text' | 'value', val: string) => {
+  const updateButton = (rowId: string, btnId: string, field:'text'|'value', val: string) => {
     setInlineRows(inlineRows.map(r => r.id === rowId ? { ...r, buttons: r.buttons.map(b => b.id === btnId ? { ...b, [field]: val } : b) } : r));
   };
 
@@ -246,24 +246,24 @@ export const Broadcast: React.FC = () => {
       if (textAreaRef.current) {
           const start = textAreaRef.current.selectionStart;
           const end = textAreaRef.current.selectionEnd;
-          const text = activeVariant === 'A' ? messageA : messageB;
+          const text = activeVariant ==='A'? messageA : messageB;
           const newText = text.substring(0, start) + variable + text.substring(end);
-          if (activeVariant === 'A') setMessageA(newText); else setMessageB(newText);
+          if (activeVariant ==='A') setMessageA(newText); else setMessageB(newText);
       }
   };
 
   // --- SENDING LOGIC ---
   const handleBroadcast = async () => {
-    const content = activeVariant === 'A' ? messageA : messageB;
+    const content = activeVariant ==='A'? messageA : messageB;
     
     // Check mode
-    if (broadcastMode === 'compose') {
-        if (!content && mediaGroup.length === 0) return setToast({message: 'لطفا متن پیام یا مدیا را وارد کنید', type: 'error'});
-    } else if (broadcastMode === 'forward') {
-        if (!forwardLink.includes('t.me/')) return setToast({message: 'لینک پست کانال معتبر نیست', type: 'error'});
+    if (broadcastMode ==='compose') {
+        if (!content && mediaGroup.length === 0) return setToast({message:'لطفا متن پیام یا مدیا را وارد کنید', type:'error'});
+    } else if (broadcastMode ==='forward') {
+        if (!forwardLink.includes('t.me/')) return setToast({message:'لینک پست کانال معتبر نیست', type:'error'});
     } else {
-        if (!pollQuestion.trim()) return setToast({message: 'لطفا سوال نظرسنجی را وارد کنید', type: 'error'});
-        if (pollOptions.some(opt => !opt.trim())) return setToast({message: 'لطفا تمامی گزینه‌های پاسخ را پر کنید', type: 'error'});
+        if (!pollQuestion.trim()) return setToast({message:'لطفا سوال نظرسنجی را وارد کنید', type:'error'});
+        if (pollOptions.some(opt => !opt.trim())) return setToast({message:'لطفا تمامی گزینه‌های پاسخ را پر کنید', type:'error'});
     }
 
     if (isScheduledEnabled) {
@@ -271,12 +271,12 @@ export const Broadcast: React.FC = () => {
         // (processQueue on the server) already knows how to send. Forward
         // and poll modes aren't representable in a QueueItem yet, so those
         // are rejected clearly rather than silently doing nothing.
-        if (broadcastMode !== 'compose') {
-            setToast({ message: 'زمان‌بندی فعلاً فقط برای پیام متنی/تصویری پشتیبانی می‌شه، نه فوروارد یا نظرسنجی.', type: 'error' });
+        if (broadcastMode !=='compose') {
+            setToast({ message:'زمان‌بندی فعلاً فقط برای پیام متنی/تصویری پشتیبانی می‌شه، نه فوروارد یا نظرسنجی.', type:'error'});
             return;
         }
         if (scheduledDateObj.getTime() <= Date.now()) {
-            setToast({ message: 'زمان انتخاب‌شده باید تو آینده باشه.', type: 'error' });
+            setToast({ message:'زمان انتخاب‌شده باید تو آینده باشه.', type:'error'});
             return;
         }
 
@@ -288,21 +288,21 @@ export const Broadcast: React.FC = () => {
             mediaFiles: mediaGroup,
             rows: inlineRows,
             settings: { pin: pinMessage, silent: sendSilent, protect: contentProtect, addReactions: false },
-            targetChannelId: 'BROADCAST_ALL',
-            status: 'pending',
+            targetChannelId:'BROADCAST_ALL',
+            status:'pending',
             createdAt: scheduledDateObj.getTime()
         };
 
-        // Appends to the same shared 'channel_queue' the channel-broadcast
+        // Appends to the same shared'channel_queue'the channel-broadcast
         // scheduler and the Mini App's announcements feed both already read
         // from — this is one unified queue, not a separate mechanism.
         let existingQueue: QueueItem[] = [];
-        try { existingQueue = JSON.parse(localStorage.getItem('channel_queue') || '[]'); } catch {}
+        try { existingQueue = JSON.parse(localStorage.getItem('channel_queue') ||'[]'); } catch {}
         const newQueue = [...existingQueue, newItem];
         localStorage.setItem('channel_queue', JSON.stringify(newQueue));
         syncNow();
 
-        setToast({ message: `پیام برای ${scheduledDateObj.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })} ${new Intl.DateTimeFormat('fa-IR').format(scheduledDateObj)} زمان‌بندی شد.`, type: 'success' });
+        setToast({ message:`پیام برای ${scheduledDateObj.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit'})} ${new Intl.DateTimeFormat('fa-IR').format(scheduledDateObj)} زمان‌بندی شد.`, type:'success'});
         setIsScheduledEnabled(false);
         localStorage.removeItem('broadcast_draft');
         return;
@@ -319,23 +319,23 @@ export const Broadcast: React.FC = () => {
   };
 
   const executeRealBroadcast = async (content: string, rows: InlineRow[], media: MediaAttachment[], opts: any) => {
-    const rawUsers = JSON.parse(localStorage.getItem('bot_users') || '[]');
+    const rawUsers = JSON.parse(localStorage.getItem('bot_users') ||'[]');
     
     // EXCLUDE demo users from real API calls, only keep actual users
     const actualUsers = rawUsers.filter((u: any) => !u.isDemo);
     
     // Apply Target Audience filter
     let users = [...actualUsers];
-    if (targetAudience === 'active') {
-        users = actualUsers.filter((u: any) => u.status === 'active' || u.status === undefined);
-    } else if (targetAudience === 'vip') {
+    if (targetAudience ==='active') {
+        users = actualUsers.filter((u: any) => u.status ==='active'|| u.status === undefined);
+    } else if (targetAudience ==='vip') {
         users = actualUsers.filter((u: any) => u.tags?.some((t: string) => t.toLowerCase().includes('vip') || t.includes('ویژه') || t.includes('VIP')));
-    } else if (targetAudience === 'new') {
+    } else if (targetAudience ==='new') {
         const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
         users = actualUsers.filter((u: any) => {
             const joined = u.joinedAt || u.joined_at;
             if (!joined) return false;
-            if (typeof joined === 'number') return joined >= threeDaysAgo;
+            if (typeof joined ==='number') return joined >= threeDaysAgo;
             const d = new Date(joined).getTime();
             return d >= threeDaysAgo;
         });
@@ -343,9 +343,9 @@ export const Broadcast: React.FC = () => {
 
     if (users.length === 0) {
         if (actualUsers.length === 0) {
-            return setToast({ message: 'هنوز هیچ کاربر واقعی در ربات ثبت نشده است (با /start در ربات خود تست کنید)', type: 'error' });
+            return setToast({ message:'هنوز هیچ کاربر واقعی در ربات ثبت نشده است (با /start در ربات خود تست کنید)', type:'error'});
         } else {
-            return setToast({ message: 'هیچ کاربر واقعی با شرایط فیلتر انتخاب شده یافت نشد.', type: 'error' });
+            return setToast({ message:'هیچ کاربر واقعی با شرایط فیلتر انتخاب شده یافت نشد.', type:'error'});
         }
     }
 
@@ -358,20 +358,20 @@ export const Broadcast: React.FC = () => {
 
     // Speed Control
     let delay = 200; // Normal
-    if (opts.speed === 'slow') delay = 1000;
-    if (opts.speed === 'fast') delay = 50;
+    if (opts.speed ==='slow') delay = 1000;
+    if (opts.speed ==='fast') delay = 50;
 
     const replyMarkup = { inline_keyboard: rows.map(r => r.buttons.map(b => ({
         text: b.text,
-        url: b.type === 'link' ? b.value : undefined,
-        callback_data: b.type === 'link' ? undefined : b.value
+        url: b.type ==='link'? b.value : undefined,
+        callback_data: b.type ==='link'? undefined : b.value
     }))) };
 
     const sendOpts = { disable_notification: opts.silent, protect_content: opts.protect };
 
     // Parse Forward Link if needed
     let forwardSource: { chatId: string, messageId: number } | null = null;
-    if (broadcastMode === 'forward') {
+    if (broadcastMode ==='forward') {
         try {
             // Extracts channel ID and Msg ID from t.me/c/123123123/123 or t.me/username/123
             const parts = forwardLink.split('/');
@@ -380,15 +380,15 @@ export const Broadcast: React.FC = () => {
             
             // Handle private links (c/123456)
             if (parts.includes('c')) {
-                chatRef = '-100' + parts[parts.indexOf('c') + 1];
+                chatRef ='-100'+ parts[parts.indexOf('c') + 1];
             } else if (!chatRef.startsWith('@') && !chatRef.startsWith('-100')) {
-                chatRef = '@' + chatRef;
+                chatRef ='@'+ chatRef;
             }
             
             forwardSource = { chatId: chatRef, messageId: msgId };
         } catch {
             setIsSending(false);
-            return setToast({ message: 'فرمت لینک فوروارد اشتباه است', type: 'error' });
+            return setToast({ message:'فرمت لینک فوروارد اشتباه است', type:'error'});
         }
     }
 
@@ -398,14 +398,14 @@ export const Broadcast: React.FC = () => {
 
         const user = users[i];
         let res;
-        const finalContent = content.replace(/{first_name}|{نام}/g, user.firstName || user.first_name || 'کاربر')
-                                    .replace(/{username}|{یوزرنیم}/g, user.username || 'ندارد')
+        const finalContent = content.replace(/{first_name}|{نام}/g, user.firstName || user.first_name ||'کاربر')
+                                    .replace(/{username}|{یوزرنیم}/g, user.username ||'ندارد')
                                     .replace(/{id}/g, user.id);
 
         try {
-            if (broadcastMode === 'forward' && forwardSource) {
+            if (broadcastMode ==='forward'&& forwardSource) {
                 res = await telegramService.forwardMessage(token, user.id, forwardSource.chatId, forwardSource.messageId, sendOpts);
-            } else if (broadcastMode === 'poll') {
+            } else if (broadcastMode ==='poll') {
                 res = await telegramService.sendPoll(
                     token,
                     user.id,
@@ -426,8 +426,8 @@ export const Broadcast: React.FC = () => {
                     } else {
                         const m = media[0];
                         const fileRef = m.fileId || m.url;
-                        if (m.type === 'image') res = await telegramService.sendPhoto(token, user.id, fileRef, finalContent, replyMarkup, sendOpts);
-                        else if (m.type === 'video') res = await telegramService.sendVideo(token, user.id, fileRef, finalContent, replyMarkup, sendOpts);
+                        if (m.type ==='image') res = await telegramService.sendPhoto(token, user.id, fileRef, finalContent, replyMarkup, sendOpts);
+                        else if (m.type ==='video') res = await telegramService.sendVideo(token, user.id, fileRef, finalContent, replyMarkup, sendOpts);
                         else res = await telegramService.sendDocument(token, user.id, fileRef, finalContent, replyMarkup, sendOpts);
                     }
                 } else {
@@ -440,11 +440,11 @@ export const Broadcast: React.FC = () => {
                 if (opts.pin && res.result) await telegramService.pinChatMessage(token, user.id, res.result.message_id, opts.silent);
             } else {
                 // DEAD USER DETECTION
-                const desc = res.description?.toLowerCase() || '';
+                const desc = res.description?.toLowerCase() ||'';
                 if (desc.includes('blocked') || desc.includes('user is deactivated') || desc.includes('initiate')) {
                     setStats(prev => ({ ...prev, blocked: prev.blocked + 1 }));
                     // Clean up DB
-                    const currentUsers = JSON.parse(localStorage.getItem('bot_users') || '[]');
+                    const currentUsers = JSON.parse(localStorage.getItem('bot_users') ||'[]');
                     const newUsers = currentUsers.filter((u: any) => u.id !== user.id);
                     localStorage.setItem('bot_users', JSON.stringify(newUsers));
                 } else {
@@ -461,7 +461,7 @@ export const Broadcast: React.FC = () => {
 
     setIsSending(false);
     setShowReport(true);
-    setToast({message: 'عملیات ارسال به پایان رسید', type: 'success'});
+    setToast({message:'عملیات ارسال به پایان رسید', type:'success'});
   };
 
   const handleStop = () => {
@@ -479,11 +479,11 @@ export const Broadcast: React.FC = () => {
       {/* Header Stats */}
       <div className="flex items-center justify-between bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-md">
          <div>
-            <h2 className="text-2xl font-bold dark:text-white text-slate-800 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
                 <Users className="text-purple-500"/> پیام همگانی پیشرفته
             </h2>
             <div className="flex items-center gap-3 mt-1">
-                <p className="text-sm dark:text-white/50 text-slate-500">ارسال انبوه، زمان‌بندی هوشمند و گزارش‌گیری</p>
+                <p className="text-sm text-slate-500">ارسال انبوه، زمان‌بندی هوشمند و گزارش‌گیری</p>
             </div>
          </div>
          <div className="flex gap-3">
@@ -501,18 +501,18 @@ export const Broadcast: React.FC = () => {
               
               {/* MODE SWITCHER */}
               <div className="flex bg-black/20 p-1 rounded-xl border border-white/10 w-fit">
-                  <button onClick={() => setBroadcastMode('compose')} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all ${broadcastMode === 'compose' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                  <button onClick={() => setBroadcastMode('compose')} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all ${broadcastMode ==='compose'?'bg-purple-600 text-white shadow-lg':'text-slate-400 hover:text-white'}`}>
                       <Send size={16}/> نوشتن پیام
                   </button>
-                  <button onClick={() => setBroadcastMode('forward')} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all ${broadcastMode === 'forward' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                  <button onClick={() => setBroadcastMode('forward')} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all ${broadcastMode ==='forward'?'bg-blue-600 text-white shadow-lg':'text-slate-400 hover:text-white'}`}>
                       <CornerUpRight size={16}/> فوروارد پست
                   </button>
-                  <button onClick={() => setBroadcastMode('poll')} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all ${broadcastMode === 'poll' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                  <button onClick={() => setBroadcastMode('poll')} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all ${broadcastMode ==='poll'?'bg-emerald-600 text-white shadow-lg':'text-slate-400 hover:text-white'}`}>
                       <BarChart3 size={16}/> نظرسنجی و آزمون‌ساز
                   </button>
               </div>
 
-              {broadcastMode === 'compose' ? (
+              {broadcastMode ==='compose'? (
                   <>
                     <MessageContentCard
                       messageA={messageA}
@@ -533,7 +533,7 @@ export const Broadcast: React.FC = () => {
                       updateButton={updateButton}
                     />
                   </>
-              ) : broadcastMode === 'forward' ? (
+              ) : broadcastMode ==='forward'? (
                   <ForwardSettingsCard
                     forwardLink={forwardLink}
                     setForwardLink={setForwardLink}

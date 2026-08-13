@@ -1,8 +1,8 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { Image as ImageIcon, Plus, Trash2, Loader2 } from 'lucide-react';
-import { GalleryImage } from '../../types';
-import { getDisplayableImageUrl } from '../../utils/image';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { Image as ImageIcon, Plus, Trash2, Loader2 } from'lucide-react';
+import { GalleryImage } from'../../types';
+import { getDisplayableImageUrl } from'../../utils/image';
 
 interface GalleryManagementCardProps {
   galleryImages: GalleryImage[];
@@ -23,11 +23,11 @@ export const GalleryManagementCard: React.FC<GalleryManagementCardProps> = ({
     <GlassCard className="border-t-4 border-t-purple-500">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <ImageIcon className="text-purple-400" />
-          <h3 className="font-bold text-lg dark:text-white text-slate-800">مدیریت گالری تصاویر (Mini App)</h3>
+          <ImageIcon className="text-purple-400"/>
+          <h3 className="font-bold text-lg text-slate-800">مدیریت گالری تصاویر (Mini App)</h3>
         </div>
-        <label className={`cursor-pointer px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-purple-600/20 active:scale-95 ${isUploadingGallery ? 'opacity-50 pointer-events-none' : ''}`}>
-          {isUploadingGallery ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />}
+        <label className={`cursor-pointer px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-purple-600/20 active:scale-95 ${isUploadingGallery ?'opacity-50 pointer-events-none':''}`}>
+          {isUploadingGallery ? <Loader2 size={15} className="animate-spin"/> : <Plus size={15} />}
           <span>افزودن عکس جدید</span>
           <input
             type="file"
@@ -53,7 +53,7 @@ export const GalleryManagementCard: React.FC<GalleryManagementCardProps> = ({
             <div key={img.id} className="bg-black/30 border border-white/10 rounded-xl p-3 flex flex-col gap-2.5">
               <div className="relative w-full h-36 rounded-lg bg-black/40 overflow-hidden border border-white/5 flex items-center justify-center">
                 {getDisplayableImageUrl(img.imageUrl) ? (
-                  <img src={getDisplayableImageUrl(img.imageUrl)!} alt={img.caption || 'گالری'} className="w-full h-full object-cover" />
+                  <img src={getDisplayableImageUrl(img.imageUrl)!} alt={img.caption ||'گالری'} className="w-full h-full object-cover"/>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-slate-500 gap-1">
                     <ImageIcon size={24} />
@@ -70,7 +70,7 @@ export const GalleryManagementCard: React.FC<GalleryManagementCardProps> = ({
               </div>
               <input
                 type="text"
-                value={img.caption || ''}
+                value={img.caption ||''}
                 onChange={(e) => handleUpdateGalleryCaption(img.id, e.target.value)}
                 placeholder="توضیح اختیاری برای این عکس..."
                 className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-xs text-white placeholder-slate-500 outline-none focus:border-purple-500"

@@ -184,11 +184,11 @@ export const Orders: React.FC = () => {
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in pb-10">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h2 className="text-2xl font-bold dark:text-white text-slate-800 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <ShoppingCart className="text-[#3b82f6]" />
             مدیریت سفارش‌ها و فیش‌های دریافتی
           </h2>
-          <p className="text-xs dark:text-white/50 text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             سفارش‌های ثبت شده توسط مشتریان ربات را بررسی و وضعیت پرداخت آن‌ها را تعیین کنید.
           </p>
         </div>
@@ -212,7 +212,7 @@ export const Orders: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all whitespace-nowrap cursor-pointer ${
                 filter === tab
                   ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
-                  : 'bg-white/5 dark:text-slate-300 text-slate-600 dark:border-white/5 border-black/5 hover:bg-white/10'
+                  : 'bg-white/5 text-slate-600 border-black/5 hover:bg-white/10'
               }`}
             >
               {tab === 'all' && 'همه سفارش‌ها'}
@@ -232,7 +232,7 @@ export const Orders: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all whitespace-nowrap cursor-pointer ${
                 dateRange === range
                   ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/10'
-                  : 'bg-white/5 dark:text-slate-300 text-slate-600 dark:border-white/5 border-black/5 hover:bg-white/10'
+                  : 'bg-white/5 text-slate-600 border-black/5 hover:bg-white/10'
               }`}
             >
               {range === 'all' && 'همه‌ی بازه‌ها'}
@@ -247,7 +247,7 @@ export const Orders: React.FC = () => {
       {!orders || orders.length === 0 ? (
         <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-12 text-center flex flex-col items-center gap-4">
           <ShoppingCart size={64} className="text-slate-400 opacity-40 animate-pulse" />
-          <h3 className="text-lg font-bold dark:text-white text-slate-700">هیچ سفارشی یافت نشد</h3>
+          <h3 className="text-lg font-bold text-slate-700">هیچ سفارشی یافت نشد</h3>
           <p className="text-slate-400 max-w-md text-sm">
             لیست سفارش‌های مربوط به این وضعیت خالی است.
           </p>
@@ -259,10 +259,10 @@ export const Orders: React.FC = () => {
               <GlassCard key={order.id} className="relative overflow-hidden flex flex-col justify-between p-4">
                 <div>
                   {/* Order Header */}
-                  <div className="flex justify-between items-start pb-3 border-b dark:border-white/5 border-black/5 mb-3">
+                  <div className="flex justify-between items-start pb-3 border-b border-black/5 mb-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm dark:text-white text-slate-800">سفارش #{order.id.slice(-6)}</span>
+                        <span className="font-bold text-sm text-slate-800">سفارش #{order.id.slice(-6)}</span>
                         <span
                           className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
                             order.status === 'confirmed'
@@ -295,11 +295,11 @@ export const Orders: React.FC = () => {
                   <div className="bg-white/5 rounded-xl p-2.5 mb-3 space-y-1.5 border border-white/5 text-xs">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-400 flex items-center gap-1"><User size={14} /> خریدار:</span>
-                      <span className="dark:text-white text-slate-800 font-medium">{order.userFirstName}</span>
+                      <span className="text-slate-800 font-medium">{order.userFirstName}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-slate-400">شناسه عددی تلگرام:</span>
-                      <span className="font-mono text-[11px] dark:text-white/80 text-slate-700">{order.userId}</span>
+                      <span className="font-mono text-[11px] text-slate-700">{order.userId}</span>
                     </div>
                   </div>
 
@@ -312,7 +312,7 @@ export const Orders: React.FC = () => {
                         return (
                           <div
                             key={idx}
-                            className="bg-black/10 dark:bg-black/20 rounded-xl overflow-hidden border dark:border-white/5 border-black/5"
+                            className="bg-black/10 rounded-xl overflow-hidden border border-black/5"
                           >
                             <div className="h-20 bg-slate-900/40 flex items-center justify-center overflow-hidden">
                               {imgUrl ? (
@@ -322,7 +322,7 @@ export const Orders: React.FC = () => {
                               )}
                             </div>
                             <div className="p-2 text-center">
-                              <div className="text-[11px] dark:text-white text-slate-800 font-medium truncate">{item.name}</div>
+                              <div className="text-[11px] text-slate-800 font-medium truncate">{item.name}</div>
                               <div className="text-[10px] text-slate-400 mt-0.5">
                                 ×{item.qty} — {(item.price * item.qty).toLocaleString('fa-IR')} تومان
                               </div>
@@ -360,9 +360,9 @@ export const Orders: React.FC = () => {
                           </h4>
                           <div className="space-y-1.5">
                             {items.map((item, idx) => (
-                              <div key={idx} className="flex flex-col sm:flex-row justify-between bg-black/10 dark:bg-black/20 p-2 rounded-lg gap-1">
+                              <div key={idx} className="flex flex-col sm:flex-row justify-between bg-black/10 p-2 rounded-lg gap-1">
                                 <span className="text-slate-400 font-medium">{item.q}:</span>
-                                <span className="dark:text-white text-slate-800 font-semibold">{item.a}</span>
+                                <span className="text-slate-800 font-semibold">{item.a}</span>
                               </div>
                             ))}
                           </div>
@@ -374,7 +374,7 @@ export const Orders: React.FC = () => {
 
                 {/* Order Actions */}
                 {order.status === 'pending' && (
-                  <div className="mt-4 pt-3 border-t dark:border-white/5 border-black/5 flex gap-2.5">
+                  <div className="mt-4 pt-3 border-t border-black/5 flex gap-2.5">
                     <button
                       onClick={() => handleConfirmOrder(order.id)}
                       className="flex-1 bg-green-600 hover:bg-green-500 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-green-600/10 transition-all cursor-pointer"

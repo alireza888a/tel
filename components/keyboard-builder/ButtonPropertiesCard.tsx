@@ -1,11 +1,11 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
+import React from'react';
+import { GlassCard } from'../GlassCard';
 import {
   Trash2, CornerUpRight, ListChecks, ShoppingBag, Plus, Check,
   Upload, Cloud, Zap, Globe, Terminal, Link as LinkIcon
-} from 'lucide-react';
-import { InlineButton, Product, InquiryConfig } from '../../types';
-import { getDisplayableImageUrl } from '../../utils/image';
+} from'lucide-react';
+import { InlineButton, Product, InquiryConfig } from'../../types';
+import { getDisplayableImageUrl } from'../../utils/image';
 
 interface ButtonPropertiesCardProps {
   selectedButton: { rowId: string; btnId: string } | null;
@@ -53,14 +53,14 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
     >
        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="col-span-1 md:col-span-2">
-             <label className="text-xs dark:text-white/50 text-slate-500 mb-1 block">عنوان دکمه</label>
-             {getSelectedBtnObj()!.type === 'product' ? (
+             <label className="text-xs text-slate-500 mb-1 block">عنوان دکمه</label>
+             {getSelectedBtnObj()!.type ==='product'? (
                 <div>
                    <input
                       type="text"
                       disabled
                       value={getButtonDisplayText(getSelectedBtnObj()!)}
-                      className="w-full dark:bg-white/5 bg-slate-200 border dark:border-white/10 border-slate-300 px-3 py-2 rounded-lg text-sm dark:text-slate-300 text-slate-600 font-medium cursor-not-allowed"
+                      className="w-full bg-slate-200 border border-slate-300 px-3 py-2 rounded-lg text-sm text-slate-600 font-medium cursor-not-allowed"
                    />
                    <p className="text-[11px] text-blue-400/90 mt-1 flex items-center gap-1">
                       <span>💡</span>
@@ -72,31 +72,31 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                    type="text"
                    value={getSelectedBtnObj()!.text}
                    onChange={(e) => updateCurrentButton({ text: e.target.value })}
-                   className="w-full bg-transparent border-b border-white/20 focus:border-blue-500 px-2 py-1 outline-none dark:text-white text-slate-800"
+                   className="w-full bg-transparent border-b border-white/20 focus:border-blue-500 px-2 py-1 outline-none text-slate-800"
                 />
              )}
           </div>
 
           <div>
-             <label className="text-xs dark:text-white/50 text-slate-500 mb-1 block">نوع عملکرد</label>
+             <label className="text-xs text-slate-500 mb-1 block">نوع عملکرد</label>
              <select
                 value={
-                  getSelectedBtnObj()!.type === 'callback' && getSelectedBtnObj()!.value === 'support'
-                    ? 'ticket'
+                  getSelectedBtnObj()!.type ==='callback'&& getSelectedBtnObj()!.value ==='support'
+                    ?'ticket'
                     : getSelectedBtnObj()!.type
                 }
                 onChange={(e) => {
                   const newType = e.target.value as any;
-                  if (newType === 'ticket') {
+                  if (newType ==='ticket') {
                     updateCurrentButton({
-                      type: 'callback',
-                      value: 'support',
-                      text: getSelectedBtnObj()!.text && getSelectedBtnObj()!.text !== 'دکمه جدید' ? getSelectedBtnObj()!.text : '🎫 تیکت پشتیبانی',
+                      type:'callback',
+                      value:'support',
+                      text: getSelectedBtnObj()!.text && getSelectedBtnObj()!.text !=='دکمه جدید'? getSelectedBtnObj()!.text :'🎫 تیکت پشتیبانی',
                       productId: undefined,
                       apiUrl: undefined,
                       webAppUrl: undefined
                     });
-                  } else if (newType === 'webapp') {
+                  } else if (newType ==='webapp') {
                     // NEVER embed the private license code here — it's the
                     // merchant's own panel-login credential (works for
                     // /api/data/save, /api/orders/list, /api/dashboard/sales,
@@ -104,49 +104,49 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                     // to EVERY buyer, so only the leak-safe webhook access
                     // token (already scoped, by the backend, to just the
                     // public /api/shop/* Mini App endpoints) belongs here.
-                    const accessToken = localStorage.getItem('webhook_access_token') || '';
-                    const webAppUrl = `${window.location.origin}/miniapp?code=${encodeURIComponent(accessToken)}`;
+                    const accessToken = localStorage.getItem('webhook_access_token') ||'';
+                    const webAppUrl =`${window.location.origin}/miniapp?code=${encodeURIComponent(accessToken)}`;
                     updateCurrentButton({
-                      type: 'webapp',
+                      type:'webapp',
                       webAppUrl: webAppUrl,
                       value: webAppUrl,
-                      text: getSelectedBtnObj()!.text && getSelectedBtnObj()!.text !== 'دکمه جدید' ? getSelectedBtnObj()!.text : '🛍 ورود به فروشگاه',
+                      text: getSelectedBtnObj()!.text && getSelectedBtnObj()!.text !=='دکمه جدید'? getSelectedBtnObj()!.text :'🛍 ورود به فروشگاه',
                       productId: undefined,
                       apiUrl: undefined
                     });
-                  } else if (newType === 'api') {
+                  } else if (newType ==='api') {
                     updateCurrentButton({
-                      type: 'api',
-                      apiUrl: getSelectedBtnObj()!.apiUrl || '',
-                      text: getSelectedBtnObj()!.text && getSelectedBtnObj()!.text !== 'دکمه جدید' ? getSelectedBtnObj()!.text : '🔗 فراخوانی API',
+                      type:'api',
+                      apiUrl: getSelectedBtnObj()!.apiUrl ||'',
+                      text: getSelectedBtnObj()!.text && getSelectedBtnObj()!.text !=='دکمه جدید'? getSelectedBtnObj()!.text :'🔗 فراخوانی API',
                       productId: undefined,
                       webAppUrl: undefined
                     });
-                  } else if (newType === 'product') {
+                  } else if (newType ==='product') {
                     const products = getProducts();
                     const firstProd = products[0];
                     if (firstProd) {
                       updateCurrentButton({
-                        type: 'product',
+                        type:'product',
                         productId: firstProd.id,
-                        text: `🛒 ${firstProd.name} — ${firstProd.price.toLocaleString('fa-IR')} تومان`,
+                        text:`🛒 ${firstProd.name} — ${firstProd.price.toLocaleString('fa-IR')} تومان`,
                         apiUrl: undefined,
                         webAppUrl: undefined
                       });
                     } else {
                       updateCurrentButton({
-                        type: 'product',
-                        text: '🛒 انتخاب محصول...',
+                        type:'product',
+                        text:'🛒 انتخاب محصول...',
                         apiUrl: undefined,
                         webAppUrl: undefined
                       });
                     }
                   } else {
-                    const curVal = getSelectedBtnObj()!.value === 'support' ? '' : getSelectedBtnObj()!.value;
+                    const curVal = getSelectedBtnObj()!.value ==='support'?'': getSelectedBtnObj()!.value;
                     updateCurrentButton({ type: newType, value: curVal, productId: undefined, apiUrl: undefined, webAppUrl: undefined });
                   }
                 }}
-                className="w-full dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-300 rounded-lg p-2 text-sm outline-none dark:text-white text-slate-800"
+                className="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 text-sm outline-none text-slate-800"
              >
                 <option value="callback">نمایش پیام ساده (Callback)</option>
                 <option value="submenu">زیر منو (دکمه‌های تو در تو)</option>
@@ -162,11 +162,11 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
           </div>
 
           <div>
-             <label className="text-xs dark:text-white/50 text-slate-500 mb-1 block">رنگ دکمه (ویژه تلگرام جدید 🎨)</label>
+             <label className="text-xs text-slate-500 mb-1 block">رنگ دکمه (ویژه تلگرام جدید 🎨)</label>
              <select
-                value={getSelectedBtnObj()!.color || 'default'}
+                value={getSelectedBtnObj()!.color ||'default'}
                 onChange={(e) => updateCurrentButton({ color: e.target.value as any })}
-                className="w-full dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-300 rounded-lg p-2 text-sm outline-none dark:text-white text-slate-800"
+                className="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 text-sm outline-none text-slate-800"
              >
                 <option value="default">شیشه‌ای پیش‌فرض (تاریک/آبی)</option>
                 <option value="blue">🔵 آبی اقیانوسی (روشن)</option>
@@ -181,7 +181,7 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
           </div>
 
           <div>
-             {getSelectedBtnObj()!.type === 'submenu' ? (
+             {getSelectedBtnObj()!.type ==='submenu'? (
                 <div className="mt-5">
                    <button
                       onClick={() => {
@@ -195,10 +195,10 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                       ویرایش محتوای زیر منو
                    </button>
                 </div>
-             ) : getSelectedBtnObj()!.type === 'form' ? (
+             ) : getSelectedBtnObj()!.type ==='form'? (
                  <div className="mt-5">
                      <button
-                         onClick={() => setEditingFormId(getSelectedBtnObj()!.value || '')}
+                         onClick={() => setEditingFormId(getSelectedBtnObj()!.value ||'')}
                          className="w-full bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors"
                      >
                          <ListChecks size={16} />
@@ -206,11 +206,11 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                      </button>
                      <p className="text-[10px] text-slate-500 mt-2 text-center">شناسه فرم: {getSelectedBtnObj()!.value}</p>
                  </div>
-             ) : getSelectedBtnObj()!.type === 'product' ? (
+             ) : getSelectedBtnObj()!.type ==='product'? (
                  <div className="mt-2 space-y-3 col-span-1 md:col-span-2 bg-white/5 p-4 rounded-xl border border-white/10">
                      <div className="flex items-center justify-between">
                          <label className="text-xs font-bold text-white flex items-center gap-1.5">
-                             <ShoppingBag size={15} className="text-blue-400" />
+                             <ShoppingBag size={15} className="text-blue-400"/>
                              انتخاب محصول مرتبط با این دکمه
                          </label>
                          <button
@@ -244,21 +244,21 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                                          onClick={() => {
                                              updateCurrentButton({
                                                  productId: prod.id,
-                                                 text: `🛒 ${prod.name} — ${prod.price.toLocaleString('fa-IR')} تومان`
+                                                 text:`🛒 ${prod.name} — ${prod.price.toLocaleString('fa-IR')} تومان`
                                              });
                                          }}
                                          className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                                              isSelected
-                                                 ? 'bg-blue-600/20 border-blue-500 text-white shadow-lg shadow-blue-500/10'
-                                                 : 'bg-black/20 border-white/5 hover:bg-white/10 text-slate-300'
+                                                 ?'bg-blue-600/20 border-blue-500 text-white shadow-lg shadow-blue-500/10'
+                                                 :'bg-black/20 border-white/5 hover:bg-white/10 text-slate-300'
                                          }`}
                                      >
                                          <div className="flex items-center gap-3">
                                              <div className="w-10 h-10 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
                                                  {getDisplayableImageUrl(prod.imageUrl) ? (
-                                                     <img src={getDisplayableImageUrl(prod.imageUrl)!} alt={prod.name} className="w-full h-full object-cover" />
+                                                     <img src={getDisplayableImageUrl(prod.imageUrl)!} alt={prod.name} className="w-full h-full object-cover"/>
                                                  ) : (
-                                                     <ShoppingBag size={18} className="text-blue-400" />
+                                                     <ShoppingBag size={18} className="text-blue-400"/>
                                                  )}
                                              </div>
                                              <div>
@@ -280,12 +280,12 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                          )}
                      </div>
                  </div>
-             ) : getSelectedBtnObj()!.type === 'inquiry' ? (
+             ) : getSelectedBtnObj()!.type ==='inquiry'? (
                  <div className="mt-2 space-y-3 bg-white/5 p-3 rounded-xl border border-white/5 col-span-2 md:col-span-2">
                      <div>
                          <label className="text-xs text-slate-400 mb-1 block">آیدی ادمین فروش (جهت دریافت لید)</label>
                          <input
-                             value={getSelectedBtnObj()!.inquiryConfig?.adminId || ''}
+                             value={getSelectedBtnObj()!.inquiryConfig?.adminId ||''}
                              onChange={e => updateInquiryConfig({ adminId: e.target.value })}
                              className="w-full bg-black/20 border border-white/10 rounded p-2 text-xs text-white dir-ltr"
                              placeholder="123456789"
@@ -295,9 +295,9 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                          <label className="text-xs text-slate-400 mb-1 block">فایل کاتالوگ (PDF یا عکس)</label>
                          <div className="flex gap-2 items-center">
                              <label className="flex-1 cursor-pointer bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-600/30 rounded p-2 text-xs flex items-center justify-center gap-2 transition-colors">
-                                 {isUploading ? <Cloud className="animate-bounce" size={14}/> : <Upload size={14}/>}
-                                 {isUploading ? 'در حال آپلود...' : 'آپلود کاتالوگ در دیتابیس'}
-                                 <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleCatalogUpload} disabled={isUploading} />
+                                 {isUploading ? <Cloud className="animate-bounce"size={14}/> : <Upload size={14}/>}
+                                 {isUploading ?'در حال آپلود...':'آپلود کاتالوگ در دیتابیس'}
+                                 <input type="file"accept="image/*,application/pdf"className="hidden"onChange={handleCatalogUpload} disabled={isUploading} />
                              </label>
                              {getSelectedBtnObj()!.inquiryConfig?.catalogFileId && (
                                  <div className="text-xs text-green-400 flex items-center gap-1">
@@ -309,13 +309,13 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                      <div>
                          <label className="text-xs text-slate-400 mb-1 block">متن پاسخ خودکار به مشتری</label>
                          <textarea
-                             value={getSelectedBtnObj()!.inquiryConfig?.responseText || ''}
+                             value={getSelectedBtnObj()!.inquiryConfig?.responseText ||''}
                              onChange={e => updateInquiryConfig({ responseText: e.target.value })}
                              className="w-full h-20 bg-black/20 border border-white/10 rounded p-2 text-xs text-white resize-none"
                          />
                      </div>
                  </div>
-             ) : getSelectedBtnObj()!.type === 'webapp' ? (
+             ) : getSelectedBtnObj()!.type ==='webapp'? (
                  <div className="mt-2 space-y-2 bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-xl col-span-1 md:col-span-2">
                      <label className="text-xs text-emerald-300 font-bold block flex items-center gap-1.5">
                          <ShoppingBag size={15} />
@@ -324,7 +324,7 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                      <input
                          type="text"
                          readOnly
-                         value={getSelectedBtnObj()!.webAppUrl || `${window.location.origin}/miniapp`}
+                         value={getSelectedBtnObj()!.webAppUrl ||`${window.location.origin}/miniapp`}
                          className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-xs text-emerald-200 text-left dir-ltr outline-none cursor-text font-mono"
                          dir="ltr"
                      />
@@ -332,12 +332,12 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                          این دکمه فروشگاه رو مستقیم داخل تلگرام (نه مرورگر) باز میکنه.
                      </p>
                  </div>
-             ) : getSelectedBtnObj()!.type === 'api' ? (
+             ) : getSelectedBtnObj()!.type ==='api'? (
                  <div className="mt-2 space-y-2 bg-white/5 p-3 rounded-xl border border-white/10 col-span-1 md:col-span-2">
                      <label className="text-xs text-slate-300 font-medium block">آدرس API / Webhook (URL)</label>
                      <input
                          type="text"
-                         value={getSelectedBtnObj()!.apiUrl || ''}
+                         value={getSelectedBtnObj()!.apiUrl ||''}
                          onChange={e => updateCurrentButton({ apiUrl: e.target.value })}
                          placeholder="https://api.example.com/webhook"
                          className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-xs text-white text-left dir-ltr outline-none focus:border-blue-500"
@@ -347,7 +347,7 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                          با کلیک روی این دکمه توسط کاربر، یک درخواست POST به این آدرس ارسال می‌گردد.
                      </p>
                  </div>
-             ) : (getSelectedBtnObj()!.type === 'ticket' || (getSelectedBtnObj()!.type === 'callback' && getSelectedBtnObj()!.value === 'support')) ? (
+             ) : (getSelectedBtnObj()!.type ==='ticket'|| (getSelectedBtnObj()!.type ==='callback'&& getSelectedBtnObj()!.value ==='support')) ? (
                  <div className="mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl col-span-1 md:col-span-2 text-xs text-blue-300 space-y-1">
                      <p className="font-bold flex items-center gap-1.5">
                          <span>🎫</span>
@@ -359,26 +359,26 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                  </div>
              ) : (
                <>
-                  <label className="text-xs dark:text-white/50 text-slate-500 mb-1 block flex items-center gap-1">
-                      {getSelectedBtnObj()!.type === 'link' && <><Globe size={12}/> آدرس اینترنتی (https)</>}
-                      {getSelectedBtnObj()!.type === 'command' && <><Terminal size={12}/> نام دستور (بدون اسلش)</>}
-                      {getSelectedBtnObj()!.type === 'callback' && 'مقدار دکمه (Callback Data)'}
+                  <label className="text-xs text-slate-500 mb-1 block flex items-center gap-1">
+                      {getSelectedBtnObj()!.type ==='link'&& <><Globe size={12}/> آدرس اینترنتی (https)</>}
+                      {getSelectedBtnObj()!.type ==='command'&& <><Terminal size={12}/> نام دستور (بدون اسلش)</>}
+                      {getSelectedBtnObj()!.type ==='callback'&&'مقدار دکمه (Callback Data)'}
                   </label>
                   <div className="relative">
                       <input
                           type="text"
-                          value={getSelectedBtnObj()!.value || ''}
+                          value={getSelectedBtnObj()!.value ||''}
                           onChange={(e) => updateCurrentButton({ value: e.target.value })}
                           placeholder={
-                              getSelectedBtnObj()!.type === 'link' ? 'https://google.com' :
-                              getSelectedBtnObj()!.type === 'command' ? 'start' : 'data_123'
+                              getSelectedBtnObj()!.type ==='link'?'https://google.com':
+                              getSelectedBtnObj()!.type ==='command'?'start':'data_123'
                           }
-                          className="w-full dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-300 rounded-lg p-2 pl-8 text-sm outline-none dark:text-white text-slate-800 text-left dir-ltr"
+                          className="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 pl-8 text-sm outline-none text-slate-800 text-left dir-ltr"
                           dir="ltr"
                       />
                       <div className="absolute left-2 top-1/2 -translate-y-1/2 opacity-50">
-                          {getSelectedBtnObj()!.type === 'link' && <LinkIcon size={14}/>}
-                          {getSelectedBtnObj()!.type === 'command' && <span className="text-xs font-mono">/</span>}
+                          {getSelectedBtnObj()!.type ==='link'&& <LinkIcon size={14}/>}
+                          {getSelectedBtnObj()!.type ==='command'&& <span className="text-xs font-mono">/</span>}
                       </div>
                   </div>
                </>
@@ -392,14 +392,14 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                   شرط نمایش دکمه (اختیاری)
               </label>
               <select
-                  value={getSelectedBtnObj()!.condition?.type || 'none'}
+                  value={getSelectedBtnObj()!.condition?.type ||'none'}
                   onChange={(e) => {
-                      const condType = e.target.value as 'none' | 'order_status_confirmed' | 'product_category';
-                      if (condType === 'product_category') {
+                      const condType = e.target.value as'none'|'order_status_confirmed'|'product_category';
+                      if (condType ==='product_category') {
                           updateCurrentButton({
                               condition: {
-                                  type: 'product_category',
-                                  value: getSelectedBtnObj()!.condition?.value || ''
+                                  type:'product_category',
+                                  value: getSelectedBtnObj()!.condition?.value ||''
                               }
                           });
                       } else {
@@ -408,28 +408,28 @@ export const ButtonPropertiesCard: React.FC<ButtonPropertiesCardProps> = ({
                           });
                       }
                   }}
-                  className="w-full dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-300 rounded-lg p-2 text-sm outline-none dark:text-white text-slate-800"
+                  className="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 text-sm outline-none text-slate-800"
               >
                   <option value="none">همیشه نمایش بده (پیش‌فرض)</option>
                   <option value="order_status_confirmed">فقط اگه سفارش تایید شده باشد</option>
                   <option value="product_category">فقط برای دسته‌بندی محصول خاص</option>
               </select>
 
-              {getSelectedBtnObj()!.condition?.type === 'order_status_confirmed' && (
+              {getSelectedBtnObj()!.condition?.type ==='order_status_confirmed'&& (
                   <p className="text-[11px] text-amber-300/80 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl leading-relaxed">
                       💡 این فقط توی پیام‌های بعد از تایید سفارش اثر داره؛ توی منوهای عادی نادیده گرفته می‌شود.
                   </p>
               )}
 
-              {getSelectedBtnObj()!.condition?.type === 'product_category' && (
+              {getSelectedBtnObj()!.condition?.type ==='product_category'&& (
                   <div className="space-y-2 pt-1">
                       <input
                           type="text"
-                          value={getSelectedBtnObj()!.condition?.value || ''}
+                          value={getSelectedBtnObj()!.condition?.value ||''}
                           onChange={(e) => {
                               updateCurrentButton({
                                   condition: {
-                                      type: 'product_category',
+                                      type:'product_category',
                                       value: e.target.value
                                   }
                               });

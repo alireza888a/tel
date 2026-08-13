@@ -1,6 +1,6 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { HardDrive, Download, Upload, FileJson, AlertTriangle, RefreshCw, Calendar } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { HardDrive, Download, Upload, FileJson, AlertTriangle, RefreshCw, Calendar } from'lucide-react';
 
 interface BackupRestoreCardProps {
   handleBackup: () => void;
@@ -8,8 +8,8 @@ interface BackupRestoreCardProps {
   handleFactoryReset: () => void;
   autoBackupEnabled: boolean;
   onToggleAutoBackup: () => void;
-  autoBackupFrequency: 'daily' | 'weekly';
-  onChangeAutoBackupFrequency: (freq: 'daily' | 'weekly') => void;
+  autoBackupFrequency:'daily'|'weekly';
+  onChangeAutoBackupFrequency: (freq:'daily'|'weekly') => void;
   isTrialPlan?: boolean;
 }
 
@@ -26,8 +26,8 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
   return (
     <GlassCard className="border-t-4 border-t-blue-500">
       <div className="flex items-center gap-2 mb-4">
-        <HardDrive className="text-blue-400" />
-        <h3 className="font-bold text-lg dark:text-white text-slate-800">مدیریت داده‌ها (پشتیبان‌گیری)</h3>
+        <HardDrive className="text-blue-400"/>
+        <h3 className="font-bold text-lg text-slate-800">مدیریت داده‌ها (پشتیبان‌گیری)</h3>
       </div>
 
       {isTrialPlan && (
@@ -42,8 +42,8 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
           disabled={isTrialPlan}
           className={`flex items-center justify-between p-4 border rounded-xl transition-all group ${
             isTrialPlan
-              ? 'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed'
-              : 'bg-white/5 hover:bg-white/10 border-white/10'
+              ?'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed'
+              :'bg-white/5 hover:bg-white/10 border-white/10'
           }`}
         >
           <div className="flex items-center gap-3">
@@ -51,29 +51,29 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
               <Download size={20} />
             </div>
             <div className="text-right">
-              <div className="font-bold dark:text-white text-slate-800">دانلود فایل پشتیبان</div>
+              <div className="font-bold text-slate-800">دانلود فایل پشتیبان</div>
               <div className="text-[10px] text-slate-500">فرمت JSON شامل تمام تنظیمات</div>
             </div>
           </div>
-          <FileJson size={20} className="text-slate-600" />
+          <FileJson size={20} className="text-slate-600"/>
         </button>
 
         <label className={`flex items-center justify-between p-4 border rounded-xl transition-all group ${
             isTrialPlan
-              ? 'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed pointer-events-none'
-              : 'bg-white/5 hover:bg-white/10 border-white/10 cursor-pointer'
+              ?'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed pointer-events-none'
+              :'bg-white/5 hover:bg-white/10 border-white/10 cursor-pointer'
           }`}>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg group-hover:scale-110 transition-transform">
               <Upload size={20} />
             </div>
             <div className="text-right">
-              <div className="font-bold dark:text-white text-slate-800">بازگردانی اطلاعات</div>
+              <div className="font-bold text-slate-800">بازگردانی اطلاعات</div>
               <div className="text-[10px] text-slate-500">آپلود فایل JSON و جایگزینی</div>
             </div>
           </div>
-          <input type="file" accept=".json" onChange={handleFileSelect} className="hidden" disabled={isTrialPlan} />
-          <FileJson size={20} className="text-slate-600" />
+          <input type="file"accept=".json"onChange={handleFileSelect} className="hidden"disabled={isTrialPlan} />
+          <FileJson size={20} className="text-slate-600"/>
         </label>
       </div>
 
@@ -81,8 +81,8 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
       <div className="mt-6 pt-5 border-t border-white/5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <RefreshCw size={18} className="text-blue-400" />
-            <h4 className="font-bold text-sm dark:text-white text-slate-800">بکاپ خودکار</h4>
+            <RefreshCw size={18} className="text-blue-400"/>
+            <h4 className="font-bold text-sm text-slate-800">بکاپ خودکار</h4>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-400">فعال باشد</span>
@@ -91,12 +91,12 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
               onClick={isTrialPlan ? undefined : onToggleAutoBackup}
               disabled={isTrialPlan}
               className={`w-11 h-6 rounded-full p-1 transition-colors flex items-center ${
-                isTrialPlan ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                isTrialPlan ?'cursor-not-allowed opacity-40':'cursor-pointer'
               } ${
-                autoBackupEnabled ? 'bg-blue-600 justify-end' : 'bg-slate-700 justify-start'
+                autoBackupEnabled ?'bg-blue-600 justify-end':'bg-slate-700 justify-start'
               }`}
             >
-              <span className="w-4 h-4 rounded-full bg-white shadow-md" />
+              <span className="w-4 h-4 rounded-full bg-white shadow-md"/>
             </button>
           </div>
         </div>
@@ -108,7 +108,7 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
         {autoBackupEnabled && (
           <div className="flex items-center justify-between pt-2 border-t border-white/5">
             <span className="text-xs text-slate-300 flex items-center gap-1">
-              <Calendar size={14} className="text-blue-400" />
+              <Calendar size={14} className="text-blue-400"/>
               بازه زمانی ارسال:
             </span>
             <div className="flex items-center gap-1.5 bg-slate-900/60 p-1 rounded-xl border border-white/10">
@@ -116,9 +116,9 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
                 type="button"
                 onClick={() => onChangeAutoBackupFrequency('daily')}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  autoBackupFrequency === 'daily'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                  autoBackupFrequency ==='daily'
+                    ?'bg-blue-600 text-white shadow-md'
+                    :'text-slate-400 hover:text-white'
                 }`}
               >
                 روزانه
@@ -127,9 +127,9 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
                 type="button"
                 onClick={() => onChangeAutoBackupFrequency('weekly')}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  autoBackupFrequency === 'weekly'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                  autoBackupFrequency ==='weekly'
+                    ?'bg-blue-600 text-white shadow-md'
+                    :'text-slate-400 hover:text-white'
                 }`}
               >
                 هفتگی

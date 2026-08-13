@@ -1,13 +1,13 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { Database, Info, RefreshCw, CheckCircle, AlertTriangle, Link as LinkIcon } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { Database, Info, RefreshCw, CheckCircle, AlertTriangle, Link as LinkIcon } from'lucide-react';
 
 interface DatabaseChannelCardProps {
   dbChannel: string;
   setDbChannel: (val: string) => void;
   handleSaveDb: () => void;
   isCheckingDb: boolean;
-  dbStatus: 'idle' | 'success' | 'error';
+  dbStatus:'idle'|'success'|'error';
   statusMsg: string;
 }
 
@@ -22,8 +22,8 @@ export const DatabaseChannelCard: React.FC<DatabaseChannelCardProps> = ({
   return (
     <GlassCard className="border-t-4 border-t-purple-500">
       <div className="flex items-center gap-2 mb-4">
-        <Database className="text-purple-400" />
-        <h3 className="font-bold text-lg dark:text-white text-slate-800">کانال دیتابیس (فضای نامحدود)</h3>
+        <Database className="text-purple-400"/>
+        <h3 className="font-bold text-lg text-slate-800">کانال دیتابیس (فضای نامحدود)</h3>
       </div>
 
       <div className="text-sm text-slate-400 mb-6 leading-relaxed bg-white/5 p-3 rounded-lg border border-white/5">
@@ -34,7 +34,7 @@ export const DatabaseChannelCard: React.FC<DatabaseChannelCardProps> = ({
           <li><b>آیدی عددی</b> کانال (شروع با -100) را وارد کنید.</li>
         </ol>
         <div className="mt-2 flex items-start gap-1 text-[10px] text-blue-300 bg-blue-500/10 p-2 rounded">
-          <Info size={14} className="shrink-0 mt-0.5" />
+          <Info size={14} className="shrink-0 mt-0.5"/>
           <span>نکته: لینک‌های دعوت (t.me/+) کار نمی‌کنند. آیدی عددی را از تلگرام وب یا @username_to_id_bot پیدا کنید.</span>
         </div>
       </div>
@@ -52,22 +52,22 @@ export const DatabaseChannelCard: React.FC<DatabaseChannelCardProps> = ({
           <button
             onClick={handleSaveDb}
             disabled={isCheckingDb || !dbChannel}
-            className={`px-4 rounded-xl flex items-center justify-center disabled:opacity-50 transition-colors ${dbStatus === 'success' ? 'bg-green-600' : 'bg-purple-600 hover:bg-purple-500'} text-white`}
+            className={`px-4 rounded-xl flex items-center justify-center disabled:opacity-50 transition-colors ${dbStatus ==='success'?'bg-green-600':'bg-purple-600 hover:bg-purple-500'} text-white`}
           >
-            {isCheckingDb ? <RefreshCw className="animate-spin" /> : <CheckCircle />}
+            {isCheckingDb ? <RefreshCw className="animate-spin"/> : <CheckCircle />}
           </button>
         </div>
 
         {/* Status Message (If Check clicked) */}
         {statusMsg && (
-          <div className={`text-xs p-3 rounded-lg flex items-center gap-2 ${dbStatus === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : (dbStatus === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400')}`}>
-            {dbStatus === 'error' && <AlertTriangle size={14} />}
+          <div className={`text-xs p-3 rounded-lg flex items-center gap-2 ${dbStatus ==='success'?'bg-green-500/10 text-green-400 border border-green-500/20': (dbStatus ==='error'?'bg-red-500/10 text-red-400 border border-red-500/20':'bg-blue-500/10 text-blue-400')}`}>
+            {dbStatus ==='error'&& <AlertTriangle size={14} />}
             {statusMsg}
           </div>
         )}
 
         {/* Persistent Success Indicator (If loaded from storage) */}
-        {dbStatus === 'success' && !statusMsg && (
+        {dbStatus ==='success'&& !statusMsg && (
           <div className="flex items-center gap-2 text-[10px] text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20 mt-2">
             <LinkIcon size={12} />
             <span>کانال متصل است و در حافظه ذخیره شده.</span>

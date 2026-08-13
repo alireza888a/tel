@@ -159,7 +159,7 @@ export const Support: React.FC = () => {
                     <MessageCircle size={32} />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold dark:text-white text-slate-800">پشتیبانی و ثبت تیکت</h2>
+                    <h2 className="text-2xl font-bold text-slate-800">پشتیبانی و ثبت تیکت</h2>
                     <p className="text-sm text-slate-500">ارتباط مستقیم با کارشناسان پشتیبانی پنل مدیریت</p>
                 </div>
             </div>

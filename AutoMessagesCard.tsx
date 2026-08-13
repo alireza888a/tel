@@ -1,6 +1,6 @@
-import React from 'react';
-import { GlassCard } from './components/GlassCard';
-import { MessageSquare, RotateCcw } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'./components/GlassCard';
+import { MessageSquare, RotateCcw } from'lucide-react';
 
 export interface CustomTexts {
   booking_submitted?: string;
@@ -22,52 +22,52 @@ interface FieldDef {
 
 const FIELDS: FieldDef[] = [
   {
-    key: 'booking_submitted',
-    label: 'ثبت اولیه‌ی نوبت (قبل از تایید ادمین)',
-    vars: ['service', 'provider', 'date', 'time'],
-    defaultValue: '✅ درخواست نوبت شما ثبت شد.\n🔖 {service}{provider}\n📅 {date} ساعت {time}\n\nمنتظر تایید ادمین باشید.',
+    key:'booking_submitted',
+    label:'ثبت اولیه‌ی نوبت (قبل از تایید ادمین)',
+    vars: ['service','provider','date','time'],
+    defaultValue:'✅ درخواست نوبت شما ثبت شد.\n🔖 {service}{provider}\n📅 {date} ساعت {time}\n\nمنتظر تایید ادمین باشید.',
   },
   {
-    key: 'booking_confirmed',
-    label: 'تایید نوبت',
-    vars: ['date', 'time', 'service'],
-    defaultValue: '✅ نوبت شما تایید شد!\n📅 {date} ساعت {time}{service}',
+    key:'booking_confirmed',
+    label:'تایید نوبت',
+    vars: ['date','time','service'],
+    defaultValue:'✅ نوبت شما تایید شد!\n📅 {date} ساعت {time}{service}',
   },
   {
-    key: 'booking_rejected',
-    label: 'رد نوبت',
+    key:'booking_rejected',
+    label:'رد نوبت',
     vars: [],
-    defaultValue: '❌ متاسفانه نوبت شما تایید نشد. لطفاً برای هماهنگی مجدد با پشتیبانی تماس بگیرید.',
+    defaultValue:'❌ متاسفانه نوبت شما تایید نشد. لطفاً برای هماهنگی مجدد با پشتیبانی تماس بگیرید.',
   },
   {
-    key: 'booking_reminder',
-    label: 'یادآوری خودکار نوبت (همون روز)',
-    vars: ['service', 'time'],
-    defaultValue: '⏰ یادآوری: نوبت شما ({service}) ساعت {time} امروز است.',
+    key:'booking_reminder',
+    label:'یادآوری خودکار نوبت (همون روز)',
+    vars: ['service','time'],
+    defaultValue:'⏰ یادآوری: نوبت شما ({service}) ساعت {time} امروز است.',
   },
   {
-    key: 'order_confirmed',
-    label: 'تایید سفارش / پرداخت',
-    vars: ['order_id', 'total'],
-    defaultValue: 'پرداخت شما تایید شد ✅ سفارشتون در حال آماده‌سازیه.',
+    key:'order_confirmed',
+    label:'تایید سفارش / پرداخت',
+    vars: ['order_id','total'],
+    defaultValue:'پرداخت شما تایید شد ✅ سفارشتون در حال آماده‌سازیه.',
   },
   {
-    key: 'order_rejected',
-    label: 'رد سفارش / پرداخت',
+    key:'order_rejected',
+    label:'رد سفارش / پرداخت',
     vars: ['order_id'],
-    defaultValue: 'متاسفانه پرداخت شما تایید نشد. لطفاً با پشتیبانی تماس بگیرید.',
+    defaultValue:'متاسفانه پرداخت شما تایید نشد. لطفاً با پشتیبانی تماس بگیرید.',
   },
   {
-    key: 'receipt_received',
-    label: 'دریافت فیش پرداخت (قبل از تایید ادمین)',
-    vars: ['order_id', 'total'],
-    defaultValue: 'رسید شما دریافت شد و سفارش ثبت گردید ⏳ پس از تایید توسط ادمین به شما اطلاع‌رسانی می‌شود.',
+    key:'receipt_received',
+    label:'دریافت فیش پرداخت (قبل از تایید ادمین)',
+    vars: ['order_id','total'],
+    defaultValue:'رسید شما دریافت شد و سفارش ثبت گردید ⏳ پس از تایید توسط ادمین به شما اطلاع‌رسانی می‌شود.',
   },
   {
-    key: 'ticket_received',
-    label: 'ثبت تیکت پشتیبانی',
+    key:'ticket_received',
+    label:'ثبت تیکت پشتیبانی',
     vars: ['ticket_id'],
-    defaultValue: '✅ پیام شما ثبت شد (تیکت #{ticket_id}). به‌زودی پاسخ داده می‌شود.',
+    defaultValue:'✅ پیام شما ثبت شد (تیکت #{ticket_id}). به‌زودی پاسخ داده می‌شود.',
   },
 ];
 
@@ -90,8 +90,8 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
   return (
     <GlassCard className="border-t-4 border-t-teal-500">
       <div className="flex items-center gap-2 mb-4">
-        <MessageSquare className="text-teal-400" />
-        <h3 className="font-bold text-lg dark:text-white text-slate-800">پیام‌های خودکار</h3>
+        <MessageSquare className="text-teal-400"/>
+        <h3 className="font-bold text-lg text-slate-800">پیام‌های خودکار</h3>
       </div>
 
       <div className="text-sm text-slate-400 mb-6 leading-relaxed bg-white/5 p-3 rounded-lg border border-white/5">
@@ -121,9 +121,9 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
               )}
             </div>
             <textarea
-              value={customTexts[field.key] ?? ''}
+              value={customTexts[field.key] ??''}
               onChange={(e) => updateField(field.key, e.target.value)}
-              placeholder={'پیش‌فرض (فقط نمونه، ذخیره نشده): ' + field.defaultValue}
+              placeholder={'پیش‌فرض (فقط نمونه، ذخیره نشده):'+ field.defaultValue}
               rows={3}
               dir="rtl"
               className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-teal-500 transition-colors resize-y placeholder:text-slate-600 placeholder:italic"
@@ -135,7 +135,7 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
                     key={v}
                     className="text-[10px] font-mono bg-teal-500/10 text-teal-300 border border-teal-500/20 rounded-full px-2 py-0.5"
                   >
-                    {'{' + v + '}'}
+                    {'{'+ v +'}'}
                   </span>
                 ))}
               </div>

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Plus, Trash2, Edit3, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Loader2, Save, User, Tag, Phone, Zap, Users } from 'lucide-react';
-import { BookableService, WorkingHours, Booking, Provider } from '../types';
-import { syncNow, getStoredCredential } from '../services/cloudSync';
-import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
+import React, { useState, useEffect } from'react';
+import { Calendar, Clock, Plus, Trash2, Edit3, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Loader2, Save, User, Tag, Phone, Zap, Users } from'lucide-react';
+import { BookableService, WorkingHours, Booking, Provider } from'../types';
+import { syncNow, getStoredCredential } from'../services/cloudSync';
+import { PersianDatePicker } from'../components/broadcast/PersianDatePicker';
 
 export const BookingPage: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'bookings' | 'services' | 'providers' | 'hours'>('bookings');
+  const [activeSubTab, setActiveSubTab] = useState<'bookings'|'services'|'providers'|'hours'>('bookings');
 
   // License code
   const [hasCredential, setHasCredential] = useState(false);
@@ -13,7 +13,7 @@ export const BookingPage: React.FC = () => {
   // 1. Services state
   const [services, setServices] = useState<BookableService[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem('booking_services') || '[]');
+      return JSON.parse(localStorage.getItem('booking_services') ||'[]');
     } catch {
       return [];
     }
@@ -30,7 +30,7 @@ export const BookingPage: React.FC = () => {
   // 1.5. Providers state
   const [providers, setProviders] = useState<Provider[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem('booking_providers') || '[]');
+      return JSON.parse(localStorage.getItem('booking_providers') ||'[]');
     } catch {
       return [];
     }
@@ -53,23 +53,23 @@ export const BookingPage: React.FC = () => {
   const [newExcEnd, setNewExcEnd] = useState<string>('18:00');
 
   const [providerHours, setProviderHours] = useState<WorkingHours>({
-    sat: { start: '09:00', end: '18:00' },
-    sun: { start: '09:00', end: '18:00' },
-    mon: { start: '09:00', end: '18:00' },
-    tue: { start: '09:00', end: '18:00' },
-    wed: { start: '09:00', end: '18:00' },
-    thu: { start: '09:00', end: '18:00' },
+    sat: { start:'09:00', end:'18:00'},
+    sun: { start:'09:00', end:'18:00'},
+    mon: { start:'09:00', end:'18:00'},
+    tue: { start:'09:00', end:'18:00'},
+    wed: { start:'09:00', end:'18:00'},
+    thu: { start:'09:00', end:'18:00'},
     fri: null,
   });
 
   // 2. Working hours state
   const defaultHours: WorkingHours = {
-    sat: { start: '09:00', end: '18:00' },
-    sun: { start: '09:00', end: '18:00' },
-    mon: { start: '09:00', end: '18:00' },
-    tue: { start: '09:00', end: '18:00' },
-    wed: { start: '09:00', end: '18:00' },
-    thu: { start: '09:00', end: '14:00' },
+    sat: { start:'09:00', end:'18:00'},
+    sun: { start:'09:00', end:'18:00'},
+    mon: { start:'09:00', end:'18:00'},
+    tue: { start:'09:00', end:'18:00'},
+    wed: { start:'09:00', end:'18:00'},
+    thu: { start:'09:00', end:'14:00'},
     fri: null,
   };
 
@@ -90,16 +90,16 @@ export const BookingPage: React.FC = () => {
           return String(parsed.maxPerDay);
         }
       }
-      return localStorage.getItem('booking_max_per_day') || '';
+      return localStorage.getItem('booking_max_per_day') ||'';
     } catch {
-      return '';
+      return'';
     }
   });
   const [hoursSavedSuccess, setHoursSavedSuccess] = useState(false);
 
   // 3. Bookings state
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all'|'pending'|'confirmed'|'cancelled'>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -112,15 +112,15 @@ export const BookingPage: React.FC = () => {
 
   const handleAddBookingButtonToRoot = () => {
     try {
-      const menus = JSON.parse(localStorage.getItem('kb_menus') || '{}');
-      const rootKey = menus['root'] ? 'root' : (menus['main'] ? 'main' : Object.keys(menus)[0]);
+      const menus = JSON.parse(localStorage.getItem('kb_menus') ||'{}');
+      const rootKey = menus['root'] ?'root': (menus['main'] ?'main': Object.keys(menus)[0]);
       if (rootKey && menus[rootKey]) {
         const alreadyExists = menus[rootKey].rows?.some((r: any) =>
-          r.buttons?.some((b: any) => b.type === 'callback' && b.value === 'booking')
+          r.buttons?.some((b: any) => b.type ==='callback'&& b.value ==='booking')
         );
         if (!alreadyExists) {
-          const newButton = { id: 'btn_' + Date.now(), text: '📅 رزرو نوبت', type: 'callback', value: 'booking' };
-          menus[rootKey].rows = [...(menus[rootKey].rows || []), { id: 'row_' + Date.now(), buttons: [newButton] }];
+          const newButton = { id:'btn_'+ Date.now(), text:'📅 رزرو نوبت', type:'callback', value:'booking'};
+          menus[rootKey].rows = [...(menus[rootKey].rows || []), { id:'row_'+ Date.now(), buttons: [newButton] }];
           localStorage.setItem('kb_menus', JSON.stringify(menus));
           syncNow();
           alert('✅ دکمه‌ی «رزرو نوبت» به منوی اصلی اضافه شد. الان توی ربات /start بزن تا ببینیش.');
@@ -137,14 +137,14 @@ export const BookingPage: React.FC = () => {
   };
 
   // Fetch bookings from cloud D1 API
-  const fetchBookingsApi = async (statusVal: 'all' | 'pending' | 'confirmed' | 'cancelled', beforeCursor?: number | null) => {
+  const fetchBookingsApi = async (statusVal:'all'|'pending'|'confirmed'|'cancelled', beforeCursor?: number | null) => {
     const credential = getStoredCredential();
-    if (!credential) return { ok: false, reason: 'missing_fields' };
+    if (!credential) return { ok: false, reason:'missing_fields'};
     const payload: any = {
       ...credential,
       limit: 30
     };
-    if (statusVal !== 'all') {
+    if (statusVal !=='all') {
       payload.status = statusVal;
     }
     if (beforeCursor) {
@@ -152,8 +152,8 @@ export const BookingPage: React.FC = () => {
     }
 
     const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/bookings/list', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
     return await res.json();
@@ -168,7 +168,7 @@ export const BookingPage: React.FC = () => {
         setHasMore(!!result.hasMore);
         setNextBefore(result.nextBefore ?? null);
       } else {
-        alert('خطا در دریافت لیست نوبت‌ها: ' + (result.reason || 'نامشخص'));
+        alert('خطا در دریافت لیست نوبت‌ها:'+ (result.reason ||'نامشخص'));
       }
     } catch (e) {
       console.error(e);
@@ -188,7 +188,7 @@ export const BookingPage: React.FC = () => {
         setHasMore(!!result.hasMore);
         setNextBefore(result.nextBefore ?? null);
       } else {
-        alert('خطا در دریافت ادامه نوبت‌ها: ' + (result.reason || 'نامشخص'));
+        alert('خطا در دریافت ادامه نوبت‌ها:'+ (result.reason ||'نامشخص'));
       }
     } catch (e) {
       console.error(e);
@@ -208,10 +208,10 @@ export const BookingPage: React.FC = () => {
       setEditingService(service);
       setServiceName(service.name);
       setServiceDuration(service.durationMinutes);
-      setServicePrice(service.price ? String(service.price) : '');
+      setServicePrice(service.price ? String(service.price) :'');
       setServiceActive(service.active);
       setServiceProviderIds(service.providerIds || []);
-      setServiceDescription(service.description || '');
+      setServiceDescription(service.description ||'');
     } else {
       setEditingService(null);
       setServiceName('');
@@ -244,7 +244,7 @@ export const BookingPage: React.FC = () => {
       } : s);
     } else {
       const newSvc: BookableService = {
-        id: 'svc_' + Math.random().toString(36).substr(2, 9),
+        id:'svc_'+ Math.random().toString(36).substr(2, 9),
         name: serviceName.trim(),
         durationMinutes: Number(serviceDuration) || 30,
         price: servicePrice ? Number(servicePrice) : undefined,
@@ -283,8 +283,8 @@ export const BookingPage: React.FC = () => {
       setProviderName(provider.name);
       setProviderActive(provider.active);
       setProviderHours(provider.workingHours || defaultHours);
-      setProviderDescription(provider.description || '');
-      setProviderMaxBookingsPerDay(provider.maxBookingsPerDay !== undefined && provider.maxBookingsPerDay !== null ? String(provider.maxBookingsPerDay) : '');
+      setProviderDescription(provider.description ||'');
+      setProviderMaxBookingsPerDay(provider.maxBookingsPerDay !== undefined && provider.maxBookingsPerDay !== null ? String(provider.maxBookingsPerDay) :'');
       setProviderExceptions(provider.exceptions || []);
     } else {
       setEditingProvider(null);
@@ -314,7 +314,7 @@ export const BookingPage: React.FC = () => {
     } = {
       date: newExcDate,
       closed: newExcClosed,
-      hours: !newExcClosed ? { start: newExcStart || '09:00', end: newExcEnd || '18:00' } : undefined
+      hours: !newExcClosed ? { start: newExcStart ||'09:00', end: newExcEnd ||'18:00'} : undefined
     };
 
     const updated = [...providerExceptions.filter(e => e.date !== newExcDate), excObj];
@@ -334,7 +334,7 @@ export const BookingPage: React.FC = () => {
     if (!providerName.trim()) return;
 
     const pDesc = providerDescription.trim() || undefined;
-    const maxBookings = providerMaxBookingsPerDay.trim() !== '' ? Number(providerMaxBookingsPerDay) : undefined;
+    const maxBookings = providerMaxBookingsPerDay.trim() !==''? Number(providerMaxBookingsPerDay) : undefined;
     const excs = providerExceptions.length > 0 ? providerExceptions : undefined;
 
     let updated: Provider[];
@@ -350,7 +350,7 @@ export const BookingPage: React.FC = () => {
       } : p);
     } else {
       const newProv: Provider = {
-        id: 'prov_' + Math.random().toString(36).substr(2, 9),
+        id:'prov_'+ Math.random().toString(36).substr(2, 9),
         name: providerName.trim(),
         active: providerActive,
         workingHours: providerHours,
@@ -387,14 +387,14 @@ export const BookingPage: React.FC = () => {
       const current = prev[day];
       return {
         ...prev,
-        [day]: current ? null : { start: '09:00', end: '18:00' }
+        [day]: current ? null : { start:'09:00', end:'18:00'}
       };
     });
   };
 
-  const handleProviderDayTimeChange = (day: keyof WorkingHours, field: 'start' | 'end', value: string) => {
+  const handleProviderDayTimeChange = (day: keyof WorkingHours, field:'start'|'end', value: string) => {
     setProviderHours(prev => {
-      const current = prev[day] || { start: '09:00', end: '18:00' };
+      const current = prev[day] || { start:'09:00', end:'18:00'};
       return {
         ...prev,
         [day]: { ...current, [field]: value }
@@ -404,13 +404,13 @@ export const BookingPage: React.FC = () => {
 
   // Working Hours Handlers
   const daysList: { key: keyof WorkingHours; label: string }[] = [
-    { key: 'sat', label: 'شنبه' },
-    { key: 'sun', label: 'یکشنبه' },
-    { key: 'mon', label: 'دوشنبه' },
-    { key: 'tue', label: 'سه‌شنبه' },
-    { key: 'wed', label: 'چهارشنبه' },
-    { key: 'thu', label: 'پنج‌شنبه' },
-    { key: 'fri', label: 'جمعه' },
+    { key:'sat', label:'شنبه'},
+    { key:'sun', label:'یکشنبه'},
+    { key:'mon', label:'دوشنبه'},
+    { key:'tue', label:'سه‌شنبه'},
+    { key:'wed', label:'چهارشنبه'},
+    { key:'thu', label:'پنج‌شنبه'},
+    { key:'fri', label:'جمعه'},
   ];
 
   const handleDayToggle = (day: keyof WorkingHours) => {
@@ -418,14 +418,14 @@ export const BookingPage: React.FC = () => {
       const current = prev[day];
       return {
         ...prev,
-        [day]: current ? null : { start: '09:00', end: '18:00' }
+        [day]: current ? null : { start:'09:00', end:'18:00'}
       };
     });
   };
 
-  const handleDayTimeChange = (day: keyof WorkingHours, field: 'start' | 'end', value: string) => {
+  const handleDayTimeChange = (day: keyof WorkingHours, field:'start'|'end', value: string) => {
     setWorkingHours(prev => {
-      const current = prev[day] || { start: '09:00', end: '18:00' };
+      const current = prev[day] || { start:'09:00', end:'18:00'};
       return {
         ...prev,
         [day]: { ...current, [field]: value }
@@ -434,7 +434,7 @@ export const BookingPage: React.FC = () => {
   };
 
   const handleSaveWorkingHours = () => {
-    const maxVal = hoursMaxPerDay.trim() !== '' ? Number(hoursMaxPerDay) : undefined;
+    const maxVal = hoursMaxPerDay.trim() !==''? Number(hoursMaxPerDay) : undefined;
     const updatedWorkingHours: WorkingHours = {
       ...workingHours,
       maxPerDay: maxVal
@@ -458,15 +458,15 @@ export const BookingPage: React.FC = () => {
     setActionLoadingId(bookingId);
     try {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/booking/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method:'POST',
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ ...credential, bookingId })
       });
       const data = await res.json();
       if (data.ok !== false) {
         await refreshBookings();
       } else {
-        alert(data.message || 'خطا در تایید نوبت');
+        alert(data.message ||'خطا در تایید نوبت');
       }
     } catch (e) {
       console.error(e);
@@ -483,15 +483,15 @@ export const BookingPage: React.FC = () => {
     setActionLoadingId(bookingId);
     try {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/booking/reject', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method:'POST',
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ ...credential, bookingId })
       });
       const data = await res.json();
       if (data.ok !== false) {
         await refreshBookings();
       } else {
-        alert(data.message || 'خطا در رد نوبت');
+        alert(data.message ||'خطا در رد نوبت');
       }
     } catch (e) {
       console.error(e);
@@ -503,7 +503,7 @@ export const BookingPage: React.FC = () => {
 
   const getServiceName = (serviceId: string) => {
     const found = services.find(s => s.id === serviceId);
-    return found ? found.name : 'خدمت عمومی';
+    return found ? found.name :'خدمت عمومی';
   };
 
   const getProviderName = (providerId?: string | null) => {
@@ -514,13 +514,13 @@ export const BookingPage: React.FC = () => {
 
   const formatBookingDate = (dateStr: string) => {
     try {
-      const d = new Date(dateStr + 'T00:00:00');
+      const d = new Date(dateStr +'T00:00:00');
       return new Intl.DateTimeFormat('fa-IR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'Asia/Tehran'
+        weekday:'long',
+        day:'numeric',
+        month:'long',
+        year:'numeric',
+        timeZone:'Asia/Tehran'
       }).format(d);
     } catch {
       return dateStr;
@@ -530,25 +530,25 @@ export const BookingPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 dark:bg-[#1e293b]/60 bg-slate-50 backdrop-blur-xl border dark:border-white/10 border-slate-200 p-6 rounded-2xl shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50 backdrop-blur-xl border border-slate-200 p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center dark:text-white text-slate-800 shadow-lg shadow-cyan-500/20">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-800 shadow-lg shadow-cyan-500/20">
             <Calendar size={24} />
           </div>
           <div>
-            <h1 className="text-xl font-bold dark:text-white text-slate-800">مدیریت نوبت‌دهی و رزرو</h1>
-            <p className="text-xs dark:text-slate-400 text-slate-500 mt-1">مدیریت خدمات قابل رزرو، کارمندان، ساعات کاری و بررسی نوبت‌های کاربران</p>
+            <h1 className="text-xl font-bold text-slate-800">مدیریت نوبت‌دهی و رزرو</h1>
+            <p className="text-xs text-slate-500 mt-1">مدیریت خدمات قابل رزرو، کارمندان، ساعات کاری و بررسی نوبت‌های کاربران</p>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 dark:bg-black/30 bg-slate-100 p-1.5 rounded-xl border dark:border-white/5 border-slate-100">
+        <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-100">
           <button
             onClick={() => setActiveSubTab('bookings')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-              activeSubTab === 'bookings'
-                ? 'bg-blue-600 dark:text-white text-slate-800 shadow-lg shadow-blue-600/30'
-                : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 dark:hover:bg-white/5 hover:bg-slate-100'
+              activeSubTab ==='bookings'
+                ?'bg-blue-600 text-slate-800 shadow-lg shadow-blue-600/30'
+                :'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Clock size={16} />
@@ -557,9 +557,9 @@ export const BookingPage: React.FC = () => {
           <button
             onClick={() => setActiveSubTab('services')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-              activeSubTab === 'services'
-                ? 'bg-blue-600 dark:text-white text-slate-800 shadow-lg shadow-blue-600/30'
-                : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 dark:hover:bg-white/5 hover:bg-slate-100'
+              activeSubTab ==='services'
+                ?'bg-blue-600 text-slate-800 shadow-lg shadow-blue-600/30'
+                :'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Tag size={16} />
@@ -568,9 +568,9 @@ export const BookingPage: React.FC = () => {
           <button
             onClick={() => setActiveSubTab('providers')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-              activeSubTab === 'providers'
-                ? 'bg-blue-600 dark:text-white text-slate-800 shadow-lg shadow-blue-600/30'
-                : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 dark:hover:bg-white/5 hover:bg-slate-100'
+              activeSubTab ==='providers'
+                ?'bg-blue-600 text-slate-800 shadow-lg shadow-blue-600/30'
+                :'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Users size={16} />
@@ -579,9 +579,9 @@ export const BookingPage: React.FC = () => {
           <button
             onClick={() => setActiveSubTab('hours')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-              activeSubTab === 'hours'
-                ? 'bg-blue-600 dark:text-white text-slate-800 shadow-lg shadow-blue-600/30'
-                : 'dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 dark:hover:bg-white/5 hover:bg-slate-100'
+              activeSubTab ==='hours'
+                ?'bg-blue-600 text-slate-800 shadow-lg shadow-blue-600/30'
+                :'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Calendar size={16} />
@@ -593,14 +593,14 @@ export const BookingPage: React.FC = () => {
       {/* Bot Connection Card (🔌 اتصال به ربات) */}
       <div className="bg-gradient-to-r from-blue-900/40 via-cyan-900/30 to-slate-900/60 border border-cyan-500/30 p-5 rounded-2xl shadow-xl backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center dark:text-cyan-400 text-cyan-600 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-600 shrink-0">
             <Zap size={20} />
           </div>
           <div>
-            <h2 className="text-sm font-bold dark:text-white text-slate-800 flex items-center gap-2">
+            <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
               <span>🔌 اتصال به ربات</span>
             </h2>
-            <p className="text-xs dark:text-slate-300 text-slate-600 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               با افزودن دکمه‌ی «رزرو نوبت» به منوی اصلی ربات، کاربران می‌توانند مستقیم نوبت رزرو کنند.
             </p>
           </div>
@@ -608,7 +608,7 @@ export const BookingPage: React.FC = () => {
 
         <button
           onClick={handleAddBookingButtonToRoot}
-          className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-95 dark:text-white text-slate-800 font-bold text-xs rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 shrink-0"
+          className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-95 text-slate-800 font-bold text-xs rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 shrink-0"
         >
           <Plus size={16} />
           <span>افزودن دکمه‌ی رزرو به منوی اصلی</span>
@@ -616,24 +616,24 @@ export const BookingPage: React.FC = () => {
       </div>
 
       {/* --- TAB 1: BOOKINGS LIST --- */}
-      {activeSubTab === 'bookings' && (
+      {activeSubTab ==='bookings'&& (
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4 dark:bg-[#1e293b]/40 bg-slate-50 border dark:border-white/10 border-slate-200 p-4 rounded-xl">
+          <div className="flex items-center justify-between gap-4 bg-slate-50 border border-slate-200 p-4 rounded-xl">
             {/* Status Filters */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
               {[
-                { id: 'all', label: 'همه نوبت‌ها' },
-                { id: 'pending', label: 'در انتظار تایید' },
-                { id: 'confirmed', label: 'تاییدشده' },
-                { id: 'cancelled', label: 'ردشده / لغوشده' },
+                { id:'all', label:'همه نوبت‌ها'},
+                { id:'pending', label:'در انتظار تایید'},
+                { id:'confirmed', label:'تاییدشده'},
+                { id:'cancelled', label:'ردشده / لغوشده'},
               ].map(f => (
                 <button
                   key={f.id}
                   onClick={() => setStatusFilter(f.id as any)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
                     statusFilter === f.id
-                      ? 'bg-blue-600/20 dark:text-blue-400 text-blue-600 border border-blue-500/30'
-                      : 'dark:bg-white/5 bg-slate-100 dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 border dark:border-white/5 border-slate-100'
+                      ?'bg-blue-600/20 text-blue-600 border border-blue-500/30'
+                      :'bg-slate-100 text-slate-500 hover:text-slate-900 border border-slate-100'
                   }`}
                 >
                   {f.label}
@@ -644,42 +644,42 @@ export const BookingPage: React.FC = () => {
             <button
               onClick={refreshBookings}
               disabled={isLoading}
-              className="px-3 py-2 dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 dark:text-slate-300 text-slate-600 rounded-xl text-xs font-medium border dark:border-white/10 border-slate-200 flex items-center gap-1.5 transition-all shrink-0 disabled:opacity-50"
+              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-medium border border-slate-200 flex items-center gap-1.5 transition-all shrink-0 disabled:opacity-50"
             >
-              <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+              <RefreshCw size={14} className={isLoading ?'animate-spin':''} />
               <span>بروزرسانی</span>
             </button>
           </div>
 
           {isLoading && bookings.length === 0 ? (
-            <div className="p-12 text-center dark:bg-[#1e293b]/30 bg-slate-50 border dark:border-white/5 border-slate-100 rounded-2xl space-y-3">
-              <Loader2 size={32} className="text-blue-500 animate-spin mx-auto" />
-              <p className="text-xs dark:text-slate-400 text-slate-500">در حال دریافت لیست نوبت‌ها...</p>
+            <div className="p-12 text-center bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+              <Loader2 size={32} className="text-blue-500 animate-spin mx-auto"/>
+              <p className="text-xs text-slate-500">در حال دریافت لیست نوبت‌ها...</p>
             </div>
           ) : bookings.length === 0 ? (
-            <div className="p-12 text-center dark:bg-[#1e293b]/30 bg-slate-50 border dark:border-white/5 border-slate-100 rounded-2xl space-y-3">
-              <Calendar size={40} className="text-slate-600 mx-auto" />
-              <p className="text-sm font-medium dark:text-slate-400 text-slate-500">نوبتی در این بخش ثبت نشده است.</p>
+            <div className="p-12 text-center bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+              <Calendar size={40} className="text-slate-600 mx-auto"/>
+              <p className="text-sm font-medium text-slate-500">نوبتی در این بخش ثبت نشده است.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+              <div className="grid gap-4"style={{ gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))'}}>
                 {bookings.map(b => (
                   <div
                     key={b.id}
-                    className="dark:bg-[#1e293b]/60 bg-slate-50 border dark:border-white/10 border-slate-200 rounded-2xl p-4 space-y-3 shadow-lg backdrop-blur-sm relative dark:hover:border-white/20 hover:border-slate-300 transition-all"
+                    className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 shadow-lg backdrop-blur-sm relative hover:border-slate-300 transition-all"
                   >
-                    <div className="flex items-center justify-between border-b dark:border-white/5 border-slate-100 pb-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div>
                         <span className="text-[10px] text-slate-500 font-mono">شناسه: {b.id}</span>
-                        <h3 className="text-sm font-bold dark:text-white text-slate-800 flex items-center gap-1.5 mt-0.5">
-                          <User size={14} className="dark:text-blue-400 text-blue-600" />
-                          <span>{b.userFirstName || 'کاربر تلگرام'}</span>
-                          <span className="text-[10px] dark:text-slate-400 text-slate-500 font-mono">({b.userId})</span>
+                        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5 mt-0.5">
+                          <User size={14} className="text-blue-600"/>
+                          <span>{b.userFirstName ||'کاربر تلگرام'}</span>
+                          <span className="text-[10px] text-slate-500 font-mono">({b.userId})</span>
                         </h3>
                         {b.contactInfo && (
-                          <div className="flex items-center gap-1.5 text-[11px] dark:text-amber-300 text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 mt-1">
-                            <Phone size={12} className="dark:text-amber-400 text-amber-600 shrink-0" />
+                          <div className="flex items-center gap-1.5 text-[11px] text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 mt-1">
+                            <Phone size={12} className="text-amber-600 shrink-0"/>
                             <span>تماس: <strong>{b.contactInfo}</strong></span>
                           </div>
                         )}
@@ -687,53 +687,53 @@ export const BookingPage: React.FC = () => {
 
                       <span
                         className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                          b.status === 'confirmed'
-                            ? 'bg-emerald-500/10 dark:text-emerald-400 text-emerald-600 border border-emerald-500/20'
-                            : b.status === 'cancelled'
-                            ? 'bg-red-500/10 dark:text-red-400 text-red-600 border border-red-500/20'
-                            : 'bg-amber-500/10 dark:text-amber-400 text-amber-600 border border-amber-500/20'
+                          b.status ==='confirmed'
+                            ?'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                            : b.status ==='cancelled'
+                            ?'bg-red-500/10 text-red-600 border border-red-500/20'
+                            :'bg-amber-500/10 text-amber-600 border border-amber-500/20'
                         }`}
                       >
-                        {b.status === 'confirmed'
-                          ? 'تاییدشده'
-                          : b.status === 'cancelled'
-                          ? 'ردشده'
-                          : 'در انتظار تایید'}
+                        {b.status ==='confirmed'
+                          ?'تاییدشده'
+                          : b.status ==='cancelled'
+                          ?'ردشده'
+                          :'در انتظار تایید'}
                       </span>
                     </div>
 
-                    <div className="space-y-2 text-xs dark:text-slate-300 text-slate-600 dark:bg-black/20 bg-slate-100 p-2.5 rounded-xl border dark:border-white/5 border-slate-100">
+                    <div className="space-y-2 text-xs text-slate-600 bg-slate-100 p-2.5 rounded-xl border border-slate-100">
                       <div className="flex items-center justify-between">
-                        <span className="dark:text-slate-400 text-slate-500">عنوان خدمت:</span>
-                        <span className="font-bold dark:text-white text-slate-800">{getServiceName(b.serviceId)}</span>
+                        <span className="text-slate-500">عنوان خدمت:</span>
+                        <span className="font-bold text-slate-800">{getServiceName(b.serviceId)}</span>
                       </div>
                       {getProviderName(b.providerId) && (
                         <div className="flex items-center justify-between">
-                          <span className="dark:text-slate-400 text-slate-500">ارائه‌دهنده:</span>
-                          <span className="font-bold dark:text-cyan-300 text-cyan-600 flex items-center gap-1">
+                          <span className="text-slate-500">ارائه‌دهنده:</span>
+                          <span className="font-bold text-cyan-600 flex items-center gap-1">
                             <span>👤 با: {getProviderName(b.providerId)}</span>
                           </span>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="dark:text-slate-400 text-slate-500">تاریخ نوبت:</span>
-                        <span className="font-mono dark:text-cyan-400 text-cyan-600 font-bold">{formatBookingDate(b.date)}</span>
+                        <span className="text-slate-500">تاریخ نوبت:</span>
+                        <span className="font-mono text-cyan-600 font-bold">{formatBookingDate(b.date)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="dark:text-slate-400 text-slate-500">ساعت نوبت:</span>
-                        <span className="font-mono dark:text-amber-400 text-amber-600 font-bold">{b.time}</span>
+                        <span className="text-slate-500">ساعت نوبت:</span>
+                        <span className="font-mono text-amber-600 font-bold">{b.time}</span>
                       </div>
                     </div>
 
-                    {b.status === 'pending' && (
+                    {b.status ==='pending'&& (
                       <div className="flex items-center gap-2 pt-1">
                         <button
                           onClick={() => handleConfirmBooking(b.id)}
                           disabled={actionLoadingId === b.id}
-                          className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 dark:text-white text-slate-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
+                          className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-slate-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
                         >
                           {actionLoadingId === b.id ? (
-                            <Loader2 size={14} className="animate-spin" />
+                            <Loader2 size={14} className="animate-spin"/>
                           ) : (
                             <>
                               <CheckCircle2 size={14} />
@@ -744,10 +744,10 @@ export const BookingPage: React.FC = () => {
                         <button
                           onClick={() => handleRejectBooking(b.id)}
                           disabled={actionLoadingId === b.id}
-                          className="flex-1 py-2 px-3 bg-red-600/20 hover:bg-red-600 dark:text-red-400 text-red-600 dark:hover:text-white hover:text-slate-900 border border-red-500/30 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                          className="flex-1 py-2 px-3 bg-red-600/20 hover:bg-red-600 text-red-600 hover:text-slate-900 border border-red-500/30 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                         >
                           {actionLoadingId === b.id ? (
-                            <Loader2 size={14} className="animate-spin" />
+                            <Loader2 size={14} className="animate-spin"/>
                           ) : (
                             <>
                               <XCircle size={14} />
@@ -766,9 +766,9 @@ export const BookingPage: React.FC = () => {
                   <button
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
-                    className="bg-blue-600/10 hover:bg-blue-600/20 dark:text-blue-400 text-blue-600 border border-blue-500/20 px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                    className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 border border-blue-500/20 px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer shadow-sm"
                   >
-                    {isLoadingMore && <RefreshCw size={14} className="animate-spin" />}
+                    {isLoadingMore && <RefreshCw size={14} className="animate-spin"/>}
                     <span>نمایش نوبت‌های قدیمی‌تر</span>
                   </button>
                 </div>
@@ -779,16 +779,16 @@ export const BookingPage: React.FC = () => {
       )}
 
       {/* --- TAB 2: BOOKABLE SERVICES --- */}
-      {activeSubTab === 'services' && (
+      {activeSubTab ==='services'&& (
         <div className="space-y-4">
-          <div className="flex items-center justify-between dark:bg-[#1e293b]/40 bg-slate-50 border dark:border-white/10 border-slate-200 p-4 rounded-xl">
+          <div className="flex items-center justify-between bg-slate-50 border border-slate-200 p-4 rounded-xl">
             <div>
-              <h2 className="text-sm font-bold dark:text-white text-slate-800">لیست خدمات قابل رزرو</h2>
-              <p className="text-xs dark:text-slate-400 text-slate-500">خدماتی که کاربران در Mini App می‌توانند انتخاب کنند</p>
+              <h2 className="text-sm font-bold text-slate-800">لیست خدمات قابل رزرو</h2>
+              <p className="text-xs text-slate-500">خدماتی که کاربران در Mini App می‌توانند انتخاب کنند</p>
             </div>
             <button
               onClick={() => handleOpenServiceModal()}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 dark:text-white text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
             >
               <Plus size={16} />
               <span>افزودن خدمت جدید</span>
@@ -796,12 +796,12 @@ export const BookingPage: React.FC = () => {
           </div>
 
           {services.length === 0 ? (
-            <div className="p-12 text-center dark:bg-[#1e293b]/30 bg-slate-50 border dark:border-white/5 border-slate-100 rounded-2xl space-y-3">
-              <Tag size={40} className="text-slate-600 mx-auto" />
-              <p className="text-sm font-medium dark:text-slate-400 text-slate-500">هیچ خدمتی تعریف نشده است.</p>
+            <div className="p-12 text-center bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+              <Tag size={40} className="text-slate-600 mx-auto"/>
+              <p className="text-sm font-medium text-slate-500">هیچ خدمتی تعریف نشده است.</p>
               <button
                 onClick={() => handleOpenServiceModal()}
-                className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600 dark:text-blue-400 text-blue-600 dark:hover:text-white hover:text-slate-900 border border-blue-500/30 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-2"
+                className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600 text-blue-600 hover:text-slate-900 border border-blue-500/30 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-2"
               >
                 <Plus size={14} />
                 <span>تعریف اولین خدمت</span>
@@ -812,15 +812,15 @@ export const BookingPage: React.FC = () => {
               {services.map(s => (
                 <div
                   key={s.id}
-                  className={`dark:bg-[#1e293b]/60 bg-slate-50 border rounded-2xl p-5 space-y-3 transition-all backdrop-blur-sm relative ${
-                    s.active ? 'dark:border-white/10 border-slate-200 dark:hover:border-white/20 hover:border-slate-300' : 'border-red-500/20 opacity-70'
+                  className={`bg-slate-50 border rounded-2xl p-5 space-y-3 transition-all backdrop-blur-sm relative ${
+                    s.active ?'border-slate-200 hover:border-slate-300':'border-red-500/20 opacity-70'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2 border-b dark:border-white/5 border-slate-100 pb-3">
+                  <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-3">
                     <div>
-                      <h3 className="text-sm font-bold dark:text-white text-slate-800">{s.name}</h3>
-                      <span className="text-[11px] dark:text-slate-400 text-slate-500 flex items-center gap-1 mt-1">
-                        <Clock size={12} className="dark:text-blue-400 text-blue-600" />
+                      <h3 className="text-sm font-bold text-slate-800">{s.name}</h3>
+                      <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                        <Clock size={12} className="text-blue-600"/>
                         <span>مدت زمان: {s.durationMinutes} دقیقه</span>
                       </span>
                     </div>
@@ -829,32 +829,32 @@ export const BookingPage: React.FC = () => {
                       onClick={() => handleToggleServiceActive(s.id)}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
                         s.active
-                          ? 'bg-emerald-500/10 dark:text-emerald-400 text-emerald-600 border border-emerald-500/20'
-                          : 'bg-red-500/10 dark:text-red-400 text-red-600 border border-red-500/20'
+                          ?'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                          :'bg-red-500/10 text-red-600 border border-red-500/20'
                       }`}
                     >
-                      {s.active ? 'فعال' : 'غیرفعال'}
+                      {s.active ?'فعال':'غیرفعال'}
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs dark:text-slate-300 text-slate-600">
-                    <span className="dark:text-slate-400 text-slate-500">قیمت خدمت:</span>
-                    <span className="font-bold dark:text-amber-400 text-amber-600">
-                      {s.price ? `${s.price.toLocaleString('fa-IR')} تومان` : 'رایگان / توافقی'}
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span className="text-slate-500">قیمت خدمت:</span>
+                    <span className="font-bold text-amber-600">
+                      {s.price ?`${s.price.toLocaleString('fa-IR')} تومان`:'رایگان / توافقی'}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t dark:border-white/5 border-slate-100">
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                     <button
                       onClick={() => handleOpenServiceModal(s)}
-                      className="p-2 bg-blue-500/10 hover:bg-blue-500/20 dark:text-blue-400 text-blue-600 rounded-xl transition-colors border border-blue-500/20"
+                      className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 rounded-xl transition-colors border border-blue-500/20"
                       title="ویرایش"
                     >
                       <Edit3 size={14} />
                     </button>
                     <button
                       onClick={() => handleDeleteService(s.id)}
-                      className="p-2 bg-red-500/10 hover:bg-red-500/20 dark:text-red-400 text-red-600 rounded-xl transition-colors border border-red-500/20"
+                      className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-xl transition-colors border border-red-500/20"
                       title="حذف"
                     >
                       <Trash2 size={14} />
@@ -868,16 +868,16 @@ export const BookingPage: React.FC = () => {
       )}
 
       {/* --- TAB 3: PROVIDERS --- */}
-      {activeSubTab === 'providers' && (
+      {activeSubTab ==='providers'&& (
         <div className="space-y-4">
-          <div className="flex items-center justify-between dark:bg-[#1e293b]/40 bg-slate-50 border dark:border-white/10 border-slate-200 p-4 rounded-xl">
+          <div className="flex items-center justify-between bg-slate-50 border border-slate-200 p-4 rounded-xl">
             <div>
-              <h2 className="text-sm font-bold dark:text-white text-slate-800">لیست کارمندها / ارائه‌دهندگان</h2>
-              <p className="text-xs dark:text-slate-400 text-slate-500">مدیریت افراد ارائه‌دهنده خدمات و ساعات کاری اختصاصی هرکدام</p>
+              <h2 className="text-sm font-bold text-slate-800">لیست کارمندها / ارائه‌دهندگان</h2>
+              <p className="text-xs text-slate-500">مدیریت افراد ارائه‌دهنده خدمات و ساعات کاری اختصاصی هرکدام</p>
             </div>
             <button
               onClick={() => handleOpenProviderModal()}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 dark:text-white text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
             >
               <Plus size={16} />
               <span>افزودن کارمند جدید</span>
@@ -885,12 +885,12 @@ export const BookingPage: React.FC = () => {
           </div>
 
           {providers.length === 0 ? (
-            <div className="p-12 text-center dark:bg-[#1e293b]/30 bg-slate-50 border dark:border-white/5 border-slate-100 rounded-2xl space-y-3">
-              <Users size={40} className="text-slate-600 mx-auto" />
-              <p className="text-sm font-medium dark:text-slate-400 text-slate-500">هیچ کارمندی تعریف نشده است.</p>
+            <div className="p-12 text-center bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+              <Users size={40} className="text-slate-600 mx-auto"/>
+              <p className="text-sm font-medium text-slate-500">هیچ کارمندی تعریف نشده است.</p>
               <button
                 onClick={() => handleOpenProviderModal()}
-                className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600 dark:text-blue-400 text-blue-600 dark:hover:text-white hover:text-slate-900 border border-blue-500/30 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-2"
+                className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600 text-blue-600 hover:text-slate-900 border border-blue-500/30 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-2"
               >
                 <Plus size={14} />
                 <span>تعریف اولین کارمند</span>
@@ -901,14 +901,14 @@ export const BookingPage: React.FC = () => {
               {providers.map(p => (
                 <div
                   key={p.id}
-                  className={`dark:bg-[#1e293b]/60 bg-slate-50 border rounded-2xl p-5 space-y-3 transition-all backdrop-blur-sm relative ${
-                    p.active ? 'dark:border-white/10 border-slate-200 dark:hover:border-white/20 hover:border-slate-300' : 'border-red-500/20 opacity-70'
+                  className={`bg-slate-50 border rounded-2xl p-5 space-y-3 transition-all backdrop-blur-sm relative ${
+                    p.active ?'border-slate-200 hover:border-slate-300':'border-red-500/20 opacity-70'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2 border-b dark:border-white/5 border-slate-100 pb-3">
+                  <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-3">
                     <div>
-                      <h3 className="text-sm font-bold dark:text-white text-slate-800 flex items-center gap-2">
-                        <User size={16} className="dark:text-cyan-400 text-cyan-600" />
+                      <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <User size={16} className="text-cyan-600"/>
                         <span>{p.name}</span>
                       </h3>
                     </div>
@@ -917,46 +917,46 @@ export const BookingPage: React.FC = () => {
                       onClick={() => handleToggleProviderActive(p.id)}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
                         p.active
-                          ? 'bg-emerald-500/10 dark:text-emerald-400 text-emerald-600 border border-emerald-500/20'
-                          : 'bg-red-500/10 dark:text-red-400 text-red-600 border border-red-500/20'
+                          ?'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                          :'bg-red-500/10 text-red-600 border border-red-500/20'
                       }`}
                     >
-                      {p.active ? 'فعال' : 'غیرفعال'}
+                      {p.active ?'فعال':'غیرفعال'}
                     </button>
                   </div>
 
                   <div className="space-y-1.5">
-                    <div className="text-xs dark:text-slate-400 text-slate-500 flex items-center gap-1.5 dark:bg-black/20 bg-slate-100 p-2.5 rounded-xl border dark:border-white/5 border-slate-100">
-                      <Clock size={14} className="dark:text-blue-400 text-blue-600 shrink-0" />
+                    <div className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 p-2.5 rounded-xl border border-slate-100">
+                      <Clock size={14} className="text-blue-600 shrink-0"/>
                       <span>دارای تقویم و ساعات کاری اختصاصی</span>
                     </div>
 
                     {p.maxBookingsPerDay !== undefined && p.maxBookingsPerDay !== null && (
-                      <div className="text-[11px] dark:text-amber-300 text-amber-600 bg-amber-500/10 px-2.5 py-1.5 rounded-xl border border-amber-500/20 flex items-center justify-between">
+                      <div className="text-[11px] text-amber-600 bg-amber-500/10 px-2.5 py-1.5 rounded-xl border border-amber-500/20 flex items-center justify-between">
                         <span>سقف نوبت روزانه:</span>
                         <span className="font-bold font-mono">{p.maxBookingsPerDay} نوبت</span>
                       </div>
                     )}
 
                     {p.exceptions && p.exceptions.length > 0 && (
-                      <div className="text-[11px] dark:text-cyan-300 text-cyan-600 bg-cyan-500/10 px-2.5 py-1.5 rounded-xl border border-cyan-500/20 flex items-center justify-between">
+                      <div className="text-[11px] text-cyan-600 bg-cyan-500/10 px-2.5 py-1.5 rounded-xl border border-cyan-500/20 flex items-center justify-between">
                         <span>روزهای استثنا / مرخصی:</span>
                         <span className="font-bold font-mono">{p.exceptions.length} روز</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t dark:border-white/5 border-slate-100">
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                     <button
                       onClick={() => handleOpenProviderModal(p)}
-                      className="p-2 bg-blue-500/10 hover:bg-blue-500/20 dark:text-blue-400 text-blue-600 rounded-xl transition-colors border border-blue-500/20"
+                      className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 rounded-xl transition-colors border border-blue-500/20"
                       title="ویرایش"
                     >
                       <Edit3 size={14} />
                     </button>
                     <button
                       onClick={() => handleDeleteProvider(p.id)}
-                      className="p-2 bg-red-500/10 hover:bg-red-500/20 dark:text-red-400 text-red-600 rounded-xl transition-colors border border-red-500/20"
+                      className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-xl transition-colors border border-red-500/20"
                       title="حذف"
                     >
                       <Trash2 size={14} />
@@ -970,20 +970,20 @@ export const BookingPage: React.FC = () => {
       )}
 
       {/* --- TAB 4: WORKING HOURS --- */}
-      {activeSubTab === 'hours' && (
-        <div className="dark:bg-[#1e293b]/60 bg-slate-50 border dark:border-white/10 border-slate-200 rounded-2xl p-6 space-y-6 max-w-2xl mx-auto backdrop-blur-sm">
-          <div className="flex items-center justify-between border-b dark:border-white/10 border-slate-200 pb-4">
+      {activeSubTab ==='hours'&& (
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-6 max-w-2xl mx-auto backdrop-blur-sm">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
             <div>
-              <h2 className="text-base font-bold dark:text-white text-slate-800 flex items-center gap-2">
-                <Clock size={18} className="dark:text-cyan-400 text-cyan-600" />
+              <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                <Clock size={18} className="text-cyan-600"/>
                 <span>ساعات کاری هفتگی</span>
               </h2>
-              <p className="text-xs dark:text-slate-400 text-slate-500 mt-1">تعیین زمان‌های باز و بسته بودن مجموعه‌ جهت زمان‌بندی نوبت‌ها</p>
+              <p className="text-xs text-slate-500 mt-1">تعیین زمان‌های باز و بسته بودن مجموعه‌ جهت زمان‌بندی نوبت‌ها</p>
             </div>
 
             <button
               onClick={handleSaveWorkingHours}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 dark:text-white text-slate-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-600/20"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-600/20"
             >
               <Save size={16} />
               <span>ذخیره تنظیمات</span>
@@ -991,16 +991,16 @@ export const BookingPage: React.FC = () => {
           </div>
 
           {hoursSavedSuccess && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl dark:text-emerald-300 text-emerald-600 text-xs text-center font-medium animate-fade-in">
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-600 text-xs text-center font-medium animate-fade-in">
               ✅ ساعات کاری با موفقیت ذخیره و همگام‌سازی شد.
             </div>
           )}
 
-          <div className="dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl p-4 space-y-2">
-            <label className="block text-xs font-bold dark:text-white text-slate-800">
+          <div className="bg-slate-100 border border-slate-200 rounded-xl p-4 space-y-2">
+            <label className="block text-xs font-bold text-slate-800">
               حداکثر تعداد نوبت در روز برای این تقویم (اختیاری)
             </label>
-            <p className="text-[11px] dark:text-slate-400 text-slate-500">
+            <p className="text-[11px] text-slate-500">
               سقف تعداد نوبت‌های قابل رزرو در یک روز برای خدمات عمومی (بدون کارمند). خالی بذارید یعنی محدودیتی نیست.
             </p>
             <input
@@ -1009,7 +1009,7 @@ export const BookingPage: React.FC = () => {
               onChange={(e) => setHoursMaxPerDay(e.target.value)}
               placeholder="مثلاً: 10"
               min="1"
-              className="w-full md:w-48 dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 font-mono"
+              className="w-full md:w-48 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 font-mono"
             />
           </div>
 
@@ -1022,7 +1022,7 @@ export const BookingPage: React.FC = () => {
                 <div
                   key={key}
                   className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
-                    isOpen ? 'dark:bg-black/20 bg-slate-100 dark:border-white/10 border-slate-200' : 'bg-black/40 dark:border-white/5 border-slate-100 opacity-60'
+                    isOpen ?'bg-slate-100 border-slate-200':'bg-black/40 border-slate-100 opacity-60'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -1033,33 +1033,33 @@ export const BookingPage: React.FC = () => {
                         onChange={() => handleDayToggle(key)}
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 dark:bg-slate-700 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
 
-                    <span className="text-xs font-bold dark:text-white text-slate-800 min-w-[70px]">{label}</span>
+                    <span className="text-xs font-bold text-slate-800 min-w-[70px]">{label}</span>
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                        isOpen ? 'bg-emerald-500/10 dark:text-emerald-400 text-emerald-600' : 'bg-red-500/10 dark:text-red-400 text-red-600'
+                        isOpen ?'bg-emerald-500/10 text-emerald-600':'bg-red-500/10 text-red-600'
                       }`}
                     >
-                      {isOpen ? 'باز' : 'تعطیل'}
+                      {isOpen ?'باز':'تعطیل'}
                     </span>
                   </div>
 
                   {isOpen && dayData && (
-                    <div className="flex items-center gap-2 text-xs" dir="ltr">
+                    <div className="flex items-center gap-2 text-xs"dir="ltr">
                       <input
                         type="time"
                         value={dayData.start}
-                        onChange={(e) => handleDayTimeChange(key, 'start', e.target.value)}
-                        className="dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
+                        onChange={(e) => handleDayTimeChange(key,'start', e.target.value)}
+                        className="bg-white border border-slate-200 text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
                       />
                       <span className="text-slate-500">تا</span>
                       <input
                         type="time"
                         value={dayData.end}
-                        onChange={(e) => handleDayTimeChange(key, 'end', e.target.value)}
-                        className="dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
+                        onChange={(e) => handleDayTimeChange(key,'end', e.target.value)}
+                        className="bg-white border border-slate-200 text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
                       />
                     </div>
                   )}
@@ -1073,14 +1073,14 @@ export const BookingPage: React.FC = () => {
       {/* --- SERVICE CREATE / EDIT MODAL --- */}
       {isServiceModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="dark:bg-[#1e293b] bg-white border dark:border-white/10 border-slate-200 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-            <div className="p-5 border-b dark:border-white/10 border-slate-200 flex items-center justify-between">
-              <h3 className="text-sm font-bold dark:text-white text-slate-800">
-                {editingService ? 'ویرایش خدمت' : 'افزودن خدمت جدید'}
+          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-800">
+                {editingService ?'ویرایش خدمت':'افزودن خدمت جدید'}
               </h3>
               <button
                 onClick={() => setIsServiceModalOpen(false)}
-                className="dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 text-xs font-bold p-1"
+                className="text-slate-500 hover:text-slate-900 text-xs font-bold p-1"
               >
                 ✕
               </button>
@@ -1088,70 +1088,70 @@ export const BookingPage: React.FC = () => {
 
             <form onSubmit={handleSaveService} className="p-5 space-y-4">
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1.5">عنوان خدمت *</label>
+                <label className="block text-xs text-slate-600 font-medium mb-1.5">عنوان خدمت *</label>
                 <input
                   type="text"
                   value={serviceName}
                   onChange={(e) => setServiceName(e.target.value)}
                   placeholder="مثلاً: مشاوره تلفنی / اصلاح سر"
-                  className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1.5">مدت زمان (دقیقه) *</label>
+                <label className="block text-xs text-slate-600 font-medium mb-1.5">مدت زمان (دقیقه) *</label>
                 <input
                   type="number"
                   value={serviceDuration}
                   onChange={(e) => setServiceDuration(Number(e.target.value))}
                   placeholder="30"
                   min="5"
-                  className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 font-mono"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1.5">قیمت (تومان - اختیاری)</label>
+                <label className="block text-xs text-slate-600 font-medium mb-1.5">قیمت (تومان - اختیاری)</label>
                 <input
                   type="number"
                   value={servicePrice}
                   onChange={(e) => setServicePrice(e.target.value)}
                   placeholder="مثلاً: 250000"
-                  className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1.5">توضیحات (اختیاری)</label>
+                <label className="block text-xs text-slate-600 font-medium mb-1.5">توضیحات (اختیاری)</label>
                 <textarea
                   value={serviceDescription}
                   onChange={(e) => setServiceDescription(e.target.value)}
                   placeholder="این توضیح موقع انتخاب خدمت تو ربات به خریدار نشون داده میشه"
                   rows={3}
-                  className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 custom-scrollbar resize-none"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 custom-scrollbar resize-none"
                 />
               </div>
 
               {/* Provider selection for service */}
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1.5">
+                <label className="block text-xs text-slate-600 font-medium mb-1.5">
                   کارمندان ارائه‌دهنده خدمت (اختیاری)
                 </label>
-                <p className="text-[11px] dark:text-slate-400 text-slate-500 mb-2">
+                <p className="text-[11px] text-slate-500 mb-2">
                   در صورت عدم انتخاب، از تقویم و ساعات کاری عمومی مجموعه‌ استفاده می‌شود.
                 </p>
                 {providers.filter(p => p.active).length === 0 ? (
-                  <p className="text-xs text-slate-500 italic dark:bg-black/20 bg-slate-100 p-2.5 rounded-xl border dark:border-white/5 border-slate-100">
+                  <p className="text-xs text-slate-500 italic bg-slate-100 p-2.5 rounded-xl border border-slate-100">
                     هنوز کارمند فعالی تعریف نشده است.
                   </p>
                 ) : (
-                  <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar dark:bg-black/20 bg-slate-100 p-2.5 rounded-xl border dark:border-white/5 border-slate-100">
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar bg-slate-100 p-2.5 rounded-xl border border-slate-100">
                     {providers.filter(p => p.active).map(p => {
                       const isChecked = serviceProviderIds.includes(p.id);
                       return (
-                        <label key={p.id} className="flex items-center gap-2 cursor-pointer dark:hover:bg-white/5 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
+                        <label key={p.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
                           <input
                             type="checkbox"
                             checked={isChecked}
@@ -1162,9 +1162,9 @@ export const BookingPage: React.FC = () => {
                                 setServiceProviderIds(serviceProviderIds.filter(id => id !== p.id));
                               }
                             }}
-                            className="w-4 h-4 rounded text-blue-600 dark:bg-slate-900 bg-white dark:border-white/20 border-slate-300"
+                            className="w-4 h-4 rounded text-blue-600 bg-white border-slate-300"
                           />
-                          <span className="text-xs dark:text-white text-slate-800">{p.name}</span>
+                          <span className="text-xs text-slate-800">{p.name}</span>
                         </label>
                       );
                     })}
@@ -1178,23 +1178,23 @@ export const BookingPage: React.FC = () => {
                     type="checkbox"
                     checked={serviceActive}
                     onChange={(e) => setServiceActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 dark:bg-slate-900 bg-white dark:border-white/20 border-slate-300"
+                    className="w-4 h-4 rounded text-blue-600 bg-white border-slate-300"
                   />
-                  <span className="text-xs dark:text-white text-slate-800 font-medium">خدمت فعال و قابل انتخاب باشد</span>
+                  <span className="text-xs text-slate-800 font-medium">خدمت فعال و قابل انتخاب باشد</span>
                 </label>
               </div>
 
-              <div className="flex items-center gap-2 pt-4 border-t dark:border-white/5 border-slate-100">
+              <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 dark:text-white text-slate-800 text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20"
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-slate-800 text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20"
                 >
                   ذخیره خدمت
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsServiceModalOpen(false)}
-                  className="px-4 py-2.5 dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 dark:text-slate-300 text-slate-600 text-xs font-medium rounded-xl transition-colors border dark:border-white/10 border-slate-200"
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium rounded-xl transition-colors border border-slate-200"
                 >
                   انصراف
                 </button>
@@ -1207,14 +1207,14 @@ export const BookingPage: React.FC = () => {
       {/* --- PROVIDER CREATE / EDIT MODAL --- */}
       {isProviderModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fade-in overflow-y-auto">
-          <div className="dark:bg-[#1e293b] bg-white border dark:border-white/10 border-slate-200 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl my-8">
-            <div className="p-5 border-b dark:border-white/10 border-slate-200 flex items-center justify-between">
-              <h3 className="text-sm font-bold dark:text-white text-slate-800">
-                {editingProvider ? 'ویرایش کارمند' : 'افزودن کارمند جدید'}
+          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl my-8">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-800">
+                {editingProvider ?'ویرایش کارمند':'افزودن کارمند جدید'}
               </h3>
               <button
                 onClick={() => setIsProviderModalOpen(false)}
-                className="dark:text-slate-400 text-slate-500 dark:hover:text-white hover:text-slate-900 text-xs font-bold p-1"
+                className="text-slate-500 hover:text-slate-900 text-xs font-bold p-1"
               >
                 ✕
               </button>
@@ -1222,33 +1222,33 @@ export const BookingPage: React.FC = () => {
 
             <form onSubmit={handleSaveProvider} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar">
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1.5">نام و نام خانوادگی / عنوان *</label>
+                <label className="block text-xs text-slate-600 font-medium mb-1.5">نام و نام خانوادگی / عنوان *</label>
                 <input
                   type="text"
                   value={providerName}
                   onChange={(e) => setProviderName(e.target.value)}
                   placeholder="مثلاً: دکتر رضایی / آقای علی‌نژاد"
-                  className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1.5">توضیحات / رزومه (اختیاری)</label>
+                <label className="block text-xs text-slate-600 font-medium mb-1.5">توضیحات / رزومه (اختیاری)</label>
                 <textarea
                   value={providerDescription}
                   onChange={(e) => setProviderDescription(e.target.value)}
                   placeholder="مثلاً تخصص، سابقه کاری، یا هر چیزی که خریدار قبل از انتخاب باید بدونه"
                   rows={3}
-                  className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 custom-scrollbar resize-none"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 custom-scrollbar resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-medium mb-1">
+                <label className="block text-xs text-slate-600 font-medium mb-1">
                   حداکثر تعداد نوبت در روز (اختیاری)
                 </label>
-                <p className="text-[11px] dark:text-slate-400 text-slate-500 mb-1.5">
+                <p className="text-[11px] text-slate-500 mb-1.5">
                   خالی بذارید یعنی محدودیتی نیست
                 </p>
                 <input
@@ -1257,7 +1257,7 @@ export const BookingPage: React.FC = () => {
                   onChange={(e) => setProviderMaxBookingsPerDay(e.target.value)}
                   placeholder="مثلاً: 5"
                   min="1"
-                  className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-xl px-3.5 py-2.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 font-mono"
                 />
               </div>
 
@@ -1267,15 +1267,15 @@ export const BookingPage: React.FC = () => {
                     type="checkbox"
                     checked={providerActive}
                     onChange={(e) => setProviderActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 dark:bg-slate-900 bg-white dark:border-white/20 border-slate-300"
+                    className="w-4 h-4 rounded text-blue-600 bg-white border-slate-300"
                   />
-                  <span className="text-xs dark:text-white text-slate-800 font-medium">کارمند فعال و قابل انتخاب باشد</span>
+                  <span className="text-xs text-slate-800 font-medium">کارمند فعال و قابل انتخاب باشد</span>
                 </label>
               </div>
 
               {/* Provider Working Hours */}
-              <div className="pt-2 border-t dark:border-white/5 border-slate-100 space-y-3">
-                <label className="block text-xs dark:text-slate-300 text-slate-600 font-bold">ساعات کاری هفتگی این کارمند</label>
+              <div className="pt-2 border-t border-slate-100 space-y-3">
+                <label className="block text-xs text-slate-600 font-bold">ساعات کاری هفتگی این کارمند</label>
                 <div className="space-y-2">
                   {daysList.map(({ key, label }) => {
                     const dayData = providerHours[key];
@@ -1285,7 +1285,7 @@ export const BookingPage: React.FC = () => {
                       <div
                         key={key}
                         className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
-                          isOpen ? 'dark:bg-black/20 bg-slate-100 dark:border-white/10 border-slate-200' : 'bg-black/40 dark:border-white/5 border-slate-100 opacity-60'
+                          isOpen ?'bg-slate-100 border-slate-200':'bg-black/40 border-slate-100 opacity-60'
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -1296,25 +1296,25 @@ export const BookingPage: React.FC = () => {
                               onChange={() => handleProviderDayToggle(key)}
                               className="sr-only peer"
                             />
-                            <div className="w-8 h-4.5 dark:bg-slate-700 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-600"></div>
+                            <div className="w-8 h-4.5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                          <span className="text-xs font-bold dark:text-white text-slate-800 min-w-[60px]">{label}</span>
+                          <span className="text-xs font-bold text-slate-800 min-w-[60px]">{label}</span>
                         </div>
 
                         {isOpen && dayData && (
-                          <div className="flex items-center gap-1.5 text-xs" dir="ltr">
+                          <div className="flex items-center gap-1.5 text-xs"dir="ltr">
                             <input
                               type="time"
                               value={dayData.start}
-                              onChange={(e) => handleProviderDayTimeChange(key, 'start', e.target.value)}
-                              className="dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 rounded-lg px-2 py-1 text-xs outline-none focus:border-blue-500 font-mono"
+                              onChange={(e) => handleProviderDayTimeChange(key,'start', e.target.value)}
+                              className="bg-white border border-slate-200 text-slate-800 rounded-lg px-2 py-1 text-xs outline-none focus:border-blue-500 font-mono"
                             />
                             <span className="text-slate-500 text-[10px]">تا</span>
                             <input
                               type="time"
                               value={dayData.end}
-                              onChange={(e) => handleProviderDayTimeChange(key, 'end', e.target.value)}
-                              className="dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 rounded-lg px-2 py-1 text-xs outline-none focus:border-blue-500 font-mono"
+                              onChange={(e) => handleProviderDayTimeChange(key,'end', e.target.value)}
+                              className="bg-white border border-slate-200 text-slate-800 rounded-lg px-2 py-1 text-xs outline-none focus:border-blue-500 font-mono"
                             />
                           </div>
                         )}
@@ -1325,52 +1325,52 @@ export const BookingPage: React.FC = () => {
               </div>
 
               {/* Provider Exceptions / Days off */}
-              <div className="pt-3 border-t dark:border-white/5 border-slate-100 space-y-3">
+              <div className="pt-3 border-t border-slate-100 space-y-3">
                 <div>
-                  <label className="block text-xs dark:text-slate-300 text-slate-600 font-bold mb-1">
+                  <label className="block text-xs text-slate-600 font-bold mb-1">
                     مرخصی‌ها و روزهای استثنا
                   </label>
-                  <p className="text-[11px] dark:text-slate-400 text-slate-500">
+                  <p className="text-[11px] text-slate-500">
                     تعیین روزهای خاصی که کارمند مرخصی است یا ساعت کاری متفاوتی دارد
                   </p>
                 </div>
 
                 {/* Form to add exception */}
-                <div className="dark:bg-black/30 bg-slate-100 p-3.5 rounded-xl border dark:border-white/10 border-slate-200 space-y-3">
+                <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] dark:text-slate-400 text-slate-500 mb-1">تاریخ استثنا</label>
+                      <label className="block text-[11px] text-slate-500 mb-1">تاریخ استثنا</label>
                       <button
                         type="button"
                         onClick={() => setShowExcDatePicker(true)}
-                        className="w-full dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 rounded-lg px-2.5 py-1.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 text-right hover:border-blue-500/50 transition-colors"
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-blue-500 text-right hover:border-blue-500/50 transition-colors"
                       >
                         {newExcDate
-                          ? new Date(newExcDate + 'T00:00:00').toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })
+                          ? new Date(newExcDate +'T00:00:00').toLocaleDateString('fa-IR', { year:'numeric', month:'long', day:'numeric'})
                           : <span className="text-slate-500">انتخاب تاریخ...</span>}
                       </button>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] dark:text-slate-400 text-slate-500 mb-1">وضعیت کاری</label>
+                      <label className="block text-[11px] text-slate-500 mb-1">وضعیت کاری</label>
                       <div className="flex items-center gap-2 pt-1">
-                        <label className="flex items-center gap-1.5 cursor-pointer text-xs dark:text-slate-200 text-slate-700">
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-700">
                           <input
                             type="radio"
                             name="excClosed"
                             checked={newExcClosed}
                             onChange={() => setNewExcClosed(true)}
-                            className="text-blue-600 dark:bg-slate-900 bg-white dark:border-white/20 border-slate-300"
+                            className="text-blue-600 bg-white border-slate-300"
                           />
                           <span>کلاً تعطیل</span>
                         </label>
-                        <label className="flex items-center gap-1.5 cursor-pointer text-xs dark:text-slate-200 text-slate-700">
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-700">
                           <input
                             type="radio"
                             name="excClosed"
                             checked={!newExcClosed}
                             onChange={() => setNewExcClosed(false)}
-                            className="text-blue-600 dark:bg-slate-900 bg-white dark:border-white/20 border-slate-300"
+                            className="text-blue-600 bg-white border-slate-300"
                           />
                           <span>ساعت متفاوت</span>
                         </label>
@@ -1379,20 +1379,20 @@ export const BookingPage: React.FC = () => {
                   </div>
 
                   {!newExcClosed && (
-                    <div className="flex items-center gap-2 text-xs" dir="ltr">
-                      <span className="dark:text-slate-400 text-slate-500 text-[11px]">از:</span>
+                    <div className="flex items-center gap-2 text-xs"dir="ltr">
+                      <span className="text-slate-500 text-[11px]">از:</span>
                       <input
                         type="time"
                         value={newExcStart}
                         onChange={(e) => setNewExcStart(e.target.value)}
-                        className="dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
+                        className="bg-white border border-slate-200 text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
                       />
-                      <span className="dark:text-slate-400 text-slate-500 text-[11px]">تا:</span>
+                      <span className="text-slate-500 text-[11px]">تا:</span>
                       <input
                         type="time"
                         value={newExcEnd}
                         onChange={(e) => setNewExcEnd(e.target.value)}
-                        className="dark:bg-slate-900 bg-white border dark:border-white/10 border-slate-200 dark:text-white text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
+                        className="bg-white border border-slate-200 text-slate-800 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 font-mono"
                       />
                     </div>
                   )}
@@ -1400,7 +1400,7 @@ export const BookingPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleAddException}
-                    className="w-full py-2 dark:bg-white/10 bg-slate-200 hover:bg-white/15 dark:text-white text-slate-800 font-bold text-xs rounded-lg transition-all border dark:border-white/10 border-slate-200 flex items-center justify-center gap-1 cursor-pointer"
+                    className="w-full py-2 bg-slate-200 hover:bg-white/15 text-slate-800 font-bold text-xs rounded-lg transition-all border border-slate-200 flex items-center justify-center gap-1 cursor-pointer"
                   >
                     <Plus size={14} />
                     <span>افزودن استثنا</span>
@@ -1423,15 +1423,15 @@ export const BookingPage: React.FC = () => {
                       return (
                         <div
                           key={exc.date}
-                          className="flex items-center justify-between dark:bg-black/20 bg-slate-100 p-2.5 rounded-xl border dark:border-white/5 border-slate-100 text-xs"
+                          className="flex items-center justify-between bg-slate-100 p-2.5 rounded-xl border border-slate-100 text-xs"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="font-mono dark:text-cyan-300 text-cyan-600 font-bold">{faDate}</span>
+                            <span className="font-mono text-cyan-600 font-bold">{faDate}</span>
                             <span className="text-slate-500">—</span>
                             {exc.closed ? (
-                              <span className="dark:text-red-400 text-red-600 font-bold px-2 py-0.5 rounded-md bg-red-500/10">تعطیل</span>
+                              <span className="text-red-600 font-bold px-2 py-0.5 rounded-md bg-red-500/10">تعطیل</span>
                             ) : (
-                              <span className="dark:text-amber-300 text-amber-600 font-mono font-bold px-2 py-0.5 rounded-md bg-amber-500/10" dir="ltr">
+                              <span className="text-amber-600 font-mono font-bold px-2 py-0.5 rounded-md bg-amber-500/10"dir="ltr">
                                 {exc.hours?.start} تا {exc.hours?.end}
                               </span>
                             )}
@@ -1440,7 +1440,7 @@ export const BookingPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleDeleteException(exc.date)}
-                            className="dark:text-slate-400 text-slate-500 hover:text-red-400 p-1 font-bold transition-colors cursor-pointer"
+                            className="text-slate-500 hover:text-red-400 p-1 font-bold transition-colors cursor-pointer"
                             title="حذف استثنا"
                           >
                             ✕
@@ -1452,17 +1452,17 @@ export const BookingPage: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex items-center gap-2 pt-4 border-t dark:border-white/5 border-slate-100">
+              <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 dark:text-white text-slate-800 text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20"
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-slate-800 text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20"
                 >
                   ذخیره کارمند
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsProviderModalOpen(false)}
-                  className="px-4 py-2.5 dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 dark:text-slate-300 text-slate-600 text-xs font-medium rounded-xl transition-colors border dark:border-white/10 border-slate-200"
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium rounded-xl transition-colors border border-slate-200"
                 >
                   انصراف
                 </button>
@@ -1476,11 +1476,11 @@ export const BookingPage: React.FC = () => {
       <PersianDatePicker
         isOpen={showExcDatePicker}
         onClose={() => setShowExcDatePicker(false)}
-        initialDate={newExcDate ? new Date(newExcDate + 'T00:00:00') : new Date()}
+        initialDate={newExcDate ? new Date(newExcDate +'T00:00:00') : new Date()}
         onSelect={(d) => {
           const y = d.getFullYear();
-          const m = String(d.getMonth() + 1).padStart(2, '0');
-          const day = String(d.getDate()).padStart(2, '0');
+          const m = String(d.getMonth() + 1).padStart(2,'0');
+          const day = String(d.getDate()).padStart(2,'0');
           setNewExcDate(`${y}-${m}-${day}`);
           setShowExcDatePicker(false);
         }}

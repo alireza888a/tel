@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { GlassCard } from '../components/GlassCard';
-import { Command, Plus, Trash2, Save, Terminal, Play, CloudUpload, Info, Menu, Type, CheckCircle } from 'lucide-react';
-import { CommandConfig, MenuPage } from '../types';
-import { telegramService } from '../services/telegramService';
-import { syncNow } from '../services/cloudSync';
+import React, { useState, useEffect } from'react';
+import { GlassCard } from'../components/GlassCard';
+import { Command, Plus, Trash2, Save, Terminal, Play, CloudUpload, Info, Menu, Type, CheckCircle } from'lucide-react';
+import { CommandConfig, MenuPage } from'../types';
+import { telegramService } from'../services/telegramService';
+import { syncNow } from'../services/cloudSync';
 
 export const Commands: React.FC = () => {
-    const token = localStorage.getItem('bot_token') || '';
+    const token = localStorage.getItem('bot_token') ||'';
     
     // Load Commands from Storage
     const [commands, setCommands] = useState<CommandConfig[]>(() => {
-        try { return JSON.parse(localStorage.getItem('bot_commands') || '[]'); } catch { return []; }
+        try { return JSON.parse(localStorage.getItem('bot_commands') ||'[]'); } catch { return []; }
     });
 
     // Load available menus (to link commands to menus)
     const [menus, setMenus] = useState<Record<string, MenuPage>>(() => {
-        try { return JSON.parse(localStorage.getItem('kb_menus') || '{}'); } catch { return {}; }
+        try { return JSON.parse(localStorage.getItem('kb_menus') ||'{}'); } catch { return {}; }
     });
 
     const [isSyncing, setIsSyncing] = useState(false);
@@ -27,10 +27,10 @@ export const Commands: React.FC = () => {
 
     const addCommand = () => {
         setCommands([...commands, {
-            command: '',
-            description: '',
-            actionType: 'menu',
-            actionValue: 'root'
+            command:'',
+            description:'',
+            actionType:'menu',
+            actionValue:'root'
         }]);
     };
 
@@ -43,12 +43,12 @@ export const Commands: React.FC = () => {
     };
 
     const syncToTelegram = async () => {
-        if (!token) return alert('لطفا ابتدا توکن ربات را در بخش "اتصال ربات" وارد کنید.');
+        if (!token) return alert('لطفا ابتدا توکن ربات را در بخش"اتصال ربات"وارد کنید.');
         if (commands.some(c => !c.command || !c.description)) return alert('لطفا تمام فیلدهای دستور و توضیحات را پر کنید.');
         
         // Telegram validation: commands must be lowercase, alphanumeric + underscore
         const invalidCmd = commands.find(c => !/^[a-z0-9_]+$/.test(c.command));
-        if (invalidCmd) return alert(`فرمت دستور "${invalidCmd.command}" اشتباه است. فقط حروف کوچک انگلیسی، اعداد و زیرخط مجاز است (بدون /).`);
+        if (invalidCmd) return alert(`فرمت دستور"${invalidCmd.command}"اشتباه است. فقط حروف کوچک انگلیسی، اعداد و زیرخط مجاز است (بدون /).`);
 
         setIsSyncing(true);
         const apiCommands = commands.map(c => ({ command: c.command, description: c.description }));
@@ -58,7 +58,7 @@ export const Commands: React.FC = () => {
         if (res.ok) {
             alert('✅ دستورات با موفقیت در تلگرام ذخیره شدند. دکمه منوی ربات آپدیت شد.');
         } else {
-            alert('❌ خطا در سینک: ' + res.description);
+            alert('❌ خطا در سینک:'+ res.description);
         }
         setIsSyncing(false);
     };
@@ -67,11 +67,11 @@ export const Commands: React.FC = () => {
         <div className="max-w-7xl mx-auto space-y-6 animate-fade-in pb-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold dark:text-white text-slate-800 flex items-center gap-2">
-                        <Terminal className="text-orange-500" />
+                    <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <Terminal className="text-orange-500"/>
                         مدیریت دستورات ربات (Commands)
                     </h2>
-                    <p className="text-xs dark:text-white/50 text-slate-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                         دستوراتی که با اسلش (/) شروع می‌شوند را اینجا تعریف کنید (مثل start, help).
                     </p>
                 </div>
@@ -82,7 +82,7 @@ export const Commands: React.FC = () => {
                     className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-50 transition-all"
                 >
                     {isSyncing ? <CloudUpload size={18} className="animate-bounce"/> : <CloudUpload size={18}/>}
-                    {isSyncing ? 'در حال ارسال...' : 'ذخیره در سرور تلگرام'}
+                    {isSyncing ?'در حال ارسال...':'ذخیره در سرور تلگرام'}
                 </button>
             </div>
 
@@ -116,7 +116,7 @@ export const Commands: React.FC = () => {
                                              <span className="absolute top-1/2 -translate-y-1/2 right-3 text-slate-500 text-sm">/</span>
                                              <input 
                                                  value={cmd.command}
-                                                 onChange={(e) => updateCommand(index, 'command', e.target.value.toLowerCase())}
+                                                 onChange={(e) => updateCommand(index,'command', e.target.value.toLowerCase())}
                                                  placeholder="start"
                                                  className="w-full bg-black/20 border border-white/10 rounded-lg py-2 pr-6 pl-2 text-white outline-none dir-ltr text-left font-mono focus:border-orange-500"
                                                  dir="ltr"
@@ -127,7 +127,7 @@ export const Commands: React.FC = () => {
                                          <label className="text-xs text-slate-500 block mb-1">توضیحات (نمایش در لیست)</label>
                                          <input 
                                              value={cmd.description}
-                                             onChange={(e) => updateCommand(index, 'description', e.target.value)}
+                                             onChange={(e) => updateCommand(index,'description', e.target.value)}
                                              placeholder="شروع مجدد ربات"
                                              className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none focus:border-blue-500"
                                          />
@@ -143,23 +143,23 @@ export const Commands: React.FC = () => {
                                      
                                      <div className="flex gap-2 mb-3">
                                          <button 
-                                            onClick={() => updateCommand(index, 'actionType', 'menu')}
-                                            className={`flex-1 py-1.5 text-xs rounded-md border ${cmd.actionType === 'menu' ? 'bg-purple-600 border-purple-500 text-white' : 'border-white/10 text-slate-400 hover:bg-white/5'}`}
+                                            onClick={() => updateCommand(index,'actionType','menu')}
+                                            className={`flex-1 py-1.5 text-xs rounded-md border ${cmd.actionType ==='menu'?'bg-purple-600 border-purple-500 text-white':'border-white/10 text-slate-400 hover:bg-white/5'}`}
                                          >
                                              باز کردن منو
                                          </button>
                                          <button 
-                                            onClick={() => updateCommand(index, 'actionType', 'text')}
-                                            className={`flex-1 py-1.5 text-xs rounded-md border ${cmd.actionType === 'text' ? 'bg-green-600 border-green-500 text-white' : 'border-white/10 text-slate-400 hover:bg-white/5'}`}
+                                            onClick={() => updateCommand(index,'actionType','text')}
+                                            className={`flex-1 py-1.5 text-xs rounded-md border ${cmd.actionType ==='text'?'bg-green-600 border-green-500 text-white':'border-white/10 text-slate-400 hover:bg-white/5'}`}
                                          >
                                              ارسال متن
                                          </button>
                                      </div>
 
-                                     {cmd.actionType === 'menu' ? (
+                                     {cmd.actionType ==='menu'? (
                                          <select 
                                             value={cmd.actionValue}
-                                            onChange={(e) => updateCommand(index, 'actionValue', e.target.value)}
+                                            onChange={(e) => updateCommand(index,'actionValue', e.target.value)}
                                             className="w-full bg-black/20 border border-white/10 rounded p-2 text-sm text-white outline-none"
                                          >
                                              {Object.values(menus).map((m: MenuPage) => (
@@ -169,7 +169,7 @@ export const Commands: React.FC = () => {
                                      ) : (
                                          <textarea 
                                              value={cmd.actionValue}
-                                             onChange={(e) => updateCommand(index, 'actionValue', e.target.value)}
+                                             onChange={(e) => updateCommand(index,'actionValue', e.target.value)}
                                              placeholder="متنی که ربات در پاسخ ارسال می‌کند..."
                                              className="w-full h-20 bg-black/20 border border-white/10 rounded p-2 text-xs text-white outline-none resize-none"
                                          />
@@ -194,15 +194,15 @@ export const Commands: React.FC = () => {
                          <div className="space-y-3 text-sm text-slate-300">
                              <div className="flex items-start gap-2">
                                  <span className="font-mono bg-white/10 px-1 rounded text-orange-400">/start</span>
-                                 <p className="text-xs">معمولاً برای "شروع" استفاده می‌شود. بهتر است آن را به منوی <span className="text-white font-bold">root</span> متصل کنید.</p>
+                                 <p className="text-xs">معمولاً برای"شروع"استفاده می‌شود. بهتر است آن را به منوی <span className="text-white font-bold">root</span> متصل کنید.</p>
                              </div>
                              <div className="flex items-start gap-2">
                                  <span className="font-mono bg-white/10 px-1 rounded text-orange-400">/clear</span>
-                                 <p className="text-xs">ربات‌ها <b>نمی‌توانند</b> تاریخچه چت کاربر را پاک کنند (محدودیت تلگرام). اما می‌توانید پیامی تنظیم کنید که بگوید "برای پاکسازی روی ۳ نقطه بالا کلیک کنید و Clear History بزنید".</p>
+                                 <p className="text-xs">ربات‌ها <b>نمی‌توانند</b> تاریخچه چت کاربر را پاک کنند (محدودیت تلگرام). اما می‌توانید پیامی تنظیم کنید که بگوید"برای پاکسازی روی ۳ نقطه بالا کلیک کنید و Clear History بزنید".</p>
                              </div>
                              <div className="flex items-start gap-2">
                                  <span className="font-mono bg-white/10 px-1 rounded text-orange-400">/help</span>
-                                 <p className="text-xs">برای راهنمایی کاربران. می‌توانید یک متن راهنما بنویسید یا به یک منوی "آموزش" وصل کنید.</p>
+                                 <p className="text-xs">برای راهنمایی کاربران. می‌توانید یک متن راهنما بنویسید یا به یک منوی"آموزش"وصل کنید.</p>
                              </div>
                          </div>
                     </GlassCard>

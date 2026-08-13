@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { GlassCard } from '../GlassCard';
-import { Users, Plus, Trash2, ShieldCheck } from 'lucide-react';
+import React, { useState } from'react';
+import { GlassCard } from'../GlassCard';
+import { Users, Plus, Trash2, ShieldCheck } from'lucide-react';
 
 interface TeamAccessCardProps {
-  admins: { chatId: string; name: string; role: 'staff' }[];
+  admins: { chatId: string; name: string; role:'staff'}[];
   onAddAdmin: (chatId: string, name: string) => void;
   onRemoveAdmin: (chatId: string) => void;
 }
@@ -27,8 +27,8 @@ export const TeamAccessCard: React.FC<TeamAccessCardProps> = ({
   return (
     <GlassCard className="border-t-4 border-t-cyan-500">
       <div className="flex items-center gap-2 mb-3">
-        <Users className="text-cyan-400" size={22} />
-        <h3 className="font-bold text-lg dark:text-white text-slate-800">
+        <Users className="text-cyan-400"size={22} />
+        <h3 className="font-bold text-lg text-slate-800">
           مدیریت دسترسی تیم (کارمندها)
         </h3>
       </div>
@@ -80,7 +80,7 @@ export const TeamAccessCard: React.FC<TeamAccessCardProps> = ({
       {/* Staff list */}
       <div className="space-y-2">
         <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5 mb-2">
-          <ShieldCheck size={14} className="text-cyan-400" />
+          <ShieldCheck size={14} className="text-cyan-400"/>
           لیست کارمندان دارای دسترسی ({admins.length})
         </h4>
 
@@ -99,7 +99,7 @@ export const TeamAccessCard: React.FC<TeamAccessCardProps> = ({
                   <span className="font-bold text-white truncate max-w-[140px] sm:max-w-[200px]">
                     {admin.name || admin.chatId}
                   </span>
-                  <span className="font-mono text-cyan-300 font-semibold text-[11px] bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20" dir="ltr">
+                  <span className="font-mono text-cyan-300 font-semibold text-[11px] bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20"dir="ltr">
                     {admin.chatId}
                   </span>
                   <span className="text-[10px] text-slate-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5 hidden sm:inline">

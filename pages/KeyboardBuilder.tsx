@@ -1,29 +1,29 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { List, Download, Upload, RefreshCcw, LayoutTemplate, Home, ArrowRight, LayoutGrid, MessageSquare } from 'lucide-react';
-import { InlineRow, InlineButton, MediaAttachment, MenuPage, FormConfig, FormQuestion, InquiryConfig, Product } from '../types';
-import { telegramService } from '../services/telegramService';
-import { syncNow } from '../services/cloudSync';
+import React, { useState, useRef, useEffect } from'react';
+import { List, Download, Upload, RefreshCcw, LayoutTemplate, Home, ArrowRight, LayoutGrid, MessageSquare } from'lucide-react';
+import { InlineRow, InlineButton, MediaAttachment, MenuPage, FormConfig, FormQuestion, InquiryConfig, Product } from'../types';
+import { telegramService } from'../services/telegramService';
+import { syncNow } from'../services/cloudSync';
 
-import { FormDesignerModal } from '../components/keyboard-builder/FormDesignerModal';
-import { NewProductModal } from '../components/keyboard-builder/NewProductModal';
-import { ButtonPreviewModal } from '../components/keyboard-builder/ButtonPreviewModal';
-import { MenuSidebar } from '../components/keyboard-builder/MenuSidebar';
-import { MenuContentEditorCard } from '../components/keyboard-builder/MenuContentEditorCard';
-import { MenuButtonsCard } from '../components/keyboard-builder/MenuButtonsCard';
-import { ButtonPropertiesCard } from '../components/keyboard-builder/ButtonPropertiesCard';
-import { LiveSimulatorPreview } from '../components/keyboard-builder/LiveSimulatorPreview';
+import { FormDesignerModal } from'../components/keyboard-builder/FormDesignerModal';
+import { NewProductModal } from'../components/keyboard-builder/NewProductModal';
+import { ButtonPreviewModal } from'../components/keyboard-builder/ButtonPreviewModal';
+import { MenuSidebar } from'../components/keyboard-builder/MenuSidebar';
+import { MenuContentEditorCard } from'../components/keyboard-builder/MenuContentEditorCard';
+import { MenuButtonsCard } from'../components/keyboard-builder/MenuButtonsCard';
+import { ButtonPropertiesCard } from'../components/keyboard-builder/ButtonPropertiesCard';
+import { LiveSimulatorPreview } from'../components/keyboard-builder/LiveSimulatorPreview';
 
 export const KeyboardBuilder: React.FC = () => {
   // --- STATE MANAGEMENT ---
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [token] = useState(localStorage.getItem('bot_token') || '');
-  const [dbChannel] = useState(localStorage.getItem('bot_db_channel') || '');
+  const [token] = useState(localStorage.getItem('bot_token') ||'');
+  const [dbChannel] = useState(localStorage.getItem('bot_db_channel') ||'');
   const [isUploading, setIsUploading] = useState(false);
 
   // 1. Initialize State from LocalStorage (Persistence)
   const [menus, setMenus] = useState<Record<string, MenuPage>>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !=='undefined') {
         const saved = localStorage.getItem('kb_menus');
         if (saved) {
             try { return JSON.parse(saved); } catch (e) { console.error('Error parsing menus:', e); }
@@ -31,9 +31,9 @@ export const KeyboardBuilder: React.FC = () => {
     }
     return {
       'root': {
-        id: 'root',
-        title: 'منوی اصلی (شروع)',
-        content: 'سلام {نام}! به ربات ما خوش آمدید. لطفا یک گزینه را انتخاب کنید 👇',
+        id:'root',
+        title:'منوی اصلی (شروع)',
+        content:'سلام {نام}! به ربات ما خوش آمدید. لطفا یک گزینه را انتخاب کنید 👇',
         media: [],
         rows: []
       }
@@ -41,7 +41,7 @@ export const KeyboardBuilder: React.FC = () => {
   });
 
   const [forms, setForms] = useState<Record<string, FormConfig>>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !=='undefined') {
         const saved = localStorage.getItem('kb_forms');
         if (saved) {
             try { return JSON.parse(saved); } catch (e) { console.error('Error parsing forms:', e); }
@@ -61,7 +61,7 @@ export const KeyboardBuilder: React.FC = () => {
 
   // Preview States
   const [previewInput, setPreviewInput] = useState('');
-  const [previewModal, setPreviewModal] = useState<{type: 'link' | 'form' | 'inquiry', value: string} | null>(null);
+  const [previewModal, setPreviewModal] = useState<{type:'link'|'form'|'inquiry', value: string} | null>(null);
   // Simulation State for Forms in Preview
   const [simFormStep, setSimFormStep] = useState(0);
   const [simFormAnswers, setSimFormAnswers] = useState<string[]>([]);
@@ -69,7 +69,7 @@ export const KeyboardBuilder: React.FC = () => {
   // Quick Product Modal States
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
   const [prodName, setProdName] = useState('');
-  const [prodPrice, setProdPrice] = useState<number | ''>('');
+  const [prodPrice, setProdPrice] = useState<number |''>('');
   const [prodDesc, setProdDesc] = useState('');
   const [prodCategory, setProdCategory] = useState('');
   const [prodImage, setProdImage] = useState('');
@@ -82,31 +82,31 @@ export const KeyboardBuilder: React.FC = () => {
 
   const getProducts = (): Product[] => {
     try {
-      return JSON.parse(localStorage.getItem('bot_products') || '[]');
+      return JSON.parse(localStorage.getItem('bot_products') ||'[]');
     } catch {
       return [];
     }
   };
 
   const getButtonDisplayText = (btn: InlineButton): string => {
-    if (btn.type === 'product') {
+    if (btn.type ==='product') {
       if (btn.productId) {
         const products = getProducts();
         const prod = products.find(p => p.id === btn.productId);
         if (prod) {
-          return `🛒 ${prod.name} — ${prod.price.toLocaleString('fa-IR')} تومان`;
+          return`🛒 ${prod.name} — ${prod.price.toLocaleString('fa-IR')} تومان`;
         }
       }
-      return btn.text || '🛒 محصول فروشگاهی';
+      return btn.text ||'🛒 محصول فروشگاهی';
     }
-    if (btn.type === 'ticket' || (btn.type === 'callback' && btn.value === 'support')) {
-      return btn.text || '🎫 تیکت پشتیبانی';
+    if (btn.type ==='ticket'|| (btn.type ==='callback'&& btn.value ==='support')) {
+      return btn.text ||'🎫 تیکت پشتیبانی';
     }
-    if (btn.type === 'webapp') {
-      return btn.text || '🛍 ورود به فروشگاه';
+    if (btn.type ==='webapp') {
+      return btn.text ||'🛍 ورود به فروشگاه';
     }
-    if (btn.type === 'api') {
-      return btn.text || '🔗 فراخوانی API';
+    if (btn.type ==='api') {
+      return btn.text ||'🔗 فراخوانی API';
     }
     return btn.text;
   };
@@ -127,7 +127,7 @@ export const KeyboardBuilder: React.FC = () => {
       try {
         for (const file of files) {
           if (prodImages.length + uploadedList.length >= 10) break;
-          const uploadedId = await telegramService.uploadToDb(token, dbChannel, file, 'image');
+          const uploadedId = await telegramService.uploadToDb(token, dbChannel, file,'image');
           if (uploadedId) {
             uploadedList.push(uploadedId);
           }
@@ -135,7 +135,7 @@ export const KeyboardBuilder: React.FC = () => {
         if (uploadedList.length > 0) {
           setProdImages(prev => {
             const next = [...prev, ...uploadedList].slice(0, 10);
-            setProdImage(next[0] || '');
+            setProdImage(next[0] ||'');
             return next;
           });
         } else {
@@ -145,7 +145,7 @@ export const KeyboardBuilder: React.FC = () => {
         alert('خطا در ارتباط با تلگرام.');
       } finally {
         setIsProdUploading(false);
-        e.target.value = '';
+        e.target.value ='';
       }
     }
   };
@@ -159,19 +159,19 @@ export const KeyboardBuilder: React.FC = () => {
     }
     const next = [...prodImages, trimmed].slice(0, 10);
     setProdImages(next);
-    setProdImage(next[0] || '');
+    setProdImage(next[0] ||'');
     setProdManualUrl('');
   };
 
   const handleRemoveProdImage = (index: number) => {
     const next = prodImages.filter((_, i) => i !== index);
     setProdImages(next);
-    setProdImage(next[0] || '');
+    setProdImage(next[0] ||'');
   };
 
   const handleQuickProductSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prodName || prodPrice === '') {
+    if (!prodName || prodPrice ==='') {
       alert('لطفاً نام و قیمت محصول را وارد کنید.');
       return;
     }
@@ -179,11 +179,11 @@ export const KeyboardBuilder: React.FC = () => {
     const primaryImg = finalImgs[0] || undefined;
 
     const newProd: Product = {
-      id: 'prod_' + Math.random().toString(36).substr(2, 9),
+      id:'prod_'+ Math.random().toString(36).substr(2, 9),
       name: prodName,
       price: Number(prodPrice),
       description: prodDesc,
-      category: prodCategory.trim() || 'عمومی',
+      category: prodCategory.trim() ||'عمومی',
       imageUrl: primaryImg,
       imageUrls: finalImgs.length > 0 ? finalImgs : undefined,
       active: true,
@@ -193,7 +193,7 @@ export const KeyboardBuilder: React.FC = () => {
 
     let existing: Product[] = [];
     try {
-      existing = JSON.parse(localStorage.getItem('bot_products') || '[]');
+      existing = JSON.parse(localStorage.getItem('bot_products') ||'[]');
     } catch {}
 
     const updated = [...existing, newProd];
@@ -201,9 +201,9 @@ export const KeyboardBuilder: React.FC = () => {
     syncNow();
 
     if (selectedButton) {
-      const formattedText = `🛒 ${newProd.name} — ${newProd.price.toLocaleString('fa-IR')} تومان`;
+      const formattedText =`🛒 ${newProd.name} — ${newProd.price.toLocaleString('fa-IR')} تومان`;
       updateCurrentButton({
-        type: 'product',
+        type:'product',
         productId: newProd.id,
         text: formattedText
       });
@@ -233,9 +233,9 @@ export const KeyboardBuilder: React.FC = () => {
   }, [forms]);
 
   const defaultFallbackMenu: MenuPage = {
-    id: currentMenuId || 'root',
-    title: 'منوی اصلی (شروع)',
-    content: 'به ربات خوش آمدید.',
+    id: currentMenuId ||'root',
+    title:'منوی اصلی (شروع)',
+    content:'به ربات خوش آمدید.',
     media: [],
     rows: []
   };
@@ -249,45 +249,45 @@ export const KeyboardBuilder: React.FC = () => {
 
   // --- VARIABLES ---
   const DYNAMIC_VARS = [
-     { label: 'نام کاربر', code: '{first_name}' },
-     { label: 'نام خانوادگی', code: '{last_name}' },
-     { label: 'یوزرنیم', code: '{username}' },
-     { label: 'آیدی عددی', code: '{id}' },
-     { label: 'تاریخ', code: '{date}' },
-     { label: 'ساعت', code: '{time}' },
+     { label:'نام کاربر', code:'{first_name}'},
+     { label:'نام خانوادگی', code:'{last_name}'},
+     { label:'یوزرنیم', code:'{username}'},
+     { label:'آیدی عددی', code:'{id}'},
+     { label:'تاریخ', code:'{date}'},
+     { label:'ساعت', code:'{time}'},
   ];
 
   // --- TEMPLATES ---
   const TEMPLATES: Record<string, { title: string, icon: any, data: { menus: Record<string, MenuPage>, forms: Record<string, FormConfig> } }> = {
      'simple_store': {
-        title: 'فروشگاه ساده',
+        title:'فروشگاه ساده',
         icon: <LayoutGrid size={18}/>,
         data: {
            menus: {
                'root': {
-                  id: 'root',
-                  title: 'منوی اصلی فروشگاه',
-                  content: 'به فروشگاه ما خوش آمدید! 🛍\nچه کمکی از دست من برمی‌آید؟',
+                  id:'root',
+                  title:'منوی اصلی فروشگاه',
+                  content:'به فروشگاه ما خوش آمدید! 🛍\nچه کمکی از دست من برمی‌آید؟',
                   media: [],
                   rows: [
-                     { id: 'r1', buttons: [{ id: 'b1', text: '🛍 محصولات', type: 'submenu', targetMenuId: 'products' }, { id: 'b2', text: '🛒 سبد خرید', type: 'callback', value: 'cart' }] },
-                     { id: 'r2', buttons: [{ id: 'b3', text: '📞 پشتیبانی', type: 'submenu', targetMenuId: 'support' }] }
+                     { id:'r1', buttons: [{ id:'b1', text:'🛍 محصولات', type:'submenu', targetMenuId:'products'}, { id:'b2', text:'🛒 سبد خرید', type:'callback', value:'cart'}] },
+                     { id:'r2', buttons: [{ id:'b3', text:'📞 پشتیبانی', type:'submenu', targetMenuId:'support'}] }
                   ]
                },
                'products': {
-                  id: 'products', parentId: 'root', title: 'لیست محصولات',
-                  content: 'دسته بندی مورد نظر را انتخاب کنید:',
+                  id:'products', parentId:'root', title:'لیست محصولات',
+                  content:'دسته بندی مورد نظر را انتخاب کنید:',
                   media: [],
                   rows: [
-                     { id: 'pr1', buttons: [{ id: 'pb1', text: '📱 موبایل', type: 'callback', value: 'cat_mobile' }, { id: 'pb2', text: '💻 لپتاپ', type: 'callback', value: 'cat_laptop' }] }
+                     { id:'pr1', buttons: [{ id:'pb1', text:'📱 موبایل', type:'callback', value:'cat_mobile'}, { id:'pb2', text:'💻 لپتاپ', type:'callback', value:'cat_laptop'}] }
                   ]
                },
                'support': {
-                  id: 'support', parentId: 'root', title: 'پشتیبانی',
-                  content: 'برای تماس با ما از راه‌های زیر اقدام کنید:',
+                  id:'support', parentId:'root', title:'پشتیبانی',
+                  content:'برای تماس با ما از راه‌های زیر اقدام کنید:',
                   media: [],
                   rows: [
-                     { id: 'sr1', buttons: [{ id: 'sb1', text: 'ارسال پیام به ادمین', type: 'link', value: 'https://t.me/admin' }] }
+                     { id:'sr1', buttons: [{ id:'sb1', text:'ارسال پیام به ادمین', type:'link', value:'https://t.me/admin'}] }
                   ]
                }
            },
@@ -295,32 +295,32 @@ export const KeyboardBuilder: React.FC = () => {
         }
      },
      'support_bot': {
-        title: 'ربات پشتیبانی',
+        title:'ربات پشتیبانی',
         icon: <MessageSquare size={18}/>,
         data: {
            menus: {
                'root': {
-                  id: 'root', title: 'منوی اصلی', content: 'سلام {first_name} 👋\nبه مرکز پشتیبانی خوش آمدید.', media: [],
+                  id:'root', title:'منوی اصلی', content:'سلام {first_name} 👋\nبه مرکز پشتیبانی خوش آمدید.', media: [],
                   rows: [
-                     { id: 'r1', buttons: [{ id: 'b1', text: '🎫 ثبت تیکت جدید', type: 'form', value: 'form_ticket' }] },
-                     { id: 'r2', buttons: [{ id: 'b2', text: '❓ سوالات متداول', type: 'submenu', targetMenuId: 'faq' }] }
+                     { id:'r1', buttons: [{ id:'b1', text:'🎫 ثبت تیکت جدید', type:'form', value:'form_ticket'}] },
+                     { id:'r2', buttons: [{ id:'b2', text:'❓ سوالات متداول', type:'submenu', targetMenuId:'faq'}] }
                   ]
                },
                'faq': {
-                  id: 'faq', parentId: 'root', title: 'سوالات متداول', content: 'لیست سوالات پرتکرار:', media: [],
+                  id:'faq', parentId:'root', title:'سوالات متداول', content:'لیست سوالات پرتکرار:', media: [],
                   rows: [
-                     { id: 'fr1', buttons: [{ id: 'fb1', text: 'ساعات کاری؟', type: 'callback', value: 'faq_time' }] }
+                     { id:'fr1', buttons: [{ id:'fb1', text:'ساعات کاری؟', type:'callback', value:'faq_time'}] }
                   ]
                }
            },
            forms: {
                'form_ticket': {
-                   id: 'form_ticket',
-                   title: 'فرم تماس',
-                   adminId: '12345678',
+                   id:'form_ticket',
+                   title:'فرم تماس',
+                   adminId:'12345678',
                    questions: [
-                       { id: 'q1', text: 'لطفا نام خود را وارد کنید:', type: 'text' },
-                       { id: 'q2', text: 'پیام خود را بنویسید:', type: 'text' }
+                       { id:'q1', text:'لطفا نام خود را وارد کنید:', type:'text'},
+                       { id:'q2', text:'پیام خود را بنویسید:', type:'text'}
                    ]
                }
            }
@@ -348,14 +348,14 @@ export const KeyboardBuilder: React.FC = () => {
             if (btn.id === selectedButton.btnId) {
               const updatedBtn = { ...btn, ...updates };
 
-              if (updates.type === 'submenu' && !btn.targetMenuId) {
-                const newMenuId = `menu_${Date.now()}`;
+              if (updates.type ==='submenu'&& !btn.targetMenuId) {
+                const newMenuId =`menu_${Date.now()}`;
                 setMenus(prev => ({
                   ...prev,
                   [newMenuId]: {
                     id: newMenuId,
-                    title: `زیر منوی: ${btn.text}`,
-                    content: `این محتوای زیر منوی "${btn.text}" است.`,
+                    title:`زیر منوی: ${btn.text}`,
+                    content:`این محتوای زیر منوی"${btn.text}"است.`,
                     media: [],
                     rows: [],
                     parentId: currentMenuId
@@ -365,8 +365,8 @@ export const KeyboardBuilder: React.FC = () => {
               }
 
               // Initialize form if type changes to form and no value exists
-              if (updates.type === 'form') {
-                  const formId = btn.value && btn.value.startsWith('form_') ? btn.value : `form_${Date.now()}`;
+              if (updates.type ==='form') {
+                  const formId = btn.value && btn.value.startsWith('form_') ? btn.value :`form_${Date.now()}`;
                   updatedBtn.value = formId;
 
                   if (!forms[formId]) {
@@ -374,10 +374,10 @@ export const KeyboardBuilder: React.FC = () => {
                           ...prev,
                           [formId]: {
                               id: formId,
-                              title: `فرم ${btn.text}`,
-                              adminId: '',
+                              title:`فرم ${btn.text}`,
+                              adminId:'',
                               questions: [
-                                  { id: 'q1', text: 'سوال اول خود را بنویسید:', type: 'text' }
+                                  { id:'q1', text:'سوال اول خود را بنویسید:', type:'text'}
                               ]
                           }
                       }));
@@ -385,11 +385,11 @@ export const KeyboardBuilder: React.FC = () => {
               }
 
               // Initialize Inquiry Config
-              if (updates.type === 'inquiry' && !btn.inquiryConfig) {
+              if (updates.type ==='inquiry'&& !btn.inquiryConfig) {
                   updatedBtn.inquiryConfig = {
-                      adminId: '',
-                      responseText: 'سلام {first_name} عزیز، فایل کاتالوگ پارچه‌ها برای شما ارسال شد. برای نهایی کردن سفارش، لطفا روی دکمه زیر کلیک کرده و با کارشناس ما صحبت کنید.',
-                      catalogType: 'document'
+                      adminId:'',
+                      responseText:'سلام {first_name} عزیز، فایل کاتالوگ پارچه‌ها برای شما ارسال شد. برای نهایی کردن سفارش، لطفا روی دکمه زیر کلیک کرده و با کارشناس ما صحبت کنید.',
+                      catalogType:'document'
                   };
               }
 
@@ -447,43 +447,43 @@ export const KeyboardBuilder: React.FC = () => {
 
   const handlePreviewAction = (btn: InlineButton) => {
       switch(btn.type) {
-          case 'submenu':
+          case'submenu':
               if (btn.targetMenuId) navigateTo(btn.targetMenuId);
               break;
-          case 'link':
-              setPreviewModal({ type: 'link', value: btn.value || 'https://google.com' });
+          case'link':
+              setPreviewModal({ type:'link', value: btn.value ||'https://google.com'});
               break;
-          case 'form':
+          case'form':
               setSimFormStep(0);
               setSimFormAnswers([]);
-              setPreviewModal({ type: 'form', value: btn.value || '' });
+              setPreviewModal({ type:'form', value: btn.value ||''});
               break;
-          case 'inquiry':
-              setPreviewModal({ type: 'inquiry', value: 'catalog' });
+          case'inquiry':
+              setPreviewModal({ type:'inquiry', value:'catalog'});
               break;
-          case 'product':
+          case'product':
               if (btn.productId) {
                   const prod = getProducts().find(p => p.id === btn.productId);
-                  alert(`🛒 محصول "${prod?.name || 'انتخابی'}" به سبد خرید اضافه شد (شبیه‌سازی).`);
+                  alert(`🛒 محصول"${prod?.name ||'انتخابی'}"به سبد خرید اضافه شد (شبیه‌سازی).`);
               } else {
                   alert('محصولی برای این دکمه انتخاب نشده است.');
               }
               break;
-          case 'command':
-              setPreviewInput(`/${btn.value || 'start'}`);
+          case'command':
+              setPreviewInput(`/${btn.value ||'start'}`);
               setTimeout(() => {
                   setPreviewInput('');
                   // Simulate sent
               }, 800);
               break;
-          case 'api':
-              alert(`🔗 فراخوانی API به آدرس:\n${btn.apiUrl || 'آدرسی تنظیم نشده است'}\n(شبیه‌سازی ارسال درخواست POST)`);
+          case'api':
+              alert(`🔗 فراخوانی API به آدرس:\n${btn.apiUrl ||'آدرسی تنظیم نشده است'}\n(شبیه‌سازی ارسال درخواست POST)`);
               break;
-          case 'ticket':
+          case'ticket':
               alert('🎫 جریان ثبت تیکت پشتیبانی (/support) شروع شد (شبیه‌سازی).');
               break;
           default:
-              if (btn.value === 'support') {
+              if (btn.value ==='support') {
                   alert('🎫 جریان ثبت تیکت پشتیبانی (/support) شروع شد (شبیه‌سازی).');
               }
               break;
@@ -511,9 +511,9 @@ export const KeyboardBuilder: React.FC = () => {
   const addQuestion = (formId: string) => {
       const form = forms[formId];
       const newQuestion: FormQuestion = {
-          id: `q${Date.now()}`,
-          text: 'سوال جدید...',
-          type: 'text'
+          id:`q${Date.now()}`,
+          text:'سوال جدید...',
+          type:'text'
       };
       updateForm(formId, { questions: [...form.questions, newQuestion] });
   };
@@ -533,15 +533,15 @@ export const KeyboardBuilder: React.FC = () => {
 
   const handleExport = () => {
     const exportData = {
-        version: "1.0",
+        version:"1.0",
         menus: JSON.parse(JSON.stringify(menus)),
         forms: JSON.parse(JSON.stringify(forms))
     };
 
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+    const dataStr ="data:text/json;charset=utf-8,"+ encodeURIComponent(JSON.stringify(exportData, null, 2));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "bot_full_structure.json");
+    downloadAnchorNode.setAttribute("download","bot_full_structure.json");
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
@@ -587,7 +587,7 @@ export const KeyboardBuilder: React.FC = () => {
       }
     };
     reader.readAsText(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value ='';
   };
 
   const applyTemplate = (templateKey: string) => {
@@ -621,7 +621,7 @@ export const KeyboardBuilder: React.FC = () => {
            textArea.setSelectionRange(start + variable.length, start + variable.length);
         }, 0);
     } else {
-        updateMenu(currentMenuId, { content: currentMenu.content + ' ' + variable });
+        updateMenu(currentMenuId, { content: currentMenu.content +'' + variable });
     }
   };
 
@@ -629,9 +629,9 @@ export const KeyboardBuilder: React.FC = () => {
   const addRow = (count: number) => {
     const newButtons: InlineButton[] = Array(count).fill(null).map((_, i) => ({
       id: Date.now().toString() + i,
-      text: count === 1 ? 'دکمه جدید' : `گزینه ${i + 1}`,
-      type: 'callback',
-      value: ''
+      text: count === 1 ?'دکمه جدید':`گزینه ${i + 1}`,
+      type:'callback',
+      value:''
     }));
     updateMenu(currentMenuId, {
       rows: [...currentMenu.rows, { id: Date.now().toString(), buttons: newButtons }]
@@ -641,9 +641,9 @@ export const KeyboardBuilder: React.FC = () => {
   const addSupportButton = () => {
     const supportBtn: InlineButton = {
       id: Date.now().toString(),
-      text: '💬 پشتیبانی',
-      type: 'callback',
-      value: 'support'
+      text:'💬 پشتیبانی',
+      type:'callback',
+      value:'support'
     };
     updateMenu(currentMenuId, {
       rows: [...currentMenu.rows, { id: Date.now().toString(), buttons: [supportBtn] }]
@@ -697,7 +697,7 @@ export const KeyboardBuilder: React.FC = () => {
   };
 
   // --- UPDATED MEDIA UPLOAD (DB CHANNEL) ---
-  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'audio') => {
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>, type:'image'|'video'|'audio') => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const previewUrl = URL.createObjectURL(file);
@@ -714,7 +714,7 @@ export const KeyboardBuilder: React.FC = () => {
                   fileId = uploadedId;
                   console.log(`File uploaded to DB. ID: ${uploadedId}`);
               } else {
-                  alert('هشدار: آپلود در کانال دیتابیس ناموفق بود. لطفا بررسی کنید که ربات در کانال دیتابیس "ادمین" باشد و آیدی کانال صحیح وارد شده باشد (شروع با -100).');
+                  alert('هشدار: آپلود در کانال دیتابیس ناموفق بود. لطفا بررسی کنید که ربات در کانال دیتابیس"ادمین"باشد و آیدی کانال صحیح وارد شده باشد (شروع با -100).');
               }
           } catch (err) {
               console.error('Failed to upload to DB channel, falling back to local blob', err);
@@ -735,7 +735,7 @@ export const KeyboardBuilder: React.FC = () => {
 
       updateMenu(currentMenuId, { media: [...currentMenu.media, newMedia] });
       setIsUploading(false);
-      e.target.value = '';
+      e.target.value ='';
     }
   };
 
@@ -752,7 +752,7 @@ export const KeyboardBuilder: React.FC = () => {
 
             try {
                 // Usually catalogs are PDFs (Documents) or Images
-                const type = file.type.includes('image') ? 'image' : 'document';
+                const type = file.type.includes('image') ?'image':'document';
                 const fileId = await telegramService.uploadToDb(token, dbChannel, file, type);
 
                 if (fileId) {
@@ -769,7 +769,7 @@ export const KeyboardBuilder: React.FC = () => {
                 alert('خطا در ارتباط با تلگرام.');
             }
             setIsUploading(false);
-            e.target.value = '';
+            e.target.value ='';
         }
     };
 
@@ -779,7 +779,7 @@ export const KeyboardBuilder: React.FC = () => {
 
   return (
     <div className="flex flex-col lg:grid lg:grid-cols-[3fr_2fr] gap-6 relative lg:h-[calc(100vh-9rem)]">
-      <input type="file" ref={fileInputRef} onChange={handleMediaUpload} className="hidden" accept="image/*,video/*,audio/*" />
+      <input type="file"ref={fileInputRef} onChange={handleMediaUpload} className="hidden"accept="image/*,video/*,audio/*"/>
 
 <FormDesignerModal
         editingFormId={editingFormId}
@@ -867,7 +867,7 @@ export const KeyboardBuilder: React.FC = () => {
             <label className="flex items-center gap-2 px-3 py-2 bg-green-600/10 hover:bg-green-600/20 border border-green-500/30 rounded-lg text-sm text-green-400 transition-colors whitespace-nowrap cursor-pointer">
               <Upload size={16} />
               بازیابی
-              <input type="file" accept=".json" onChange={handleImport} ref={fileInputRef} className="hidden" />
+              <input type="file"accept=".json"onChange={handleImport} ref={fileInputRef} className="hidden"/>
             </label>
             <div className="w-[1px] h-6 bg-white/10 mx-1"></div>
             <button
@@ -880,7 +880,7 @@ export const KeyboardBuilder: React.FC = () => {
         </div>
 
         {/* Navigation Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm dark:text-white/60 text-slate-500 bg-white/50 dark:bg-black/20 p-2 rounded-xl">
+        <div className="flex items-center gap-2 text-sm text-slate-500 bg-white/50 p-2 rounded-xl">
            <button
              onClick={() => { setCurrentMenuId('root'); setHistory([]); }}
              className="hover:text-blue-500 p-1 rounded-md transition-colors"
@@ -898,13 +898,13 @@ export const KeyboardBuilder: React.FC = () => {
                  }}
                  className="cursor-pointer hover:text-blue-500 truncate max-w-[100px]"
                >
-                 {menus[histId]?.title || '...'}
+                 {menus[histId]?.title ||'...'}
                </span>
                <span>/</span>
              </React.Fragment>
            ))}
-           <span className="font-bold dark:text-white text-slate-800 truncate max-w-[150px]">
-             {currentMenu?.title || 'منو'}
+           <span className="font-bold text-slate-800 truncate max-w-[150px]">
+             {currentMenu?.title ||'منو'}
            </span>
            {history.length > 0 && (
                <button onClick={navigateBack} className="mr-auto flex items-center gap-1 text-xs bg-blue-500/10 text-blue-500 px-2 py-1 rounded-lg">

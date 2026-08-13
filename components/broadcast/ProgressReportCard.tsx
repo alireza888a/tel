@@ -1,6 +1,6 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { BarChart3, UserX } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { BarChart3, UserX } from'lucide-react';
 
 interface ProgressReportCardProps {
   progress: number;
@@ -29,31 +29,31 @@ export const ProgressReportCard: React.FC<ProgressReportCardProps> = ({
       {isSending ? (
         <>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs dark:text-white text-slate-800 flex items-center gap-2 animate-pulse">در حال ارسال به {stats.total} نفر...</span>
-            <span className="text-xs font-mono dark:text-blue-300 text-blue-600">{progress}%</span>
+            <span className="text-xs text-slate-800 flex items-center gap-2 animate-pulse">در حال ارسال به {stats.total} نفر...</span>
+            <span className="text-xs font-mono text-blue-600">{progress}%</span>
           </div>
-          <div className="h-2 bg-black/50 rounded-full overflow-hidden border dark:border-white/5 border-slate-100 mb-4">
-            <div className={`h-full transition-all duration-300 relative ${isPaused ? 'bg-yellow-500' : 'bg-gradient-to-r from-green-500 to-blue-500'}`} style={{ width: `${progress}%` }}></div>
+          <div className="h-2 bg-black/50 rounded-full overflow-hidden border border-slate-100 mb-4">
+            <div className={`h-full transition-all duration-300 relative ${isPaused ?'bg-yellow-500':'bg-gradient-to-r from-green-500 to-blue-500'}`} style={{ width:`${progress}%`}}></div>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            <div><span className="dark:text-green-400 text-green-600 font-bold">{stats.sent}</span> موفق</div>
-            <div><span className="dark:text-orange-400 text-orange-600 font-bold">{stats.blocked}</span> بلاک</div>
-            <div><span className="dark:text-red-400 text-red-600 font-bold">{stats.failed}</span> خطا</div>
+            <div><span className="text-green-600 font-bold">{stats.sent}</span> موفق</div>
+            <div><span className="text-orange-600 font-bold">{stats.blocked}</span> بلاک</div>
+            <div><span className="text-red-600 font-bold">{stats.failed}</span> خطا</div>
           </div>
         </>
       ) : showReport ? (
         <div className="animate-fade-in">
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b dark:border-white/10 border-slate-200">
-            <BarChart3 size={16} className="dark:text-green-400 text-green-600"/>
-            <span className="font-bold text-sm dark:text-white text-slate-800">گزارش نهایی ارسال</span>
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-200">
+            <BarChart3 size={16} className="text-green-600"/>
+            <span className="font-bold text-sm text-slate-800">گزارش نهایی ارسال</span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-green-500/10 rounded-lg p-2"><div className="text-lg font-bold dark:text-green-400 text-green-600">{stats.sent}</div><div className="text-[10px]">موفق</div></div>
-            <div className="bg-orange-500/10 rounded-lg p-2"><div className="text-lg font-bold dark:text-orange-400 text-orange-600">{stats.blocked}</div><div className="text-[10px]">بلاک (حذف شد)</div></div>
-            <div className="bg-red-500/10 rounded-lg p-2"><div className="text-lg font-bold dark:text-red-400 text-red-600">{stats.failed}</div><div className="text-[10px]">خطا</div></div>
+            <div className="bg-green-500/10 rounded-lg p-2"><div className="text-lg font-bold text-green-600">{stats.sent}</div><div className="text-[10px]">موفق</div></div>
+            <div className="bg-orange-500/10 rounded-lg p-2"><div className="text-lg font-bold text-orange-600">{stats.blocked}</div><div className="text-[10px]">بلاک (حذف شد)</div></div>
+            <div className="bg-red-500/10 rounded-lg p-2"><div className="text-lg font-bold text-red-600">{stats.failed}</div><div className="text-[10px]">خطا</div></div>
           </div>
           {stats.blocked > 0 && (
-            <div className="mt-3 text-[10px] dark:text-orange-400 text-orange-600 bg-orange-500/10 p-2 rounded flex items-center gap-2">
+            <div className="mt-3 text-[10px] text-orange-600 bg-orange-500/10 p-2 rounded flex items-center gap-2">
               <UserX size={12}/>
               <span>{stats.blocked} کاربر بلاک کننده به صورت خودکار از لیست حذف شدند تا سرعت ارسال افزایش یابد.</span>
             </div>

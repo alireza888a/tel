@@ -541,7 +541,7 @@ export const Settings: React.FC = () => {
                     <Server size={32}/>
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold dark:text-white text-slate-800">تنظیمات سیستم و دیتابیس</h2>
+                    <h2 className="text-2xl font-bold text-slate-800">تنظیمات سیستم و دیتابیس</h2>
                     <p className="text-sm text-slate-500">مدیریت فضای ابری، پشتیبان‌گیری و تنظیمات کلی پنل</p>
                 </div>
             </div>

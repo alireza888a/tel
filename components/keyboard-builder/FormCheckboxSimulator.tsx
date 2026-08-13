@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Check } from 'lucide-react';
+import React, { useState } from'react';
+import { Check } from'lucide-react';
 
 interface FormCheckboxSimulatorProps {
   options: string[];
@@ -24,12 +24,12 @@ export const FormCheckboxSimulator: React.FC<FormCheckboxSimulatorProps> = ({ op
               onClick={() => toggle(opt)}
               className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between ${
                 isChecked
-                  ? 'bg-emerald-600/20 border-emerald-500 text-emerald-200'
-                  : 'dark:bg-black/20 bg-slate-100 dark:border-white/10 border-slate-200 dark:text-slate-300 text-slate-600 dark:hover:bg-white/5 hover:bg-slate-100'
+                  ?'bg-emerald-600/20 border-emerald-500 text-emerald-200'
+                  :'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-100'
               }`}
             >
               <span>{opt}</span>
-              <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-emerald-500 border-emerald-500 dark:text-white text-slate-800' : 'border-white/30'}`}>
+              <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ?'bg-emerald-500 border-emerald-500 text-slate-800':'border-white/30'}`}>
                 {isChecked && <Check size={12} />}
               </div>
             </div>
@@ -38,7 +38,7 @@ export const FormCheckboxSimulator: React.FC<FormCheckboxSimulatorProps> = ({ op
       </div>
       <button
         onClick={() => onSubmit(selected.length > 0 ? selected : ['هیچ گزینه‌ای انتخاب نشد'])}
-        className="w-full mt-2 py-2.5 bg-emerald-600 hover:bg-emerald-500 dark:text-white text-slate-800 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/20"
+        className="w-full mt-2 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-800 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/20"
       >
         تایید و ارسال ({selected.length} گزینه انتخاب شده)
       </button>

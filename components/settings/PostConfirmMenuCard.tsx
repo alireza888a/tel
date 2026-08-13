@@ -1,6 +1,6 @@
-import React from 'react';
-import { GlassCard } from '../GlassCard';
-import { MessageSquareCode } from 'lucide-react';
+import React from'react';
+import { GlassCard } from'../GlassCard';
+import { MessageSquareCode } from'lucide-react';
 
 interface PostConfirmMenuCardProps {
   postConfirmMenuId: string;
@@ -16,8 +16,8 @@ export const PostConfirmMenuCard: React.FC<PostConfirmMenuCardProps> = ({
   return (
     <GlassCard className="border-t-4 border-t-blue-500">
       <div className="flex items-center gap-2 mb-4">
-        <MessageSquareCode className="text-blue-400" />
-        <h3 className="font-bold text-lg dark:text-white text-slate-800">پیام بعد از تایید سفارش</h3>
+        <MessageSquareCode className="text-blue-400"/>
+        <h3 className="font-bold text-lg text-slate-800">پیام بعد از تایید سفارش</h3>
       </div>
 
       <div className="space-y-4">
@@ -28,7 +28,7 @@ export const PostConfirmMenuCard: React.FC<PostConfirmMenuCardProps> = ({
             onChange={(e) => setPostConfirmMenuId(e.target.value)}
             className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-blue-500 transition-colors cursor-pointer"
           >
-            <option value="" className="bg-slate-900 text-slate-300">هیچکدام (پیش‌فرض)</option>
+            <option value=""className="bg-slate-900 text-slate-300">هیچکدام (پیش‌فرض)</option>
             {Object.entries(getKbMenus()).map(([id, menu]) => (
               <option key={id} value={id} className="bg-slate-900 text-white">
                 {(menu as { title?: string; content?: string })?.title || (menu as { title?: string; content?: string })?.content || id} ({id})

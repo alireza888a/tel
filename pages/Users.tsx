@@ -225,40 +225,40 @@ export const Users: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <GlassCard className="p-5 flex items-center justify-between">
                     <div>
-                        <div className="text-3xl font-bold dark:text-white text-slate-800">{stats.total}</div>
-                        <div className="text-xs dark:text-slate-400 text-slate-500 mt-1">کل کاربران ربات</div>
+                        <div className="text-3xl font-bold text-slate-800">{stats.total}</div>
+                        <div className="text-xs text-slate-500 mt-1">کل کاربران ربات</div>
                     </div>
-                    <div className="p-3 bg-blue-500/10 rounded-2xl dark:text-blue-400 text-blue-600">
+                    <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-600">
                         <UsersIcon size={24} />
                     </div>
                 </GlassCard>
 
                 <GlassCard className="p-5 flex items-center justify-between">
                     <div>
-                        <div className="text-3xl font-bold dark:text-green-400 text-green-600">{stats.active}</div>
-                        <div className="text-xs dark:text-slate-400 text-slate-500 mt-1">کاربران فعال</div>
+                        <div className="text-3xl font-bold text-green-600">{stats.active}</div>
+                        <div className="text-xs text-slate-500 mt-1">کاربران فعال</div>
                     </div>
-                    <div className="p-3 bg-green-500/10 rounded-2xl dark:text-green-400 text-green-600">
+                    <div className="p-3 bg-green-500/10 rounded-2xl text-green-600">
                         <CheckCircle size={24} />
                     </div>
                 </GlassCard>
 
                 <GlassCard className="p-5 flex items-center justify-between">
                     <div>
-                        <div className="text-3xl font-bold dark:text-red-400 text-red-600">{stats.blocked}</div>
-                        <div className="text-xs dark:text-slate-400 text-slate-500 mt-1">بلاک یا مسدود شده</div>
+                        <div className="text-3xl font-bold text-red-600">{stats.blocked}</div>
+                        <div className="text-xs text-slate-500 mt-1">بلاک یا مسدود شده</div>
                     </div>
-                    <div className="p-3 bg-red-500/10 rounded-2xl dark:text-red-400 text-red-600">
+                    <div className="p-3 bg-red-500/10 rounded-2xl text-red-600">
                         <UserX size={24} />
                     </div>
                 </GlassCard>
 
                 <GlassCard className="p-5 flex items-center justify-between">
                     <div>
-                        <div className="text-3xl font-bold dark:text-purple-400 text-purple-600">{stats.totalMessages}</div>
-                        <div className="text-xs dark:text-slate-400 text-slate-500 mt-1">تعداد تعاملات پیام</div>
+                        <div className="text-3xl font-bold text-purple-600">{stats.totalMessages}</div>
+                        <div className="text-xs text-slate-500 mt-1">تعداد تعاملات پیام</div>
                     </div>
-                    <div className="p-3 bg-purple-500/10 rounded-2xl dark:text-purple-400 text-purple-600">
+                    <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-600">
                         <MessageSquare size={24} />
                     </div>
                 </GlassCard>
@@ -293,26 +293,26 @@ export const Users: React.FC = () => {
                     {selectedUser ? (
                         <div className="space-y-4 h-full flex flex-col justify-between">
                             <div>
-                                <div className="flex items-center gap-2 mb-3 dark:bg-white/5 bg-slate-100 p-2 rounded-lg">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold dark:text-white text-slate-800 uppercase">
+                                <div className="flex items-center gap-2 mb-3 bg-slate-100 p-2 rounded-lg">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold text-slate-800 uppercase">
                                         {(selectedUser.firstName || selectedUser.first_name || 'کاربر').substring(0, 2)}
                                     </div>
                                     <div>
-                                        <div className="text-xs font-bold dark:text-white text-slate-800">
+                                        <div className="text-xs font-bold text-slate-800">
                                             {selectedUser.firstName || selectedUser.first_name || 'کاربر'} {selectedUser.lastName || selectedUser.last_name || ''}
                                         </div>
-                                        <div className="text-[10px] dark:text-slate-400 text-slate-500">آیدی: {selectedUser.id}</div>
+                                        <div className="text-[10px] text-slate-500">آیدی: {selectedUser.id}</div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs dark:text-slate-400 text-slate-500 block">برچسب‌های فعلی:</label>
+                                    <label className="text-xs text-slate-500 block">برچسب‌های فعلی:</label>
                                     {(selectedUser.tags || []).length === 0 ? (
                                         <div className="text-xs text-slate-500 italic">بدون برچسب</div>
                                     ) : (
                                         <div className="flex flex-wrap gap-1">
                                             {selectedUser.tags.map(tag => (
-                                                <span key={tag} className="inline-flex items-center gap-1 text-[10px] bg-blue-500/10 dark:text-blue-300 text-blue-600 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                                                <span key={tag} className="inline-flex items-center gap-1 text-[10px] bg-blue-500/10 text-blue-600 border border-blue-500/20 px-2 py-0.5 rounded-full">
                                                     {tag}
                                                     <button onClick={() => handleRemoveTag(tag)} className="hover:text-red-400 text-slate-500">×</button>
                                                 </span>
@@ -322,19 +322,19 @@ export const Users: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="pt-4 border-t dark:border-white/5 border-slate-100">
-                                <label className="text-xs dark:text-slate-400 text-slate-500 block mb-1">افزودن برچسب جدید:</label>
+                            <div className="pt-4 border-t border-slate-100">
+                                <label className="text-xs text-slate-500 block mb-1">افزودن برچسب جدید:</label>
                                 <div className="flex gap-2">
                                     <input 
                                         type="text" 
                                         value={newTagInput}
                                         onChange={e => setNewTagInput(e.target.value)}
                                         placeholder="مثلا: خریدار پارچه"
-                                        className="flex-1 dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-lg px-3 py-1.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500"
+                                        className="flex-1 bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-blue-500"
                                     />
                                     <button 
                                         onClick={handleAddTag}
-                                        className="bg-blue-600 hover:bg-blue-500 dark:text-white text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1"
+                                        className="bg-blue-600 hover:bg-blue-500 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1"
                                     >
                                         <Tag size={12}/> ثبت
                                     </button>
@@ -358,7 +358,7 @@ export const Users: React.FC = () => {
                         <button
                             onClick={fetchUsers}
                             disabled={isLoading}
-                            className="dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 dark:text-slate-300 text-slate-600 border dark:border-white/10 border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
+                            className="bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
                             title="بروزرسانی کاربران"
                         >
                             <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
@@ -372,7 +372,7 @@ export const Users: React.FC = () => {
                                 value={searchTerm}
                                 onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                 placeholder="جستجوی نام یا آیدی..."
-                                className="dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-lg pr-8 pl-3 py-1.5 text-xs dark:text-white text-slate-800 outline-none focus:border-blue-500 w-48"
+                                className="bg-slate-100 border border-slate-200 rounded-lg pr-8 pl-3 py-1.5 text-xs text-slate-800 outline-none focus:border-blue-500 w-48"
                             />
                         </div>
                         
@@ -380,7 +380,7 @@ export const Users: React.FC = () => {
                         <select 
                             value={statusFilter}
                             onChange={e => { setStatusFilter(e.target.value as any); setCurrentPage(1); }}
-                            className="dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-lg px-2 py-1.5 text-xs dark:text-slate-300 text-slate-600 outline-none"
+                            className="bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-600 outline-none"
                         >
                             <option value="all">همه وضعیت‌ها</option>
                             <option value="active">فعال</option>
@@ -391,7 +391,7 @@ export const Users: React.FC = () => {
                         <select 
                             value={tagFilter}
                             onChange={e => { setTagFilter(e.target.value); setCurrentPage(1); }}
-                            className="dark:bg-black/20 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-lg px-2 py-1.5 text-xs dark:text-slate-300 text-slate-600 outline-none"
+                            className="bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-600 outline-none"
                         >
                             <option value="all">همه برچسب‌ها</option>
                             {allTags.map(tag => (
@@ -404,7 +404,7 @@ export const Users: React.FC = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-right border-collapse">
                         <thead>
-                            <tr className="border-b dark:border-white/5 border-slate-100 dark:text-slate-400 text-slate-500 text-xs">
+                            <tr className="border-b border-slate-100 text-slate-500 text-xs">
                                 <th className="pb-3 pt-1">کاربر تلگرام</th>
                                 <th className="pb-3 pt-1">شناسه عددی (UID)</th>
                                 <th className="pb-3 pt-1">تاریخ عضویت</th>
@@ -417,9 +417,9 @@ export const Users: React.FC = () => {
                         <tbody className="divide-y divide-white/5 text-sm">
                             {isLoading && users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="py-12 text-center dark:text-slate-400 text-slate-500 text-xs">
+                                    <td colSpan={7} className="py-12 text-center text-slate-500 text-xs">
                                         <div className="flex flex-col items-center justify-center gap-2">
-                                            <RefreshCw size={24} className="animate-spin dark:text-blue-400 text-blue-600" />
+                                            <RefreshCw size={24} className="animate-spin text-blue-600" />
                                             <span>در حال بارگذاری کاربران...</span>
                                         </div>
                                     </td>
@@ -433,37 +433,37 @@ export const Users: React.FC = () => {
                                     <tr 
                                         key={user.id} 
                                         onClick={() => setSelectedUser(user)}
-                                        className={`dark:hover:bg-white/5 hover:bg-slate-100 transition-colors cursor-pointer ${selectedUser?.id === user.id ? 'bg-blue-500/5' : ''}`}
+                                        className={`hover:bg-slate-100 transition-colors cursor-pointer ${selectedUser?.id === user.id ? 'bg-blue-500/5' : ''}`}
                                     >
                                         <td className="py-3 flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold dark:text-white text-slate-800 uppercase shrink-0">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold text-slate-800 uppercase shrink-0">
                                                 {(user.firstName || user.first_name || 'کاربر').substring(0, 2)}
                                             </div>
                                             <div>
-                                                <div className="font-bold dark:text-white text-slate-800 flex items-center gap-1.5">
+                                                <div className="font-bold text-slate-800 flex items-center gap-1.5">
                                                     {user.firstName || user.first_name || 'کاربر'} {user.lastName || user.last_name || ''}
-                                                    {user.status === 'blocked' && <ShieldAlert size={12} className="dark:text-red-400 text-red-600" title="بلاک شده"/>}
+                                                    {user.status === 'blocked' && <ShieldAlert size={12} className="text-red-600" title="بلاک شده"/>}
                                                 </div>
-                                                {user.username && <div className="text-[11px] dark:text-slate-400 text-slate-500 font-mono">@{user.username}</div>}
+                                                {user.username && <div className="text-[11px] text-slate-500 font-mono">@{user.username}</div>}
                                             </div>
                                         </td>
-                                        <td className="py-3 font-mono text-xs dark:text-slate-300 text-slate-600">{user.id}</td>
-                                        <td className="py-3 text-xs dark:text-slate-400 text-slate-500">{formatDate(user.joinedAt || user.joined_at)}</td>
-                                        <td className="py-3 text-xs dark:text-slate-400 text-slate-500">{formatDate(user.lastActive)}</td>
-                                        <td className="py-3 text-center text-xs dark:text-white text-slate-800 font-bold">{user.messagesCount || 0} پیام</td>
+                                        <td className="py-3 font-mono text-xs text-slate-600">{user.id}</td>
+                                        <td className="py-3 text-xs text-slate-500">{formatDate(user.joinedAt || user.joined_at)}</td>
+                                        <td className="py-3 text-xs text-slate-500">{formatDate(user.lastActive)}</td>
+                                        <td className="py-3 text-center text-xs text-slate-800 font-bold">{user.messagesCount || 0} پیام</td>
                                         <td className="py-3">
                                             <div className="flex flex-wrap gap-1 max-w-[200px]">
                                                 {(user.tags || []).length === 0 ? (
                                                     <span className="text-[10px] text-slate-600">-</span>
                                                 ) : (
                                                     user.tags.slice(0, 2).map(tag => (
-                                                        <span key={tag} className="text-[9px] bg-slate-500/10 dark:text-slate-300 text-slate-600 px-1.5 py-0.5 rounded border dark:border-white/5 border-slate-100">
+                                                        <span key={tag} className="text-[9px] bg-slate-500/10 text-slate-600 px-1.5 py-0.5 rounded border border-slate-100">
                                                             {tag}
                                                         </span>
                                                     ))
                                                 )}
                                                 {(user.tags || []).length > 2 && (
-                                                    <span className="text-[9px] bg-blue-500/10 dark:text-blue-300 text-blue-600 px-1 rounded">+{(user.tags || []).length - 2}</span>
+                                                    <span className="text-[9px] bg-blue-500/10 text-blue-600 px-1 rounded">+{(user.tags || []).length - 2}</span>
                                                 )}
                                             </div>
                                         </td>
@@ -472,8 +472,8 @@ export const Users: React.FC = () => {
                                                 onClick={(e) => { e.stopPropagation(); toggleStatus(user.id); }}
                                                 className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                                                     user.status === 'active' 
-                                                        ? 'bg-red-500/10 hover:bg-red-500/20 dark:text-red-400 text-red-600 border border-red-500/20' 
-                                                        : 'bg-green-500/10 hover:bg-green-500/20 dark:text-green-400 text-green-600 border border-green-500/20'
+                                                        ? 'bg-red-500/10 hover:bg-red-500/20 text-red-600 border border-red-500/20' 
+                                                        : 'bg-green-500/10 hover:bg-green-500/20 text-green-600 border border-green-500/20'
                                                 }`}
                                             >
                                                 {user.status === 'active' ? 'مسدود سازی' : 'رفع مسدودیت'}
@@ -488,21 +488,21 @@ export const Users: React.FC = () => {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                    <div className="flex justify-between items-center mt-4 pt-4 border-t dark:border-white/5 border-slate-100">
-                        <span className="text-xs dark:text-slate-400 text-slate-500">نمایش {indexOfFirstUser + 1} تا {Math.min(indexOfLastUser, filteredUsers.length)} از {filteredUsers.length} کاربر</span>
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100">
+                        <span className="text-xs text-slate-500">نمایش {indexOfFirstUser + 1} تا {Math.min(indexOfLastUser, filteredUsers.length)} از {filteredUsers.length} کاربر</span>
                         <div className="flex items-center gap-1">
                             <button 
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="p-1.5 rounded-lg dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 disabled:opacity-30 border dark:border-white/5 border-slate-100"
+                                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-30 border border-slate-100"
                             >
                                 <ChevronRight size={14}/>
                             </button>
-                            <span className="text-xs font-mono px-3 dark:text-white text-slate-800">صفحه {currentPage} از {totalPages}</span>
+                            <span className="text-xs font-mono px-3 text-slate-800">صفحه {currentPage} از {totalPages}</span>
                             <button 
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="p-1.5 rounded-lg dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 disabled:opacity-30 border dark:border-white/5 border-slate-100"
+                                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-30 border border-slate-100"
                             >
                                 <ChevronLeft size={14}/>
                             </button>

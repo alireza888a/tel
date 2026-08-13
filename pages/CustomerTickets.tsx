@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { GlassCard } from '../components/GlassCard';
-import { MessageSquare, RefreshCw, Send, CheckCircle2, Clock, User, MessageCircle } from 'lucide-react';
-import { BotTicket } from '../types';
-import { getStoredCredential } from '../services/cloudSync';
+import React, { useState, useEffect } from'react';
+import { GlassCard } from'../components/GlassCard';
+import { MessageSquare, RefreshCw, Send, CheckCircle2, Clock, User, MessageCircle } from'lucide-react';
+import { BotTicket } from'../types';
+import { getStoredCredential } from'../services/cloudSync';
 
 export const CustomerTickets: React.FC = () => {
   const [tickets, setTickets] = useState<BotTicket[]>([]);
-  const [filter, setFilter] = useState<'all' | 'open' | 'answered'>('all');
+  const [filter, setFilter] = useState<'all'|'open'|'answered'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -14,15 +14,15 @@ export const CustomerTickets: React.FC = () => {
   const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
   const [sendingId, setSendingId] = useState<string | null>(null);
 
-  const fetchTicketsApi = async (statusFilter: 'all' | 'open' | 'answered', beforeCursor?: number | null) => {
+  const fetchTicketsApi = async (statusFilter:'all'|'open'|'answered', beforeCursor?: number | null) => {
     const credential = getStoredCredential();
-    if (!credential) return { ok: false, reason: 'missing_fields' };
+    if (!credential) return { ok: false, reason:'missing_fields'};
     const payload: any = {
       ...credential,
       limit: 30
     };
 
-    if (statusFilter !== 'all') {
+    if (statusFilter !=='all') {
       payload.status = statusFilter;
     }
 
@@ -31,8 +31,8 @@ export const CustomerTickets: React.FC = () => {
     }
 
     const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/support-tickets/list', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
 
@@ -48,7 +48,7 @@ export const CustomerTickets: React.FC = () => {
         setHasMore(!!result.hasMore);
         setNextBefore(result.nextBefore ?? null);
       } else {
-        alert('خطا در دریافت تیکت‌ها: ' + (result.reason || 'نامشخص'));
+        alert('خطا در دریافت تیکت‌ها:'+ (result.reason ||'نامشخص'));
       }
     } catch (e) {
       console.error('Error fetching tickets:', e);
@@ -68,7 +68,7 @@ export const CustomerTickets: React.FC = () => {
         setHasMore(!!result.hasMore);
         setNextBefore(result.nextBefore ?? null);
       } else {
-        alert('خطا در دریافت ادامه تیکت‌ها: ' + (result.reason || 'نامشخص'));
+        alert('خطا در دریافت ادامه تیکت‌ها:'+ (result.reason ||'نامشخص'));
       }
     } catch (e) {
       console.error('Error loading more tickets:', e);
@@ -87,7 +87,7 @@ export const CustomerTickets: React.FC = () => {
   };
 
   const handleSendReply = async (ticket: BotTicket) => {
-    const replyText = (replyTexts[ticket.id] || '').trim();
+    const replyText = (replyTexts[ticket.id] ||'').trim();
     if (!replyText) {
       alert('لطفاً متن پاسخ را وارد کنید.');
       return;
@@ -102,8 +102,8 @@ export const CustomerTickets: React.FC = () => {
     setSendingId(ticket.id);
     try {
       const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/ticket/reply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method:'POST',
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ ...credential, ticketId: ticket.id, reply: replyText })
       });
       const result = await res.json();
@@ -111,46 +111,46 @@ export const CustomerTickets: React.FC = () => {
       if (result.ok) {
         alert('پاسخ ارسال شد.');
         // Clear reply text for this ticket
-        setReplyTexts(prev => ({ ...prev, [ticket.id]: '' }));
+        setReplyTexts(prev => ({ ...prev, [ticket.id]:''}));
         // Refresh cloud & state
         await refreshTickets();
       } else {
-        alert('خطا: ' + (result.reason || 'نامشخص'));
+        alert('خطا:'+ (result.reason ||'نامشخص'));
       }
     } catch (err: any) {
-      alert('خطا در ارتباط با سرور: ' + (err?.message || 'خطای شبکه'));
+      alert('خطا در ارتباط با سرور:'+ (err?.message ||'خطای شبکه'));
     } finally {
       setSendingId(null);
     }
   };
 
   const formatDate = (dateVal: number | string) => {
-    if (!dateVal) return 'نامشخص';
+    if (!dateVal) return'نامشخص';
     try {
-      const d = typeof dateVal === 'number' ? new Date(dateVal) : new Date(dateVal);
+      const d = typeof dateVal ==='number'? new Date(dateVal) : new Date(dateVal);
       if (isNaN(d.getTime())) return String(dateVal);
       return new Intl.DateTimeFormat('fa-IR', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        year:'numeric',
+        month:'short',
+        day:'numeric',
+        hour:'2-digit',
+        minute:'2-digit'
       }).format(d);
     } catch {
       return String(dateVal);
     }
   };
 
-  const openCount = tickets.filter(t => t.status === 'open').length;
-  const answeredCount = tickets.filter(t => t.status === 'answered').length;
+  const openCount = tickets.filter(t => t.status ==='open').length;
+  const answeredCount = tickets.filter(t => t.status ==='answered').length;
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black dark:text-white text-slate-800 flex items-center gap-2">
-            <MessageSquare className="text-blue-500" />
+          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+            <MessageSquare className="text-blue-500"/>
             تیکت‌های پشتیبانی کاربران ربات
           </h1>
           <p className="text-xs text-slate-400 mt-1">
@@ -164,7 +164,7 @@ export const CustomerTickets: React.FC = () => {
             disabled={isRefreshing}
             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-400 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 w-full sm:w-auto"
           >
-            <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+            <RefreshCw size={16} className={isRefreshing ?'animate-spin':''} />
             <span>بروزرسانی</span>
           </button>
         </div>
@@ -175,9 +175,9 @@ export const CustomerTickets: React.FC = () => {
         <button
           onClick={() => setFilter('all')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
-            filter === 'all'
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-              : 'bg-white/5 dark:bg-white/5 text-slate-400 hover:text-white'
+            filter ==='all'
+              ?'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+              :'bg-white/5 text-slate-400 hover:text-white'
           }`}
         >
           <span>همه تیکت‌ها</span>
@@ -187,9 +187,9 @@ export const CustomerTickets: React.FC = () => {
         <button
           onClick={() => setFilter('open')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
-            filter === 'open'
-              ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20'
-              : 'bg-white/5 dark:bg-white/5 text-slate-400 hover:text-white'
+            filter ==='open'
+              ?'bg-amber-600 text-white shadow-lg shadow-amber-500/20'
+              :'bg-white/5 text-slate-400 hover:text-white'
           }`}
         >
           <Clock size={14} />
@@ -200,9 +200,9 @@ export const CustomerTickets: React.FC = () => {
         <button
           onClick={() => setFilter('answered')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
-            filter === 'answered'
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
-              : 'bg-white/5 dark:bg-white/5 text-slate-400 hover:text-white'
+            filter ==='answered'
+              ?'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
+              :'bg-white/5 text-slate-400 hover:text-white'
           }`}
         >
           <CheckCircle2 size={14} />
@@ -214,14 +214,14 @@ export const CustomerTickets: React.FC = () => {
       {/* Ticket List */}
       {tickets.length === 0 ? (
         <GlassCard className="text-center py-12">
-          <MessageCircle className="mx-auto text-slate-500 mb-3" size={40} />
+          <MessageCircle className="mx-auto text-slate-500 mb-3"size={40} />
           <h3 className="font-bold text-slate-300 text-sm">تیکتی یافت نشد</h3>
           <p className="text-xs text-slate-500 mt-1">
-            {filter === 'open'
-              ? 'هیچ تیکت پاسخ‌نداده‌ای وجود ندارد.'
-              : filter === 'answered'
-              ? 'هیچ تیکت پاسخ‌داده‌شده‌ای وجود ندارد.'
-              : 'هنوز هیچ تیکتی از طرف خریداران ربات دریافت نشده است.'}
+            {filter ==='open'
+              ?'هیچ تیکت پاسخ‌نداده‌ای وجود ندارد.'
+              : filter ==='answered'
+              ?'هیچ تیکت پاسخ‌داده‌شده‌ای وجود ندارد.'
+              :'هنوز هیچ تیکتی از طرف خریداران ربات دریافت نشده است.'}
           </p>
         </GlassCard>
       ) : (
@@ -231,9 +231,9 @@ export const CustomerTickets: React.FC = () => {
               <GlassCard
                 key={ticket.id}
                 className={`border-l-4 transition-all ${
-                  ticket.status === 'open'
-                    ? 'border-l-amber-500 bg-amber-500/5'
-                    : 'border-l-emerald-500 bg-emerald-500/5'
+                  ticket.status ==='open'
+                    ?'border-l-amber-500 bg-amber-500/5'
+                    :'border-l-emerald-500 bg-emerald-500/5'
                 }`}
               >
                 <div className="space-y-4">
@@ -244,8 +244,8 @@ export const CustomerTickets: React.FC = () => {
                         {ticket.id}
                       </span>
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
-                        <User size={14} className="text-slate-400" />
-                        <span>{ticket.userFirstName || 'کاربر ربات'}</span>
+                        <User size={14} className="text-slate-400"/>
+                        <span>{ticket.userFirstName ||'کاربر ربات'}</span>
                         <span className="text-slate-500 font-mono text-[11px] dir-ltr">({ticket.userId})</span>
                       </div>
                     </div>
@@ -255,7 +255,7 @@ export const CustomerTickets: React.FC = () => {
                         <Clock size={12} />
                         {formatDate(ticket.createdAt)}
                       </span>
-                      {ticket.status === 'open' ? (
+                      {ticket.status ==='open'? (
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
                           <Clock size={11} />
                           در انتظار پاسخ
@@ -270,18 +270,18 @@ export const CustomerTickets: React.FC = () => {
                   </div>
 
                   {/* Question Message */}
-                  <div className="bg-black/20 border border-white/5 rounded-xl p-3.5 text-sm leading-relaxed dark:text-slate-200 text-slate-800 whitespace-pre-wrap">
+                  <div className="bg-black/20 border border-white/5 rounded-xl p-3.5 text-sm leading-relaxed text-slate-800 whitespace-pre-wrap">
                     <p className="text-[11px] font-bold text-slate-400 mb-1">متن سوال خریدار:</p>
                     {ticket.message}
                   </div>
 
                   {/* Reply section: Open vs Answered */}
-                  {ticket.status === 'open' ? (
+                  {ticket.status ==='open'? (
                     <div className="space-y-2 pt-1">
                       <label className="block text-xs font-bold text-slate-300">پاسخ به این تیکت:</label>
                       <textarea
                         rows={3}
-                        value={replyTexts[ticket.id] || ''}
+                        value={replyTexts[ticket.id] ||''}
                         onChange={e => handleReplyChange(ticket.id, e.target.value)}
                         placeholder="متن پاسخ خود را بنویسید..."
                         className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 transition-colors resize-none"
@@ -293,7 +293,7 @@ export const CustomerTickets: React.FC = () => {
                           className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                         >
                           {sendingId === ticket.id ? (
-                            <RefreshCw size={14} className="animate-spin" />
+                            <RefreshCw size={14} className="animate-spin"/>
                           ) : (
                             <Send size={14} />
                           )}
@@ -315,7 +315,7 @@ export const CustomerTickets: React.FC = () => {
                         )}
                       </div>
                       <p className="text-slate-200 leading-relaxed whitespace-pre-wrap pt-1">
-                        {ticket.adminReply || 'پاسخ ثبت شده است.'}
+                        {ticket.adminReply ||'پاسخ ثبت شده است.'}
                       </p>
                     </div>
                   )}
@@ -331,7 +331,7 @@ export const CustomerTickets: React.FC = () => {
                 disabled={isLoadingMore}
                 className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer shadow-sm"
               >
-                {isLoadingMore && <RefreshCw size={14} className="animate-spin" />}
+                {isLoadingMore && <RefreshCw size={14} className="animate-spin"/>}
                 <span>نمایش تیکت‌های قدیمی‌تر</span>
               </button>
             </div>

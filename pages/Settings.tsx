@@ -49,6 +49,7 @@ export const Settings: React.FC = () => {
     // Payment Card Settings States
     const [cardNumber, setCardNumber] = useState(localStorage.getItem('payment_card_number') || '');
     const [cardOwner, setCardOwner] = useState(localStorage.getItem('payment_card_owner') || '');
+    const [maxPerOrder, setMaxPerOrder] = useState(localStorage.getItem('max_per_order') || '');
 
     // Admin Chat ID State
     const [adminChatId, setAdminChatId] = useState(localStorage.getItem('admin_chat_id') || '');
@@ -185,6 +186,11 @@ export const Settings: React.FC = () => {
         localStorage.setItem('payment_card_owner', cardOwner);
         syncNow();
     }, [cardOwner]);
+
+    useEffect(() => {
+        localStorage.setItem('max_per_order', maxPerOrder);
+        syncNow();
+    }, [maxPerOrder]);
 
     useEffect(() => {
         localStorage.setItem('custom_texts', JSON.stringify(customTexts));
@@ -705,6 +711,8 @@ export const Settings: React.FC = () => {
                         setCardNumber={setCardNumber}
                         cardOwner={cardOwner}
                         setCardOwner={setCardOwner}
+                        maxPerOrder={maxPerOrder}
+                        setMaxPerOrder={setMaxPerOrder}
                     />
                     <PaymentSmsAutoConfirmCard />
                     </>

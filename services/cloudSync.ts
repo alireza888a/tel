@@ -50,6 +50,7 @@ export const saveToCloud = async (credential: StoredCredential): Promise<boolean
         force_join: localStorage.getItem('force_join_enabled'),
         payment_card_number: localStorage.getItem('payment_card_number'),
         payment_card_owner: localStorage.getItem('payment_card_owner'),
+        max_per_order: localStorage.getItem('max_per_order'),
         admin_chat_id: localStorage.getItem('admin_chat_id'),
         support_chat_id: localStorage.getItem('support_chat_id'),
         post_confirm_menu_id: localStorage.getItem('post_confirm_menu_id'),
@@ -130,6 +131,7 @@ export const loadFromCloud = async (credential: StoredCredential): Promise<boole
       localStorage.setItem('force_join_enabled', config.force_join || '');
       localStorage.setItem('payment_card_number', config.payment_card_number || '');
       localStorage.setItem('payment_card_owner', config.payment_card_owner || '');
+      localStorage.setItem('max_per_order', config.max_per_order || '');
       localStorage.setItem('admin_chat_id', config.admin_chat_id || '');
       localStorage.setItem('support_chat_id', config.support_chat_id || '');
       localStorage.setItem('post_confirm_menu_id', config.post_confirm_menu_id || '');

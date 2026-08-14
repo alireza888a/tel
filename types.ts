@@ -237,6 +237,11 @@ export interface Product {
   post_confirm_menu_id?: string;
   post_order_form_id?: string;
   trackStock?: boolean;
+  /** Optional per-product cap on how many units one buyer can put in a
+   *  single order. Overrides the shop-wide config.max_per_order when set;
+   *  undefined means "follow the global setting" (which itself may be
+   *  unset, meaning unlimited). */
+  maxPerOrder?: number;
 }
 
 export interface CartItem {

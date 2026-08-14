@@ -32,6 +32,7 @@ export const Products: React.FC = () => {
  const [postConfirmMenuId, setPostConfirmMenuId] = useState('');
  const [postOrderFormId, setPostOrderFormId] = useState('');
  const [trackStock, setTrackStock] = useState(false);
+ const [maxPerOrder, setMaxPerOrder] = useState<number | ''>('');
  const [stockValue, setStockValue] = useState<number | ''>('');
  const [categoryFilter, setCategoryFilter] = useState<string>('همه');
 
@@ -176,6 +177,7 @@ export const Products: React.FC = () => {
  setPostConfirmMenuId('');
  setPostOrderFormId('');
  setTrackStock(false);
+ setMaxPerOrder('');
  setStockValue('');
  setIsModalOpen(true);
  };
@@ -196,6 +198,7 @@ export const Products: React.FC = () => {
  setPostConfirmMenuId(product.post_confirm_menu_id || '');
  setPostOrderFormId(product.post_order_form_id || '');
  setTrackStock(!!product.trackStock);
+ setMaxPerOrder(product.maxPerOrder ?? '');
  setStockValue(product.trackStock ? (stockLevels[product.id] ?? 0) : '');
  setIsModalOpen(true);
  };
@@ -224,7 +227,8 @@ export const Products: React.FC = () => {
  category: category.trim() || 'عمومی',
  post_confirm_menu_id: postConfirmMenuId || undefined,
  post_order_form_id: postOrderFormId || undefined,
- trackStock
+ trackStock,
+ maxPerOrder: maxPerOrder === '' ? undefined : Number(maxPerOrder)
  } : p));
 
  if (trackStock) {
@@ -244,7 +248,8 @@ export const Products: React.FC = () => {
  category: category.trim() || 'عمومی',
  post_confirm_menu_id: postConfirmMenuId || undefined,
  post_order_form_id: postOrderFormId || undefined,
- trackStock
+ trackStock,
+ maxPerOrder: maxPerOrder === '' ? undefined : Number(maxPerOrder)
  };
  setProducts([...products, newProduct]);
 
@@ -699,6 +704,23 @@ export const Products: React.FC = () => {
  />
  </div>
  )}
+ </div>
+
+ {/* Per-order quantity cap (product-level override) */}
+ <div className="p-3 bg-black/[0.03] rounded-xl border border-black/5">
+ <label className="block text-sm font-bold text-brand-navy mb-1">حداکثر تعداد در هر سفارش</label>
+ <p className="text-[10px] text-brand-navy/50 mb-2">
+ خالی بذارید تا از تنظیم کلی پنل (تنظیمات ← پرداخت) پیروی کنه. عدد بذارید تا فقط برای همین محصول اعمال بشه — مثلاً «۱» یعنی هر مشتری در هر سفارش فقط یک عدد می‌تونه بگیره.
+ </p>
+ <input
+ type="text"
+ inputMode="numeric"
+ value={formatNumberInput(maxPerOrder)}
+ onChange={e => setMaxPerOrder(parseFormattedNumber(e.target.value))}
+ placeholder="بدون محدودیت (پیروی از تنظیم کلی)"
+ className="w-full bg-white border border-black/10 text-brand-navy rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-teal transition-colors text-right"
+ dir="ltr"
+ />
  </div>
 
  <div>

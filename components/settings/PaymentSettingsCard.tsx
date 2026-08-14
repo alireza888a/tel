@@ -7,6 +7,8 @@ interface PaymentSettingsCardProps {
   setCardNumber: (val: string) => void;
   cardOwner: string;
   setCardOwner: (val: string) => void;
+  maxPerOrder: string;
+  setMaxPerOrder: (val: string) => void;
 }
 
 export const PaymentSettingsCard: React.FC<PaymentSettingsCardProps> = ({
@@ -14,6 +16,8 @@ export const PaymentSettingsCard: React.FC<PaymentSettingsCardProps> = ({
   setCardNumber,
   cardOwner,
   setCardOwner,
+  maxPerOrder,
+  setMaxPerOrder,
 }) => {
   return (
     <GlassCard className="border-t-4 border-t-amber-500">
@@ -45,6 +49,26 @@ export const PaymentSettingsCard: React.FC<PaymentSettingsCardProps> = ({
             onChange={(e) => setCardOwner(e.target.value)}
             placeholder="مثال: علی جلالی"
             className="w-full bg-black/[0.03] border border-black/10 rounded-xl p-3 text-brand-navy outline-none focus:border-amber-500 transition-colors"
+          />
+        </div>
+
+        {/* Shop-wide per-order quantity cap. Deliberately lives next to the
+            payment settings (rather than a tab of its own) because it's a
+            selling-rule, and merchants look for it while setting up how
+            orders work. A product can override it individually from the
+            products page. */}
+        <div className="pt-4 border-t border-black/5">
+          <label className="block text-sm font-bold text-brand-navy mb-1">حداکثر تعداد هر محصول در یک سفارش</label>
+          <p className="text-[11px] text-brand-navy/50 mb-2 leading-relaxed">
+            خالی بذارید تا هیچ محدودیتی نباشه (حالت پیش‌فرض). این عدد روی همه‌ی محصولات اعمال می‌شه، مگر محصولی که خودش عدد اختصاصی داشته باشه (از صفحه‌ی محصولات).
+          </p>
+          <input
+            value={maxPerOrder}
+            onChange={(e) => setMaxPerOrder(e.target.value.replace(/[^\d]/g, ''))}
+            placeholder="بدون محدودیت"
+            inputMode="numeric"
+            className="w-full bg-black/[0.03] border border-black/10 rounded-xl p-3 text-brand-navy outline-none focus:border-amber-500 transition-colors text-right"
+            dir="ltr"
           />
         </div>
       </div>

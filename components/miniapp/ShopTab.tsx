@@ -137,9 +137,19 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   const getStockInfo = (p: Product) => {
     const isTracked = !!p.trackStock;
     const available = isTracked ? Math.max(0, stockLevels[p.id] ?? 0) : Infinity;
+    const inCart = cartState[p.id] || 0;
+    // Per-order cap resolved server-side (product override → shop default →
+    // null for unlimited) and sent along with each product. Treated as a
+    // second ceiling alongside stock: the + button stops at whichever
+    // limit is reached first. Without this the Mini App would happily let
+    // someone add 10 and only discover the cap at checkout, where the
+    // server silently clamps it.
+    const cap = typeof p.maxPerOrder === 'number' && p.maxPerOrder > 0 ? p.maxPerOrder : Infinity;
     return {
       outOfStock: isTracked && available <= 0,
-      atMax: isTracked && (cartState[p.id] || 0) >= available,
+      atMax: (isTracked && inCart >= available) || inCart >= cap,
+      atOrderCap: inCart >= cap,
+      orderCap: cap,
       lowStock: isTracked && available > 0 && available <= 5,
       available
     };

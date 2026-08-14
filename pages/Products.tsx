@@ -6,6 +6,7 @@ import { telegramService } from '../services/telegramService';
 import { getStoredCredential } from '../services/cloudSync';
 import { syncNow } from '../services/cloudSync';
 import { getDisplayableImageUrl } from '../utils/image';
+import { formatNumberInput, parseFormattedNumber } from '../utils/numberInput';
 import { FormsManagerCard } from '../components/products/FormsManagerCard';
 
 export const Products: React.FC = () => {
@@ -543,10 +544,11 @@ export const Products: React.FC = () => {
  <div>
  <label className="block text-xs text-brand-navy/50 mb-1.5">قیمت (به تومان) <span className="text-red-500">*</span></label>
  <input
- type="number"
- value={price}
- onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
- placeholder="مثال: ۵۰۰۰۰"
+ type="text"
+ inputMode="numeric"
+ value={formatNumberInput(price)}
+ onChange={e => setPrice(parseFormattedNumber(e.target.value))}
+ placeholder="مثال: 500,000"
  required
  className="w-full bg-black/[0.03] border border-black/10 text-brand-navy rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-teal transition-colors text-right"
  dir="ltr"

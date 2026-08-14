@@ -2,6 +2,7 @@ import React from 'react';
 import { ShoppingBag, X, Image as ImageIcon, Check } from 'lucide-react';
 import { MenuPage, FormConfig } from '../../types';
 import { getDisplayableImageUrl } from '../../utils/image';
+import { formatNumberInput, parseFormattedNumber } from '../../utils/numberInput';
 
 interface NewProductModalProps {
  isOpen: boolean;
@@ -92,10 +93,11 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
  <div>
  <label className="block text-xs text-brand-navy/50 mb-1.5">قیمت (به تومان) <span className="text-red-500">*</span></label>
  <input
- type="number"
- value={prodPrice}
- onChange={e => setProdPrice(e.target.value === '' ? '' : Number(e.target.value))}
- placeholder="مثال: ۵۰۰۰۰"
+ type="text"
+ inputMode="numeric"
+ value={formatNumberInput(prodPrice)}
+ onChange={e => setProdPrice(parseFormattedNumber(e.target.value))}
+ placeholder="مثال: 500,000"
  required
  className="w-full bg-black/[0.03] border border-black/10 text-brand-navy rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-teal transition-colors text-right"
  dir="ltr"

@@ -16,18 +16,18 @@ export const ForwardSettingsCard: React.FC<ForwardSettingsCardProps> = ({
       <div className="space-y-4">
         <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-3">
           <Eye className="text-blue-600 shrink-0 mt-1"/>
-          <div className="text-sm text-blue-200/80">
+          <div className="text-sm text-blue-800">
             <p className="font-bold mb-1">افزایش ویو (View) کانال</p>
             <p>با استفاده از این روش، پیام دقیقاً از کانال شما به کاربران فوروارد می‌شود و سین (View) پست اصلی افزایش می‌یابد.</p>
           </div>
         </div>
         <div>
-          <label className="text-sm text-slate-500 mb-2 block">لینک پست کانال</label>
+          <label className="text-sm text-brand-navy/50 mb-2 block">لینک پست کانال</label>
           <input
             value={forwardLink}
             onChange={e => setForwardLink(e.target.value)}
             placeholder="https://t.me/channelname/123"
-            className="w-full bg-slate-100 border border-slate-200 rounded-xl p-3 text-slate-800 dir-ltr text-left font-mono outline-none focus:border-blue-500"
+            className="w-full bg-black/[0.03] border border-black/10 rounded-xl p-3 text-brand-navy dir-ltr text-left font-mono outline-none focus:border-blue-500"
           />
         </div>
       </div>

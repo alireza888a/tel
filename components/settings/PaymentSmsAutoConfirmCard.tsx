@@ -29,13 +29,13 @@ interface SmsLogEntry {
 }
 
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {
-  confirmed: { text: '✅ تایید شد', color: 'text-emerald-400' },
-  no_match: { text: '⚠️ سفارشی پیدا نشد', color: 'text-amber-400' },
-  multiple_match: { text: '⚠️ چند سفارش مطابق', color: 'text-amber-400' },
-  over_cap: { text: '💰 مبلغ بالا (دستی)', color: 'text-blue-400' },
-  parse_failed: { text: '❓ مبلغ تشخیص داده نشد', color: 'text-slate-400' },
-  untrusted_sender: { text: '🚨 فرستنده نامعتبر — نادیده گرفته شد', color: 'text-red-400' },
-  processing: { text: '⏳ در حال بررسی', color: 'text-slate-400' },
+  confirmed: { text: '✅ تایید شد', color: 'text-emerald-600' },
+  no_match: { text: '⚠️ سفارشی پیدا نشد', color: 'text-amber-600' },
+  multiple_match: { text: '⚠️ چند سفارش مطابق', color: 'text-amber-600' },
+  over_cap: { text: '💰 مبلغ بالا (دستی)', color: 'text-blue-600' },
+  parse_failed: { text: '❓ مبلغ تشخیص داده نشد', color: 'text-brand-navy/40' },
+  untrusted_sender: { text: '🚨 فرستنده نامعتبر — نادیده گرفته شد', color: 'text-red-600' },
+  processing: { text: '⏳ در حال بررسی', color: 'text-brand-navy/40' },
 };
 
 export const PaymentSmsAutoConfirmCard: React.FC = () => {
@@ -226,7 +226,7 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
   if (loading) {
     return (
       <GlassCard title="تایید خودکار پرداخت (پیامک بانکی)">
-        <div className="flex items-center justify-center py-10 text-slate-400">
+        <div className="flex items-center justify-center py-10 text-brand-navy/40">
           <Loader2 className="animate-spin" size={24} />
         </div>
       </GlassCard>
@@ -236,10 +236,10 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
   return (
     <GlassCard
       title="تایید خودکار پرداخت (پیامک بانکی)"
-      action={<MessageSquareText size={20} className="text-cyan-400" />}
+      action={<MessageSquareText size={20} className="text-cyan-600" />}
     >
       <div className="space-y-5">
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-brand-navy/60 leading-relaxed">
           وقتی این فیچر روشن باشه، هر بار که پیامک واریز بانکی روی گوشی شما بیاد، یه اپ فورواردر پیامک اونو برای این آدرس می‌فرسته و اگه دقیقاً به یک سفارش در انتظار بخوره، خودکار تایید می‌شه — بدون نیاز به باز کردن پنل.
         </p>
 
@@ -256,10 +256,10 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
           <>
             <div className="p-4 bg-red-600/10 border border-red-500/30 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldAlert size={16} className="text-red-400" />
-                <label className="text-xs font-bold text-red-400">شماره/نام فرستنده‌ی پیامک بانک (اجباری برای فعال‌سازی)</label>
+                <ShieldAlert size={16} className="text-red-600" />
+                <label className="text-xs font-bold text-red-600">شماره/نام فرستنده‌ی پیامک بانک (اجباری برای فعال‌سازی)</label>
               </div>
-              <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
+              <p className="text-[11px] text-brand-navy/50 mb-2 leading-relaxed">
                 بدون این، هرکسی که شماره‌ی گوشیت رو داشته باشه می‌تونه یه پیامک الکی بفرسته و سفارش رو مجانی تایید بگیره. این‌جا شماره یا نامی که بانک واقعاً باهاش برات پیامک می‌فرسته رو وارد کن (اگه چندتا داری، با ویرگول جدا کن).
               </p>
               <div className="flex items-center gap-2">
@@ -267,7 +267,7 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
                   value={senderInput}
                   onChange={(e) => setSenderInput(e.target.value)}
                   placeholder="مثلاً: 10005701, بانک ملت"
-                  className="flex-1 bg-black/20 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-red-400"
+                  className="flex-1 bg-black/[0.03] border border-black/10 rounded-xl px-3 py-2.5 text-xs text-brand-navy outline-none focus:border-red-400"
                   dir="ltr"
                 />
                 <button
@@ -280,49 +280,49 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-black/20 border border-white/5 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-black/[0.03] border border-black/5 rounded-xl">
               <div>
-                <div className="text-sm font-bold text-slate-800">وضعیت</div>
-                <div className="text-xs text-slate-500 mt-1">
+                <div className="text-sm font-bold text-brand-navy">وضعیت</div>
+                <div className="text-xs text-brand-navy/50 mt-1">
                   {enabled ? 'فعال — پیامک‌ها بررسی می‌شن' : 'غیرفعال — پیامکی بررسی نمی‌شه'}
                 </div>
               </div>
-              <button onClick={handleToggleEnabled} className="text-cyan-400">
-                {enabled ? <ToggleRight size={36} /> : <ToggleLeft size={36} className="text-slate-500" />}
+              <button onClick={handleToggleEnabled} className="text-cyan-600">
+                {enabled ? <ToggleRight size={36} /> : <ToggleLeft size={36} className="text-brand-navy/30" />}
               </button>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-2">آدرس webhook (این رو توی اپ فورواردر پیامک وارد کن)</label>
+              <label className="block text-xs font-bold text-brand-navy/50 mb-2">آدرس webhook (این رو توی اپ فورواردر پیامک وارد کن)</label>
               <div className="flex items-center gap-2">
                 <input
                   readOnly
                   value={webhookUrl || ''}
-                  className="flex-1 bg-black/20 border border-white/5 rounded-xl px-3 py-2.5 text-xs text-slate-600 font-mono"
+                  className="flex-1 bg-black/[0.03] border border-black/5 rounded-xl px-3 py-2.5 text-xs text-brand-navy/70 font-mono"
                   onFocus={(e) => e.target.select()}
                 />
                 <button
                   onClick={handleCopy}
-                  className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 transition-colors"
+                  className="p-2.5 bg-black/[0.03] hover:bg-black/[0.06] rounded-xl text-brand-navy/50 transition-colors"
                 >
-                  {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
+                  {copied ? <Check size={18} className="text-emerald-600" /> : <Copy size={18} />}
                 </button>
               </div>
             </div>
 
-            <div className="p-4 bg-blue-600/10 border border-blue-500/20 rounded-xl text-xs text-slate-600 leading-relaxed space-y-2">
-              <p className="font-bold text-slate-800">راهنمای نصب:</p>
+            <div className="p-4 bg-blue-600/10 border border-blue-500/20 rounded-xl text-xs text-brand-navy/70 leading-relaxed space-y-2">
+              <p className="font-bold text-brand-navy">راهنمای نصب:</p>
               <p>۱. روی گوشی‌ای که پیامک بانکی روش میاد، یه اپ SMS Forwarder نصب کن (اندروید: «SMS Forwarder»، آیفون: هرکدوم از اپ‌های SMS Forwarder موجود در App Store که از Custom API/Webhook پشتیبانی می‌کنن).</p>
               <p>۲. توی تنظیمات اپ، مقصد رو روی «Custom API / Webhook» بذار و آدرس بالا رو وارد کن (روش POST، بدنه JSON).</p>
-              <p>۳. فیلد متن پیامک رو با نام <code className="bg-black/30 px-1.5 py-0.5 rounded">text</code> و فیلد فرستنده رو با نام <code className="bg-black/30 px-1.5 py-0.5 rounded">sender</code> بفرست (اکثر اپ‌ها این فیلدها رو خودشون قابل‌تنظیم می‌ذارن) — فیلد فرستنده خیلی مهمه، بدونش امکان تشخیص پیامک جعلی نیست.</p>
+              <p>۳. فیلد متن پیامک رو با نام <code className="bg-black/10 px-1.5 py-0.5 rounded">text</code> و فیلد فرستنده رو با نام <code className="bg-black/10 px-1.5 py-0.5 rounded">sender</code> بفرست (اکثر اپ‌ها این فیلدها رو خودشون قابل‌تنظیم می‌ذارن) — فیلد فرستنده خیلی مهمه، بدونش امکان تشخیص پیامک جعلی نیست.</p>
               <p>۴. یه پیامک تست بفرست و بعد از چند ثانیه، «تاریخچه» پایین همین کارت رو چک کن ببین دریافت شده یا نه.</p>
-              <p className="text-amber-400 pt-1">⚠️ مبلغ بالای {capToman.toLocaleString('fa-IR')} تومان همیشه دستی تایید می‌شه. سفارش‌های در انتظار هم فقط تا {windowMinutes} دقیقه بعد از ثبت، برای تایید خودکار معتبرن.</p>
+              <p className="text-amber-700 pt-1">⚠️ مبلغ بالای {capToman.toLocaleString('fa-IR')} تومان همیشه دستی تایید می‌شه. سفارش‌های در انتظار هم فقط تا {windowMinutes} دقیقه بعد از ثبت، برای تایید خودکار معتبرن.</p>
             </div>
 
             <div className="flex items-center gap-3">
               <button
                 onClick={handleToggleLogs}
-                className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-600 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-black/[0.03] hover:bg-black/[0.06] text-brand-navy/70 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
               >
                 <ListChecks size={16} />
                 <span>{showLogs ? 'بستن تاریخچه' : 'مشاهده تاریخچه‌ی اخیر'}</span>
@@ -332,7 +332,7 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
                   onClick={fetchLogs}
                   disabled={loadingLogs}
                   title="رفرش تاریخچه"
-                  className="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-600 transition-colors disabled:opacity-50"
+                  className="py-2.5 px-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.06] text-brand-navy/70 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw size={16} className={loadingLogs ? 'animate-spin' : ''} />
                 </button>
@@ -341,7 +341,7 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
                 <button
                   onClick={() => setConfirmingClear(true)}
                   disabled={isSaving}
-                  className="py-2.5 px-4 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-400 text-xs font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                  className="py-2.5 px-4 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 text-xs font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                 >
                   <Trash2 size={16} />
                   <span>غیرفعال کامل</span>
@@ -349,7 +349,7 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
               ) : (
                 <div className="flex items-center gap-2">
                   <button onClick={handleClear} disabled={isSaving} className="py-2.5 px-3 rounded-xl bg-red-500 text-white text-xs font-bold">مطمئنم</button>
-                  <button onClick={() => setConfirmingClear(false)} className="py-2.5 px-3 rounded-xl bg-black/5 text-slate-500 text-xs font-bold">انصراف</button>
+                  <button onClick={() => setConfirmingClear(false)} className="py-2.5 px-3 rounded-xl bg-black/[0.03] text-brand-navy/50 text-xs font-bold">انصراف</button>
                 </div>
               )}
             </div>
@@ -357,25 +357,25 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
             {showLogs && (
               <div className="space-y-2 max-h-72 overflow-y-auto">
                 {loadingLogs ? (
-                  <div className="flex justify-center py-6 text-slate-400"><Loader2 className="animate-spin" size={20} /></div>
+                  <div className="flex justify-center py-6 text-brand-navy/40"><Loader2 className="animate-spin" size={20} /></div>
                 ) : logs.length === 0 ? (
-                  <p className="text-xs text-slate-500 text-center py-4">هنوز پیامکی دریافت نشده.</p>
+                  <p className="text-xs text-brand-navy/50 text-center py-4">هنوز پیامکی دریافت نشده.</p>
                 ) : (
                   logs.map((log) => {
-                    const label = STATUS_LABELS[log.status] || { text: log.status, color: 'text-slate-400' };
+                    const label = STATUS_LABELS[log.status] || { text: log.status, color: 'text-brand-navy/40' };
                     return (
-                      <div key={log.id} className="p-3 bg-black/20 border border-white/5 rounded-lg text-xs">
+                      <div key={log.id} className="p-3 bg-black/[0.03] border border-black/5 rounded-lg text-xs">
                         <div className="flex items-center justify-between mb-1">
                           <span className={`font-bold ${label.color}`}>{label.text}</span>
-                          <span className="text-slate-500">{new Date(log.created_at).toLocaleString('fa-IR')}</span>
+                          <span className="text-brand-navy/40">{new Date(log.created_at).toLocaleString('fa-IR')}</span>
                         </div>
                         {log.extracted_amount ? (
-                          <div className="text-slate-600">مبلغ تشخیص‌داده‌شده: {log.extracted_amount.toLocaleString('fa-IR')} تومان{log.matched_order_id ? ` — سفارش ${log.matched_order_id}` : ''}</div>
+                          <div className="text-brand-navy/70">مبلغ تشخیص‌داده‌شده: {log.extracted_amount.toLocaleString('fa-IR')} تومان{log.matched_order_id ? ` — سفارش ${log.matched_order_id}` : ''}</div>
                         ) : null}
                         {log.sender ? (
-                          <div className="text-slate-500 mt-1" dir="ltr">فرستنده: <span className="font-mono text-slate-700">{log.sender}</span></div>
+                          <div className="text-brand-navy/50 mt-1" dir="ltr">فرستنده: <span className="font-mono text-brand-navy">{log.sender}</span></div>
                         ) : null}
-                        <div className="text-slate-500 mt-1 truncate" title={log.raw_text}>{log.raw_text}</div>
+                        <div className="text-brand-navy/50 mt-1 truncate" title={log.raw_text}>{log.raw_text}</div>
                       </div>
                     );
                   })
@@ -386,7 +386,7 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
         )}
 
         {msg && (
-          <div className={`text-xs font-bold text-center ${msg.ok ? 'text-emerald-400' : 'text-red-400'}`}>
+          <div className={`text-xs font-bold text-center ${msg.ok ? 'text-emerald-600' : 'text-red-600'}`}>
             {msg.text}
           </div>
         )}

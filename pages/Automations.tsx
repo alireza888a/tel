@@ -164,7 +164,7 @@ export const Automations: React.FC = () => {
 
  {/* Conditions / Filters */}
  {rule.productCategory && (
- <div className="flex items-center gap-1.5 text-xs text-amber-300 bg-brand-amber/10 border border-brand-amber/30 px-2.5 py-1 rounded-lg w-fit">
+ <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-brand-amber/10 border border-brand-amber/30 px-2.5 py-1 rounded-lg w-fit">
  <Tag size={13} />
  <span>دسته‌بندی محصول: <strong>{rule.productCategory}</strong></span>
  </div>
@@ -175,14 +175,14 @@ export const Automations: React.FC = () => {
  <p className="text-brand-navy/50 font-medium">اقدامات خودکار هنگام وقوع:</p>
  
  {targetMenu && (
- <div className="flex items-center gap-2 text-blue-300 bg-brand-teal/10 px-3 py-1.5 rounded-lg border border-brand-teal/20">
+ <div className="flex items-center gap-2 text-cyan-700 bg-brand-teal/10 px-3 py-1.5 rounded-lg border border-brand-teal/20">
  <Layers size={14} />
  <span>ارسال منو: <strong>{targetMenu?.title || rule.menuId}</strong></span>
  </div>
  )}
 
  {targetForm && (
- <div className="flex items-center gap-2 text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20">
+ <div className="flex items-center gap-2 text-purple-700 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20">
  <FileText size={14} />
  <span>شروع فرم: <strong>{targetForm?.title || rule.formId}</strong></span>
  </div>
@@ -217,7 +217,7 @@ export const Automations: React.FC = () => {
  </button>
  <button
  onClick={() => handleDelete(rule.id)}
- className="p-2 text-red-600 hover:text-red-300 bg-red-50 hover:bg-red-500/20 rounded-lg transition-colors"
+ className="p-2 text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
  title="حذف قانون"
  >
  <Trash2 size={14} />
@@ -282,7 +282,7 @@ export const Automations: React.FC = () => {
  {/* Product Category Filter */}
  {(trigger === 'new_order' || trigger === 'order_rejected') && (
  <div className="space-y-1.5 bg-amber-500/5 p-3 rounded-xl border border-amber-500/10">
- <label className="text-xs text-amber-300 font-medium block">
+ <label className="text-xs text-amber-700 font-medium block">
  فقط برای دسته‌بندی محصول (اختیاری)
  </label>
  <input

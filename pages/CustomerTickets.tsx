@@ -153,7 +153,7 @@ export const CustomerTickets: React.FC = () => {
             <MessageSquare className="text-blue-500"/>
             تیکت‌های پشتیبانی کاربران ربات
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-brand-navy/50 mt-1">
             پیام‌ها و سؤالات خریداران ربات شما در اینجا نمایش داده می‌شوند و می‌توانید مستقیم پاسخ دهید.
           </p>
         </div>
@@ -162,7 +162,7 @@ export const CustomerTickets: React.FC = () => {
           <button
             onClick={refreshTickets}
             disabled={isRefreshing}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-400 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-700 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 w-full sm:w-auto"
           >
             <RefreshCw size={16} className={isRefreshing ?'animate-spin':''} />
             <span>بروزرسانی</span>
@@ -171,17 +171,17 @@ export const CustomerTickets: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 border-b border-white/5">
+      <div className="flex gap-2 overflow-x-auto pb-2 border-b border-black/5">
         <button
           onClick={() => setFilter('all')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
             filter ==='all'
               ?'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-              :'bg-white/5 text-slate-400 hover:text-white'
+              :'bg-black/[0.03] text-brand-navy/50 hover:text-brand-navy'
           }`}
         >
           <span>همه تیکت‌ها</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/20">{tickets.length}</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10">{tickets.length}</span>
         </button>
 
         <button
@@ -189,12 +189,12 @@ export const CustomerTickets: React.FC = () => {
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
             filter ==='open'
               ?'bg-amber-600 text-white shadow-lg shadow-amber-500/20'
-              :'bg-white/5 text-slate-400 hover:text-white'
+              :'bg-black/[0.03] text-brand-navy/50 hover:text-brand-navy'
           }`}
         >
           <Clock size={14} />
           <span>پاسخ‌نداده (باز)</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/20">{openCount}</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10">{openCount}</span>
         </button>
 
         <button
@@ -202,21 +202,21 @@ export const CustomerTickets: React.FC = () => {
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
             filter ==='answered'
               ?'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
-              :'bg-white/5 text-slate-400 hover:text-white'
+              :'bg-black/[0.03] text-brand-navy/50 hover:text-brand-navy'
           }`}
         >
           <CheckCircle2 size={14} />
           <span>پاسخ داده‌شده</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/20">{answeredCount}</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10">{answeredCount}</span>
         </button>
       </div>
 
       {/* Ticket List */}
       {tickets.length === 0 ? (
         <GlassCard className="text-center py-12">
-          <MessageCircle className="mx-auto text-slate-500 mb-3"size={40} />
-          <h3 className="font-bold text-slate-300 text-sm">تیکتی یافت نشد</h3>
-          <p className="text-xs text-slate-500 mt-1">
+          <MessageCircle className="mx-auto text-brand-navy/30 mb-3"size={40} />
+          <h3 className="font-bold text-brand-navy text-sm">تیکتی یافت نشد</h3>
+          <p className="text-xs text-brand-navy/50 mt-1">
             {filter ==='open'
               ?'هیچ تیکت پاسخ‌نداده‌ای وجود ندارد.'
               : filter ==='answered'
@@ -238,30 +238,30 @@ export const CustomerTickets: React.FC = () => {
               >
                 <div className="space-y-4">
                   {/* Header info */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-black/5 pb-3">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="font-mono font-bold text-xs bg-white/10 text-blue-300 px-2.5 py-1 rounded-lg border border-white/10">
+                      <span className="font-mono font-bold text-xs bg-blue-500/10 text-blue-700 px-2.5 py-1 rounded-lg border border-blue-500/20">
                         {ticket.id}
                       </span>
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
-                        <User size={14} className="text-slate-400"/>
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-brand-navy">
+                        <User size={14} className="text-brand-navy/40"/>
                         <span>{ticket.userFirstName ||'کاربر ربات'}</span>
-                        <span className="text-slate-500 font-mono text-[11px] dir-ltr">({ticket.userId})</span>
+                        <span className="text-brand-navy/40 font-mono text-[11px] dir-ltr">({ticket.userId})</span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                      <span className="text-[11px] text-brand-navy/50 flex items-center gap-1">
                         <Clock size={12} />
                         {formatDate(ticket.createdAt)}
                       </span>
                       {ticket.status ==='open'? (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 border border-amber-500/30 flex items-center gap-1">
                           <Clock size={11} />
                           در انتظار پاسخ
                         </span>
                       ) : (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 border border-emerald-500/30 flex items-center gap-1">
                           <CheckCircle2 size={11} />
                           پاسخ داده شد
                         </span>
@@ -270,21 +270,21 @@ export const CustomerTickets: React.FC = () => {
                   </div>
 
                   {/* Question Message */}
-                  <div className="bg-black/20 border border-white/5 rounded-xl p-3.5 text-sm leading-relaxed text-slate-800 whitespace-pre-wrap">
-                    <p className="text-[11px] font-bold text-slate-400 mb-1">متن سوال خریدار:</p>
+                  <div className="bg-black/[0.03] border border-black/5 rounded-xl p-3.5 text-sm leading-relaxed text-brand-navy whitespace-pre-wrap">
+                    <p className="text-[11px] font-bold text-brand-navy/50 mb-1">متن سوال خریدار:</p>
                     {ticket.message}
                   </div>
 
                   {/* Reply section: Open vs Answered */}
                   {ticket.status ==='open'? (
                     <div className="space-y-2 pt-1">
-                      <label className="block text-xs font-bold text-slate-300">پاسخ به این تیکت:</label>
+                      <label className="block text-xs font-bold text-brand-navy/70">پاسخ به این تیکت:</label>
                       <textarea
                         rows={3}
                         value={replyTexts[ticket.id] ||''}
                         onChange={e => handleReplyChange(ticket.id, e.target.value)}
                         placeholder="متن پاسخ خود را بنویسید..."
-                        className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 transition-colors resize-none"
+                        className="w-full bg-black/[0.03] border border-black/10 rounded-xl p-3 text-sm text-brand-navy placeholder-brand-navy/30 outline-none focus:border-blue-500 transition-colors resize-none"
                       />
                       <div className="flex justify-end">
                         <button
@@ -303,18 +303,18 @@ export const CustomerTickets: React.FC = () => {
                     </div>
                   ) : (
                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3.5 space-y-1.5 text-xs">
-                      <div className="flex justify-between items-center text-emerald-400 font-bold">
+                      <div className="flex justify-between items-center text-emerald-700 font-bold">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 size={14} />
                           پاسخ ارسال‌شده توسط ادمین:
                         </span>
                         {ticket.repliedAt && (
-                          <span className="text-[10px] text-slate-400 font-normal">
+                          <span className="text-[10px] text-brand-navy/40 font-normal">
                             {formatDate(ticket.repliedAt)}
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-200 leading-relaxed whitespace-pre-wrap pt-1">
+                      <p className="text-brand-navy/80 leading-relaxed whitespace-pre-wrap pt-1">
                         {ticket.adminReply ||'پاسخ ثبت شده است.'}
                       </p>
                     </div>
@@ -329,7 +329,7 @@ export const CustomerTickets: React.FC = () => {
               <button
                 onClick={handleLoadMore}
                 disabled={isLoadingMore}
-                className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-700 border border-blue-500/20 px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {isLoadingMore && <RefreshCw size={14} className="animate-spin"/>}
                 <span>نمایش تیکت‌های قدیمی‌تر</span>

@@ -158,7 +158,7 @@ export const ButtonPreviewModal: React.FC<ButtonPreviewModalProps> = ({
                   {currentQ.type ==='document'&& (
                     <button
                       onClick={() => handleSimFormSubmit('📎 [فایل ارسال شد]')}
-                      className="w-full py-3 bg-purple-600/20 border border-purple-500/30 text-purple-300 hover:bg-purple-600/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-purple-600/10 border border-purple-500/30 text-purple-700 hover:bg-purple-600/20 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                     >
                       <FileText size={16} />
                       ارسال فایل سند (شبیه‌سازی)

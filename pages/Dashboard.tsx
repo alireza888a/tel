@@ -10,6 +10,22 @@ import {
 } from 'lucide-react';
 import { telegramService, TelegramUser } from '../services/telegramService';
 import { getStoredCredential } from '../services/cloudSync';
+import { gregorianToJalali, MONTH_NAMES } from '../utils/jalaliCalendar';
+
+// The sales chart's `date` field comes from the server as a plain
+// Gregorian "YYYY-MM-DD" string (that's the calendar the backend groups
+// by) — was being shown to the user as-is, both on the X-axis and in the
+// tooltip, instead of converted to Jalali like every other date in this
+// panel. `short` drives the compact "day + month" form used on the axis
+// (no room for a year there); the tooltip uses the fuller form with year.
+const formatChartDateJalali = (isoDate: string, short = false): string => {
+  const [gy, gm, gd] = isoDate.split('-').map(Number);
+  if (!gy || !gm || !gd) return isoDate;
+  const { jy, jm, jd } = gregorianToJalali(gy, gm, gd);
+  const dayStr = jd.toLocaleString('fa-IR');
+  const monthName = MONTH_NAMES[jm - 1] || '';
+  return short ? `${dayStr} ${monthName}` : `${dayStr} ${monthName} ${jy.toLocaleString('fa-IR')}`;
+};
 
 // --- TYPES ---
 interface LogItem {
@@ -655,13 +671,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                                         stroke="#8b96a0"
                                         fontSize={10}
                                         tickLine={false}
-                                        tickFormatter={(d: string) => d.slice(5)}
+                                        tickFormatter={(d: string) => formatChartDateJalali(d, true)}
                                     />
                                     <YAxis stroke="#8b96a0" fontSize={11} tickLine={false} />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: '#fff', border: '1px solid rgba(2,48,71,0.08)', borderRadius: '8px', color: '#023047' }}
                                         formatter={(value: number) => [value.toLocaleString('fa-IR') + ' تومان', 'فروش']}
-                                        labelFormatter={(d: string) => d}
+                                        labelFormatter={(d: string) => formatChartDateJalali(d)}
                                     />
                                     <Bar dataKey="revenue" fill="#209EBB" radius={[4, 4, 0, 0]} />
                                 </BarChart>

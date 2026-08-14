@@ -631,13 +631,34 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
     if (!hasBotConnected) return <div className="text-center p-10">ابتدا ربات را متصل کنید</div>;
 
     return (
-        <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-120px)] gap-6 animate-fade-in relative pb-10">
+        // FIX: this page used to lock its own height to
+        // lg:h-[calc(100vh-120px)] and rely on internal overflow-y-auto
+        // panes to scroll — a different pattern from every other page in
+        // the app, which just flows naturally and lets the app shell's own
+        // scroll container handle it. That 100vh-based math doesn't
+        // reliably match the actual space available under this page's own
+        // header/chrome in every rendering context (e.g. inside the
+        // AI Studio device preview), which left a big blank gap below the
+        // short-looking content and required scrolling past it to reach
+        // the rest of the page. Removed the fixed height chain here (and
+        // on the two inner columns below) — the phone-preview mockup
+        // further down keeps its own independent fixed pixel size
+        // (w-[300px] h-[600px]) and is unaffected.
+        <div className="flex flex-col lg:flex-row gap-6 animate-fade-in relative pb-10">
             {toast && <Toast {...toast} onClose={() => setToast(null)} />}
             <PersianDatePicker isOpen={showDatePicker} onClose={() => setShowDatePicker(false)} initialDate={scheduledDateObj} onSelect={(d) => { setScheduledDateObj(d); setIsScheduledEnabled(true); }}/>
 
             {/* SIDEBAR - CHANNEL LIST */}
-            <div className="w-full lg:w-72 flex flex-col gap-4 lg:h-full">
-                 <GlassCard className="flex-1 !p-0 flex flex-col overflow-hidden min-h-[300px]">
+            <div className="w-full lg:w-72 flex flex-col gap-4">
+                 {/* FIX: flex-1 here lets the card naturally stretch to
+                     match the height of the main content column next to it
+                     — the outer row is a plain flex row, which stretches
+                     children to the same height by default; no viewport
+                     math needed. This card previously stopped exactly at
+                     its own content (just the header + a short "no
+                     channels" line), leaving a tall blank gap below it
+                     next to the taller compose column. */}
+                 <GlassCard className="!p-0 flex flex-col overflow-hidden min-h-[300px] flex-1">
                      <div className="p-4 border-b border-slate-200 bg-slate-100">
                          <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
                              <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
@@ -660,11 +681,18 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                              <span className="text-xs text-blue-600">{selectedChannelIds.length} انتخاب شده</span>
                          </div>
                      </div>
-                     <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                     {/* FIX: was plain white (blending into nothing once the
+                         card got taller) with the empty-state text just
+                         sitting near the top — now a subtle consistent tint
+                         matching the header, and the "no channels" message
+                         is centered in whatever space is actually available
+                         instead of stranded near the top of a tall blank
+                         card. */}
+                     <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-slate-50 flex flex-col">
                          {channels.map(ch => {
                              const isSelected = selectedChannelIds.includes(ch.id.toString());
                              return (
-                                 <div key={ch.id} onClick={() => toggleChannelSelection(ch.id.toString())} className={`w-full p-2.5 rounded-xl flex items-center gap-3 transition-all cursor-pointer border relative overflow-hidden group ${isSelected ?'bg-blue-600/20 border-blue-500 shadow-lg':'bg-slate-100 border-transparent hover:bg-slate-200'} ${ch.isAdmin ?'border-r-4 border-r-green-500':'border-r-4 border-r-red-500'}`}>
+                                 <div key={ch.id} onClick={() => toggleChannelSelection(ch.id.toString())} className={`w-full p-2.5 rounded-xl flex items-center gap-3 transition-all cursor-pointer border relative overflow-hidden group ${isSelected ?'bg-blue-600/20 border-blue-500 shadow-lg':'bg-white border-transparent hover:bg-slate-100'} ${ch.isAdmin ?'border-r-4 border-r-green-500':'border-r-4 border-r-red-500'}`}>
                                      <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isSelected ?'bg-blue-500 border-blue-500 text-slate-800':'border-slate-500 text-transparent'}`}><Check size={14} strokeWidth={3}/></div>
                                      <div className="flex-1 min-w-0">
                                          <div className="flex justify-between items-center">
@@ -683,13 +711,15 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                                  </div>
                              );
                          })}
-                         {channels.length === 0 && <div className="text-center text-xs text-slate-500 mt-4">هیچ کانالی اضافه نشده است</div>}
+                         {channels.length === 0 && (
+                             <div className="flex-1 flex items-center justify-center text-center text-xs text-slate-500">هیچ کانالی اضافه نشده است</div>
+                         )}
                      </div>
                  </GlassCard>
             </div>
             
             {/* MAIN CONTENT */}
-            <div className="flex-1 flex flex-col gap-4 lg:overflow-hidden">
+            <div className="flex-1 flex flex-col gap-4">
                 {/* TABS */}
                 <div className="flex justify-between items-center bg-slate-100 p-1 rounded-xl border border-slate-100 shrink-0 overflow-x-auto">
                     <div className="flex gap-2">
@@ -709,12 +739,12 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
                     </div>
                 </div>
 
-                <GlassCard className="flex-1 !p-0 lg:overflow-hidden relative flex flex-col">
+                <GlassCard className="!p-0 relative flex flex-col">
                     {/* --- COMPOSE TAB --- */}
                     {activeTab ==='compose'&& (
-                        <div className="flex flex-col xl:flex-row xl:h-full">
+                        <div className="flex flex-col xl:flex-row">
                             {/* Editor Column */}
-                            <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+                            <div className="flex-1 p-6 custom-scrollbar">
                                  {/* Toolbar */}
                                  <div className="flex items-center gap-1 mb-2 bg-slate-100 w-fit p-1 rounded-lg border border-slate-100">
                                      <button onClick={() => insertTag('b')} className="p-1.5 hover:bg-slate-200 rounded text-slate-500 hover:text-slate-900"title="Bold"><Bold size={14}/></button>

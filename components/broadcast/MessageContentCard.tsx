@@ -29,7 +29,7 @@ export const MessageContentCard: React.FC<MessageContentCardProps> = ({
       <div className="flex flex-wrap gap-2 mb-3 bg-slate-100 p-2 rounded-lg border border-slate-100">
         <span className="text-xs text-slate-500 flex items-center gap-1 ml-2"><Sparkles size={12}/> متغیرها:</span>
         {['{first_name}','{username}','{id}'].map(v => (
-          <button key={v} onClick={() => insertVariable(v)} className="px-2 py-1 bg-slate-100 hover:bg-purple-500/20 hover:text-purple-300 border border-slate-200 rounded text-[10px] text-slate-600 transition-colors">{v}</button>
+          <button key={v} onClick={() => insertVariable(v)} className="px-2 py-1 bg-slate-100 hover:bg-purple-500/10 hover:text-purple-700 border border-slate-200 rounded text-[10px] text-slate-600 transition-colors">{v}</button>
         ))}
       </div>
 

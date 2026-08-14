@@ -90,7 +90,7 @@ export const FormDesignerModal: React.FC<FormDesignerModalProps> = ({
               className="w-full bg-slate-100 border border-blue-500/30 rounded-lg p-3 text-slate-800 text-left dir-ltr placeholder-slate-400 focus:outline-none focus:border-blue-400"
               dir="ltr"
             />
-            <p className="text-[10px] text-blue-300/60 mt-2">* پاسخ‌های کاربران به صورت خودکار به این آیدی در تلگرام فوروارد می‌شود. (قابلیت پاسخگویی)</p>
+            <p className="text-[10px] text-blue-600/70 mt-2">* پاسخ‌های کاربران به صورت خودکار به این آیدی در تلگرام فوروارد می‌شود. (قابلیت پاسخگویی)</p>
           </div>
 
           <div className="space-y-3">
@@ -154,7 +154,7 @@ export const FormDesignerModal: React.FC<FormDesignerModalProps> = ({
                                 const newOpts = (q.options || []).filter((_, i) => i !== optIdx);
                                 updateQuestion(editingFormId, q.id, { options: newOpts });
                               }}
-                              className="text-red-600 hover:text-red-300 p-0.5 rounded hover:bg-slate-200 transition-colors"
+                              className="text-red-600 hover:text-red-700 p-0.5 rounded hover:bg-slate-200 transition-colors"
                               title="حذف گزینه"
                             >
                               <X size={14} />

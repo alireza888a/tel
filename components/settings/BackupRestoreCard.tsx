@@ -26,12 +26,12 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
   return (
     <GlassCard className="border-t-4 border-t-blue-500">
       <div className="flex items-center gap-2 mb-4">
-        <HardDrive className="text-blue-400"/>
-        <h3 className="font-bold text-lg text-slate-800">مدیریت داده‌ها (پشتیبان‌گیری)</h3>
+        <HardDrive className="text-blue-600"/>
+        <h3 className="font-bold text-lg text-brand-navy">مدیریت داده‌ها (پشتیبان‌گیری)</h3>
       </div>
 
       {isTrialPlan && (
-        <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs leading-relaxed">
+        <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-700 text-xs leading-relaxed">
           ⚠️ دانلود و بازگردانی فایل پشتیبان در دوره‌ی آزمایشی فعال نیست. بعد از خرید اشتراک در دسترس قرار می‌گیره.
         </div>
       )}
@@ -42,8 +42,8 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
           disabled={isTrialPlan}
           className={`flex items-center justify-between p-4 border rounded-xl transition-all group ${
             isTrialPlan
-              ?'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed'
-              :'bg-white/5 hover:bg-white/10 border-white/10'
+              ?'bg-black/[0.02] border-black/5 opacity-50 cursor-not-allowed'
+              :'bg-black/[0.03] hover:bg-black/[0.06] border-black/10'
           }`}
         >
           <div className="flex items-center gap-3">
@@ -51,41 +51,41 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
               <Download size={20} />
             </div>
             <div className="text-right">
-              <div className="font-bold text-slate-800">دانلود فایل پشتیبان</div>
-              <div className="text-[10px] text-slate-500">فرمت JSON شامل تمام تنظیمات</div>
+              <div className="font-bold text-brand-navy">دانلود فایل پشتیبان</div>
+              <div className="text-[10px] text-brand-navy/50">فرمت JSON شامل تمام تنظیمات</div>
             </div>
           </div>
-          <FileJson size={20} className="text-slate-600"/>
+          <FileJson size={20} className="text-brand-navy/40"/>
         </button>
 
         <label className={`flex items-center justify-between p-4 border rounded-xl transition-all group ${
             isTrialPlan
-              ?'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed pointer-events-none'
-              :'bg-white/5 hover:bg-white/10 border-white/10 cursor-pointer'
+              ?'bg-black/[0.02] border-black/5 opacity-50 cursor-not-allowed pointer-events-none'
+              :'bg-black/[0.03] hover:bg-black/[0.06] border-black/10 cursor-pointer'
           }`}>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg group-hover:scale-110 transition-transform">
               <Upload size={20} />
             </div>
             <div className="text-right">
-              <div className="font-bold text-slate-800">بازگردانی اطلاعات</div>
-              <div className="text-[10px] text-slate-500">آپلود فایل JSON و جایگزینی</div>
+              <div className="font-bold text-brand-navy">بازگردانی اطلاعات</div>
+              <div className="text-[10px] text-brand-navy/50">آپلود فایل JSON و جایگزینی</div>
             </div>
           </div>
           <input type="file"accept=".json"onChange={handleFileSelect} className="hidden"disabled={isTrialPlan} />
-          <FileJson size={20} className="text-slate-600"/>
+          <FileJson size={20} className="text-brand-navy/40"/>
         </label>
       </div>
 
       {/* Auto Backup Section */}
-      <div className="mt-6 pt-5 border-t border-white/5 space-y-3">
+      <div className="mt-6 pt-5 border-t border-black/5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <RefreshCw size={18} className="text-blue-400"/>
-            <h4 className="font-bold text-sm text-slate-800">بکاپ خودکار</h4>
+            <RefreshCw size={18} className="text-blue-600"/>
+            <h4 className="font-bold text-sm text-brand-navy">بکاپ خودکار</h4>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">فعال باشد</span>
+            <span className="text-xs text-brand-navy/60">فعال باشد</span>
             <button
               type="button"
               onClick={isTrialPlan ? undefined : onToggleAutoBackup}
@@ -93,7 +93,7 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
               className={`w-11 h-6 rounded-full p-1 transition-colors flex items-center ${
                 isTrialPlan ?'cursor-not-allowed opacity-40':'cursor-pointer'
               } ${
-                autoBackupEnabled ?'bg-blue-600 justify-end':'bg-slate-700 justify-start'
+                autoBackupEnabled ?'bg-blue-600 justify-end':'bg-black/20 justify-start'
               }`}
             >
               <span className="w-4 h-4 rounded-full bg-white shadow-md"/>
@@ -101,24 +101,24 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
           </div>
         </div>
 
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-xs text-brand-navy/60 leading-relaxed">
           هر روز یا هفته، یه نسخه کامل از داده‌های ربات به‌صورت خودکار برای مدیرها (و کارمندهایی که تو تیم اضافه کردید) تو تلگرام فرستاده میشه.
         </p>
 
         {autoBackupEnabled && (
-          <div className="flex items-center justify-between pt-2 border-t border-white/5">
-            <span className="text-xs text-slate-300 flex items-center gap-1">
-              <Calendar size={14} className="text-blue-400"/>
+          <div className="flex items-center justify-between pt-2 border-t border-black/5">
+            <span className="text-xs text-brand-navy/70 flex items-center gap-1">
+              <Calendar size={14} className="text-blue-600"/>
               بازه زمانی ارسال:
             </span>
-            <div className="flex items-center gap-1.5 bg-slate-900/60 p-1 rounded-xl border border-white/10">
+            <div className="flex items-center gap-1.5 bg-black/[0.03] p-1 rounded-xl border border-black/10">
               <button
                 type="button"
                 onClick={() => onChangeAutoBackupFrequency('daily')}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   autoBackupFrequency ==='daily'
                     ?'bg-blue-600 text-white shadow-md'
-                    :'text-slate-400 hover:text-white'
+                    :'text-brand-navy/50 hover:text-brand-navy'
                 }`}
               >
                 روزانه
@@ -129,7 +129,7 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   autoBackupFrequency ==='weekly'
                     ?'bg-blue-600 text-white shadow-md'
-                    :'text-slate-400 hover:text-white'
+                    :'text-brand-navy/50 hover:text-brand-navy'
                 }`}
               >
                 هفتگی
@@ -139,7 +139,7 @@ export const BackupRestoreCard: React.FC<BackupRestoreCardProps> = ({
         )}
       </div>
 
-      <div className="mt-6 pt-5 border-t border-white/5">
+      <div className="mt-6 pt-5 border-t border-black/5">
         <button
           onClick={handleFactoryReset}
           className="w-full py-3 border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"

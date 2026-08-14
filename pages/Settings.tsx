@@ -531,7 +531,7 @@ export const Settings: React.FC = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 animate-fade-in pb-20">
+        <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-20">
             {toast && (
                 <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-xl shadow-black/20 flex items-center gap-2 border ${toast.type === 'success' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'} animate-slide-up`}>
                     {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
@@ -563,15 +563,22 @@ export const Settings: React.FC = () => {
                 </div>
             </div>
 
-            {/* Tab Navigation */}
-            <div className="flex items-center gap-2 bg-black/30 p-1.5 rounded-xl border border-white/5 flex-wrap mb-6">
+            {/* Tab Navigation
+                FIX: was a dark bg-black/30 strip where every inactive tab
+                was just gray text — no color, no framing, nothing to tell
+                the tabs apart until you clicked one. Each tab now keeps a
+                light tint + border in its own color at all times (matching
+                the accent color of the card it opens), and turns solid on
+                selection — so the whole row reads clearly even before you
+                pick anything. */}
+            <div className="flex items-center gap-2 bg-black/[0.03] p-2 rounded-2xl border border-black/5 flex-wrap mb-6">
                 {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('database')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'database'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20'
+                            : 'bg-purple-500/10 text-purple-700 border-purple-500/20 hover:bg-purple-500/20'
                     }`}
                 >
                     <Database size={16} />
@@ -581,10 +588,10 @@ export const Settings: React.FC = () => {
                 {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('payment')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'payment'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-600/20'
+                            : 'bg-amber-500/10 text-amber-700 border-amber-500/20 hover:bg-amber-500/20'
                     }`}
                 >
                     <CreditCard size={16} />
@@ -594,10 +601,10 @@ export const Settings: React.FC = () => {
                 {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('admins')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'admins'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20'
+                            : 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20 hover:bg-emerald-500/20'
                     }`}
                 >
                     <Users size={16} />
@@ -607,10 +614,10 @@ export const Settings: React.FC = () => {
                 {!isAssistantSession && (
                 <button
                     onClick={() => setActiveSettingsTab('assistantAccess')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'assistantAccess'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-600/20'
+                            : 'bg-rose-500/10 text-rose-700 border-rose-500/20 hover:bg-rose-500/20'
                     }`}
                 >
                     <UserCog size={16} />
@@ -619,10 +626,10 @@ export const Settings: React.FC = () => {
                 )}
                 <button
                     onClick={() => setActiveSettingsTab('postConfirm')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'postConfirm'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
+                            : 'bg-blue-500/10 text-blue-700 border-blue-500/20 hover:bg-blue-500/20'
                     }`}
                 >
                     <ListChecks size={16} />
@@ -630,10 +637,10 @@ export const Settings: React.FC = () => {
                 </button>
                 <button
                     onClick={() => setActiveSettingsTab('miniapp')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'miniapp'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20'
+                            : 'bg-indigo-500/10 text-indigo-700 border-indigo-500/20 hover:bg-indigo-500/20'
                     }`}
                 >
                     <Smartphone size={16} />
@@ -641,10 +648,10 @@ export const Settings: React.FC = () => {
                 </button>
                 <button
                     onClick={() => setActiveSettingsTab('gallery')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'gallery'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-fuchsia-600 text-white border-fuchsia-600 shadow-md shadow-fuchsia-600/20'
+                            : 'bg-fuchsia-500/10 text-fuchsia-700 border-fuchsia-500/20 hover:bg-fuchsia-500/20'
                     }`}
                 >
                     <Image size={16} />
@@ -652,10 +659,10 @@ export const Settings: React.FC = () => {
                 </button>
                 <button
                     onClick={() => setActiveSettingsTab('autoMessages')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                         activeSettingsTab === 'autoMessages'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-orange-600 text-white border-orange-600 shadow-md shadow-orange-600/20'
+                            : 'bg-orange-500/10 text-orange-700 border-orange-500/20 hover:bg-orange-500/20'
                     }`}
                 >
                     <MessageSquare size={16} />

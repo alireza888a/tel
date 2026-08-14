@@ -48,6 +48,10 @@ const FIELDS: FieldDef[] = [
   {
     key:'order_confirmed',
     label:'تایید سفارش / پرداخت',
+    // NOTE: {total} is formatted in Rial now (matches the cart/checkout
+    // messages the buyer already saw) — was still Toman on the backend
+    // until this pass, which would have shown a mismatched number if this
+    // text got customized to include it.
     vars: ['order_id','total'],
     defaultValue:'پرداخت شما تایید شد ✅ سفارشتون در حال آماده‌سازیه.',
   },
@@ -90,11 +94,14 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
   return (
     <GlassCard className="border-t-4 border-t-teal-500">
       <div className="flex items-center gap-2 mb-4">
-        <MessageSquare className="text-teal-400"/>
-        <h3 className="font-bold text-lg text-slate-800">پیام‌های خودکار</h3>
+        <MessageSquare className="text-teal-600"/>
+        <h3 className="font-bold text-lg text-brand-navy">پیام‌های خودکار</h3>
       </div>
 
-      <div className="text-sm text-slate-400 mb-6 leading-relaxed bg-white/5 p-3 rounded-lg border border-white/5">
+      {/* FIX: same leftover-dark-theme pattern as DatabaseChannelCard —
+          white text on a near-white background made the actual message
+          textareas (the whole point of this card) hard to read. */}
+      <div className="text-sm text-brand-navy/60 mb-6 leading-relaxed bg-black/[0.03] p-3 rounded-lg border border-black/5">
         <p>متن پیام‌هایی که ربات خودکار برای خریدارها می‌فرسته رو شخصی‌سازی کنید. هرکدوم رو خالی بذارید، همون متن پیش‌فرض استفاده می‌شه.</p>
       </div>
 
@@ -103,18 +110,18 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
           <div key={field.key}>
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <label className="block text-xs text-slate-500">{field.label}</label>
+                <label className="block text-xs text-brand-navy/50">{field.label}</label>
                 {customTexts[field.key] ? (
-                  <span className="text-[10px] font-bold text-teal-400 bg-teal-500/10 border border-teal-500/20 rounded-full px-2 py-0.5">✏️ متن سفارشی فعاله</span>
+                  <span className="text-[10px] font-bold text-teal-700 bg-teal-500/10 border border-teal-500/20 rounded-full px-2 py-0.5">✏️ متن سفارشی فعاله</span>
                 ) : (
-                  <span className="text-[10px] text-slate-500 bg-white/5 border border-white/10 rounded-full px-2 py-0.5">پیش‌فرض (چیزی ننوشتی)</span>
+                  <span className="text-[10px] text-brand-navy/40 bg-black/[0.03] border border-black/10 rounded-full px-2 py-0.5">پیش‌فرض (چیزی ننوشتی)</span>
                 )}
               </div>
               {customTexts[field.key] && (
                 <button
                   type="button"
                   onClick={() => resetField(field.key)}
-                  className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-teal-400 transition-colors"
+                  className="flex items-center gap-1 text-[11px] text-brand-navy/50 hover:text-teal-600 transition-colors"
                 >
                   <RotateCcw size={11} /> بازگشت به پیش‌فرض
                 </button>
@@ -126,14 +133,14 @@ export const AutoMessagesCard: React.FC<AutoMessagesCardProps> = ({ customTexts,
               placeholder={'پیش‌فرض (فقط نمونه، ذخیره نشده):'+ field.defaultValue}
               rows={3}
               dir="rtl"
-              className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-teal-500 transition-colors resize-y placeholder:text-slate-600 placeholder:italic"
+              className="w-full bg-black/[0.03] border border-black/10 rounded-xl p-3 text-brand-navy text-sm outline-none focus:border-teal-500 transition-colors resize-y placeholder:text-brand-navy/30 placeholder:italic"
             />
             {field.vars.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-1.5">
                 {field.vars.map((v) => (
                   <span
                     key={v}
-                    className="text-[10px] font-mono bg-teal-500/10 text-teal-300 border border-teal-500/20 rounded-full px-2 py-0.5"
+                    className="text-[10px] font-mono bg-teal-500/10 text-teal-700 border border-teal-500/20 rounded-full px-2 py-0.5"
                   >
                     {'{'+ v +'}'}
                   </span>

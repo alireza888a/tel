@@ -191,6 +191,18 @@ interface ChannelsProps {
 }
 
 export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
+    // Same signal Settings.tsx and LicenseGate use to tell an assistant
+    // session apart from the owner. This page was never updated for that
+    // distinction — every real action here (add channel, lock/unlock,
+    // send post, poll, quiz, media upload) goes straight through the raw
+    // bot token, which the server always redacts for an assistant session
+    // (see OWNER_ONLY_CONFIG_FIELDS on the backend). Without this check,
+    // an assistant could open the page (hasBotConnected below only checks
+    // that SOME bot is connected, not that THIS session holds its token)
+    // and every button would silently fail with a confusing, unrelated
+    // error message instead of a clear "not available to you" notice.
+    const isAssistantSession = !localStorage.getItem('license_cache') && !!localStorage.getItem('assistant_session_cache');
+
     const token = localStorage.getItem('bot_token') ||'';
     const dbChannel = localStorage.getItem('bot_db_channel') ||'';
 
@@ -375,7 +387,14 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
             const res = await telegramService.getChat(token, cleanId);
             if (res.ok && res.result) {
                 const realId = res.result.id;
-                if (channels.some(c => c.id === realId)) {
+                // FIX: was a strict `===` between c.id (string | number,
+                // could be either depending on when the channel was added)
+                // and realId (always a number here) — a channel stored
+                // with a string id would never match on this comparison,
+                // letting the same channel get added twice. Every other
+                // duplicate/lookup check in this file already compares via
+                // .toString() for exactly this reason.
+                if (channels.some(c => c.id.toString() === realId.toString())) {
                     setVerifyingChannel(false);
                     return setToast({ message:'این کانال قبلاً اضافه شده است', type:'error'});
                 }
@@ -602,6 +621,13 @@ export const Channels: React.FC<ChannelsProps> = ({ onNavigate }) => {
         } 
     };
 
+    if (isAssistantSession) return (
+        <div className="text-center p-10 flex flex-col items-center gap-3">
+            <Lock size={32} className="text-slate-400" />
+            <p className="text-slate-600 font-bold">مدیریت کانال‌ها فقط برای مدیر اصلی در دسترسه</p>
+            <p className="text-slate-500 text-sm max-w-sm">این بخش نیاز به توکن ربات داره که برای نشست دستیار در دسترس نیست.</p>
+        </div>
+    );
     if (!hasBotConnected) return <div className="text-center p-10">ابتدا ربات را متصل کنید</div>;
 
     return (

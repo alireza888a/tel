@@ -40,6 +40,7 @@ const STATUS_LABELS: Record<string, { text: string; color: string }> = {
 
 export const PaymentSmsAutoConfirmCard: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [configured, setConfigured] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
@@ -56,9 +57,10 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
   const [showLogs, setShowLogs] = useState(false);
   const [loadingLogs, setLoadingLogs] = useState(false);
 
-  const fetchStatus = async () => {
+  const fetchStatus = async (isRetry = false) => {
     const code = getLicenseCode();
     if (!code) { setLoading(false); return; }
+    setLoadError(false);
     try {
       const res = await fetch(GET_URL, {
         method: 'POST',
@@ -74,9 +76,40 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
         setSenderInput(data.trusted_senders || '');
         if (data.cap_toman) setCapToman(data.cap_toman);
         if (data.window_minutes) setWindowMinutes(data.window_minutes);
+      } else if (!isRetry) {
+        // First failure right after a refresh is very often just the
+        // shared rate limiter catching this request in the burst of a
+        // dozen others the panel fires at once on load — wait a beat and
+        // try exactly once more before treating it as a real error. This
+        // makes the common transient case resolve invisibly instead of
+        // ever showing the (wrong) "not configured" state at all.
+        await new Promise((r) => setTimeout(r, 1500));
+        await fetchStatus(true);
+        return;
+      } else {
+        // FIX: this used to fall straight through on a failed response
+        // (e.g. a 429 from the shared rate limiter — very possible right
+        // after a full page refresh, when a dozen other panel requests
+        // fire at the same time) leaving every field at its initial
+        // default. That default is `configured: false`, which shows the
+        // "ساخت لینک و شروع تنظیمات" setup button — indistinguishable from
+        // a shop that was genuinely never configured, even though nothing
+        // was actually lost server-side. Worse: tapping that button in
+        // this state calls /api/payment-sms/setup again, which mints a
+        // brand-new webhook secret and silently breaks whatever SMS
+        // forwarder app was already pointed at the old one. Now a failed
+        // load (after one silent retry) surfaces as its own explicit
+        // error state instead.
+        setLoadError(true);
       }
     } catch (e) {
+      if (!isRetry) {
+        await new Promise((r) => setTimeout(r, 1500));
+        await fetchStatus(true);
+        return;
+      }
       console.warn('Failed to load payment-sms status', e);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -228,6 +261,26 @@ export const PaymentSmsAutoConfirmCard: React.FC = () => {
       <GlassCard title="تایید خودکار پرداخت (پیامک بانکی)">
         <div className="flex items-center justify-center py-10 text-brand-navy/40">
           <Loader2 className="animate-spin" size={24} />
+        </div>
+      </GlassCard>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <GlassCard title="تایید خودکار پرداخت (پیامک بانکی)">
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <ShieldAlert size={28} className="text-amber-600" />
+          <p className="text-sm text-brand-navy/70 max-w-sm">
+            بارگذاری وضعیت این بخش موفق نبود (احتمالاً یه خطای موقت شبکه). این به این معنی نیست که تنظیمات قبلی‌تون پاک شده — فقط نمایشش الان لود نشد.
+          </p>
+          <button
+            onClick={() => { setLoading(true); fetchStatus(); }}
+            className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center gap-2 transition-colors"
+          >
+            <RefreshCw size={14} />
+            <span>تلاش دوباره</span>
+          </button>
         </div>
       </GlassCard>
     );

@@ -342,7 +342,14 @@ export const ShopTab: React.FC<ShopTabProps> = ({
           </p>
         </div>
       ) : (
-      <div className="grid grid-cols-2 gap-3">
+      // FIX: was a fixed 2-column grid regardless of screen width — fine
+      // on a phone, but left most of a desktop screen empty since it
+      // never used the wider container from MiniShop's own layout fix.
+      // Same responsive-by-breakpoint approach as the admin panel's own
+      // product grid: mobile keeps exactly the 2-column layout it always
+      // had (these classes only ever ADD columns at wider breakpoints),
+      // desktop fills the row properly.
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {filteredProducts.map((p) => {
           const hasVariants = !!p.variants && p.variants.length > 0;
           // For a variant product, "qty in cart" for the card's own

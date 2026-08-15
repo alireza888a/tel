@@ -737,7 +737,7 @@ export const MiniShop: React.FC = () => {
       {/* Header */}
       <header
         ref={headerRef}
-        className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 py-3.5 flex items-center justify-between shadow-sm"
+        className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 py-3.5 shadow-sm"
         style={{
           paddingTop: `calc(0.875rem + ${safeArea.top}px)`,
           // FIX: Telegram reserves physical top-right space for its own
@@ -747,6 +747,17 @@ export const MiniShop: React.FC = () => {
           paddingRight: `calc(1rem + ${safeArea.right}px)`
         }}
       >
+        {/* FIX: this content used to span the full viewport edge-to-edge
+            (no max-width), while the page body below was capped much
+            narrower — on a wide desktop screen the title sat pinned to
+            the far right and the cart badge to the far left, visibly out
+            of step with the narrower content beneath. Same max-width as
+            <main> now, so header/content/nav all line up together
+            whatever the screen size — this is also what actually lets
+            the shop use the extra desktop width at all (see <main>
+            below): on mobile max-w-7xl never binds, so nothing changes
+            there. */}
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shrink-0">
             <Store size={20} className="text-white" />
@@ -769,10 +780,11 @@ export const MiniShop: React.FC = () => {
             <span>{totalItems} کالا</span>
           </div>
         )}
+        </div>
       </header>
 
       {/* Main Content Area based on Active Tab */}
-      <main className="flex-1 px-4 pt-4 max-w-2xl mx-auto w-full z-10">
+      <main className="flex-1 px-4 pt-4 max-w-7xl mx-auto w-full z-10">
         {activeTab === 'shop' && (
           <ShopTab
             loading={loading}

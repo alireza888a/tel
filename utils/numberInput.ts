@@ -40,3 +40,17 @@ export function formatNumberInput(value: number | ''): string {
   if (value === '') return '';
   return value.toLocaleString('en-US');
 }
+
+// String-state variants of the two helpers above, for forms that keep
+// their field values as raw strings rather than numbers (e.g. the coupon
+// form, where '' vs '0' are meaningfully different and the value is
+// passed straight through to the API). Same behaviour, no number round-trip.
+export function formatNumberString(raw: string): string {
+  const digitsOnly = toEnglishDigits(raw || '').replace(/[^\d]/g, '');
+  if (digitsOnly === '') return '';
+  return Number(digitsOnly).toLocaleString('en-US');
+}
+
+export function parseNumberString(raw: string): string {
+  return toEnglishDigits(raw || '').replace(/[^\d]/g, '');
+}

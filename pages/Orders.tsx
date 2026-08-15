@@ -4,11 +4,25 @@ import { ShoppingCart, Check, X, Clock, User, DollarSign, Calendar, Info, AlertC
 import { Order, Product } from '../types';
 import { getDisplayableImageUrl } from '../utils/image';
 import { getStoredCredential } from '../services/cloudSync';
+import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
+import { gregorianToJalali, MONTH_NAMES } from '../utils/jalaliCalendar';
+import { Search, CalendarDays } from 'lucide-react';
+
+type DateRange = 'all' | 'today' | 'yesterday' | 'week' | 'month' | 'custom';
 
 export const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'rejected'>('all');
-  const [dateRange, setDateRange] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [dateRange, setDateRange] = useState<DateRange>('all');
+  // A specific Jalali day picked by the merchant ("چه روزی چقدر فروختم؟").
+  // Held as a plain Date at local midnight; the request turns it into a
+  // start/end pair so only that one calendar day comes back.
+  const [customDate, setCustomDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  // Buyer/order search. Debounced below so typing a name doesn't fire a
+  // request per keystroke.
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -28,23 +42,34 @@ export const Orders: React.FC = () => {
     return getDisplayableImageUrl(product.imageUrl);
   };
 
-  const getDateRangeCutoff = (range: 'all' | 'today' | 'week' | 'month'): number | undefined => {
-    if (range === 'all') return undefined;
+  // Returns the {after, before} window for a range. `before` is only set
+  // for the day-bounded ranges (yesterday / a specific date), where an
+  // upper bound is what makes it a single day rather than "since then".
+  const getDateWindow = (range: DateRange): { after?: number; before?: number } => {
+    if (range === 'all') return {};
     const now = new Date();
-    if (range === 'today') {
-      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      return start.getTime();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (range === 'today') return { after: startOfToday };
+    if (range === 'yesterday') return { after: startOfToday - dayMs, before: startOfToday };
+    if (range === 'week') return { after: now.getTime() - 7 * dayMs };
+    if (range === 'month') return { after: now.getTime() - 30 * dayMs };
+    if (range === 'custom' && customDate) {
+      const start = new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate()).getTime();
+      return { after: start, before: start + dayMs };
     }
-    if (range === 'week') {
-      return now.getTime() - 7 * 24 * 60 * 60 * 1000;
-    }
-    // month
-    return now.getTime() - 30 * 24 * 60 * 60 * 1000;
+    return {};
+  };
+
+  const formatJalaliDay = (d: Date): string => {
+    const { jy, jm, jd } = gregorianToJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+    return `${jd.toLocaleString('fa-IR')} ${MONTH_NAMES[jm - 1]} ${jy.toLocaleString('fa-IR')}`;
   };
 
   const fetchOrdersApi = async (
     statusFilter: 'all' | 'pending' | 'confirmed' | 'rejected',
-    range: 'all' | 'today' | 'week' | 'month',
+    range: DateRange,
     beforeCursor?: number | null
   ) => {
     const credential = getStoredCredential();
@@ -58,13 +83,20 @@ export const Orders: React.FC = () => {
       payload.status = statusFilter;
     }
 
+    const window = getDateWindow(range);
+    if (window.after) payload.after = window.after;
+    // A pagination cursor always wins over the range's own upper bound —
+    // it's necessarily inside that window already (it's the createdAt of
+    // the oldest row on the previous page), so it narrows correctly
+    // instead of re-fetching from the top of the day.
     if (beforeCursor) {
       payload.before = beforeCursor;
+    } else if (window.before) {
+      payload.before = window.before;
     }
 
-    const afterCutoff = getDateRangeCutoff(range);
-    if (afterCutoff) {
-      payload.after = afterCutoff;
+    if (searchQuery.trim()) {
+      payload.search = searchQuery.trim();
     }
 
     const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/orders/list', {
@@ -117,7 +149,13 @@ export const Orders: React.FC = () => {
 
   useEffect(() => {
     refreshOrders();
-  }, [filter, dateRange]);
+  }, [filter, dateRange, customDate, searchQuery]);
+
+  // Debounce the search box so each keystroke doesn't hit the API.
+  useEffect(() => {
+    const t = setTimeout(() => setSearchQuery(searchInput), 450);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const handleConfirmOrder = async (orderId: string) => {
     const credential = getStoredCredential();
@@ -224,11 +262,11 @@ export const Orders: React.FC = () => {
         </div>
 
         {/* Date Range Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {(['all', 'today', 'week', 'month'] as const).map(range => (
+        <div className="flex gap-2 overflow-x-auto pb-1 items-center">
+          {(['all', 'today', 'yesterday', 'week', 'month'] as const).map(range => (
             <button
               key={range}
-              onClick={() => setDateRange(range)}
+              onClick={() => { setDateRange(range); setCustomDate(null); }}
               className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all whitespace-nowrap cursor-pointer ${
                 dateRange === range
                   ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/10'
@@ -237,12 +275,77 @@ export const Orders: React.FC = () => {
             >
               {range === 'all' && 'همه‌ی بازه‌ها'}
               {range === 'today' && 'امروز'}
+              {range === 'yesterday' && 'دیروز'}
               {range === 'week' && 'هفته‌ی اخیر'}
               {range === 'month' && 'ماه اخیر'}
             </button>
           ))}
+
+          {/* Specific-day lookup — "چه روزی چقدر فروختم؟" */}
+          <button
+            onClick={() => setShowDatePicker(true)}
+            className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              dateRange === 'custom'
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/10'
+                : 'bg-white/5 text-slate-600 border-black/5 hover:bg-white/10'
+            }`}
+          >
+            <CalendarDays size={14} />
+            {dateRange === 'custom' && customDate ? formatJalaliDay(customDate) : 'یک روز خاص'}
+          </button>
+        </div>
+
+        {/* Buyer / order search */}
+        <div className="relative">
+          <Search size={16} className="absolute top-1/2 -translate-y-1/2 right-3 text-slate-400 pointer-events-none" />
+          <input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="جستجوی خریدار (نام یا آیدی عددی) یا شماره سفارش..."
+            className="w-full bg-white border border-black/10 rounded-xl pr-10 pl-3 py-2.5 text-xs text-brand-navy outline-none focus:border-blue-500 transition-colors"
+          />
+          {searchInput && (
+            <button
+              onClick={() => setSearchInput('')}
+              className="absolute top-1/2 -translate-y-1/2 left-3 text-slate-400 hover:text-slate-700 transition-colors"
+              title="پاک کردن جستجو"
+            >
+              <X size={15} />
+            </button>
+          )}
         </div>
       </div>
+
+      <PersianDatePicker
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        initialDate={customDate || new Date()}
+        dateOnly
+        onSelect={(d) => { setCustomDate(d); setDateRange('custom'); }}
+      />
+
+      {/* Summary of whatever is currently filtered — this is the actual
+          question behind picking a day or searching a customer ("چقدر
+          فروختم؟"), so answer it inline instead of making them add the
+          cards up by eye. Revenue counts confirmed orders only, matching
+          how the dashboard and the bot's own /admin stats define it. */}
+      {orders && orders.length > 0 && (dateRange !== 'all' || searchQuery.trim()) && (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-4 py-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl text-xs">
+          <span className="text-brand-navy/60">
+            نمایش <b className="text-brand-navy">{orders.length.toLocaleString('fa-IR')}</b> سفارش
+            {hasMore && <span className="text-brand-navy/40"> (بارگذاری بیشتر برای دیدن بقیه)</span>}
+          </span>
+          <span className="text-brand-navy/60">
+            تایید شده: <b className="text-emerald-700">{orders.filter(o => o.status === 'confirmed').length.toLocaleString('fa-IR')}</b>
+          </span>
+          <span className="text-brand-navy/60">
+            جمع فروش تایید شده:{' '}
+            <b className="text-emerald-700">
+              {orders.filter(o => o.status === 'confirmed').reduce((s, o) => s + (o.total || 0), 0).toLocaleString('fa-IR')} تومان
+            </b>
+          </span>
+        </div>
+      )}
 
       {!orders || orders.length === 0 ? (
         <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-12 text-center flex flex-col items-center gap-4">

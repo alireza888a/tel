@@ -22,6 +22,7 @@ import { Coupon } from '../types';
 import { syncNow, getStoredCredential } from '../services/cloudSync';
 import { GlassCard } from '../components/GlassCard';
 import { PersianDatePicker } from '../components/broadcast/PersianDatePicker';
+import { formatNumberString, parseNumberString } from '../utils/numberInput';
 
 export const CouponsPage: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>(() => {
@@ -583,14 +584,18 @@ export const CouponsPage: React.FC = () => {
                 <label className="block text-xs font-bold text-brand-navy/70 mb-1">
                   مقدار تخفیف {formType === 'percent' ? '(درصد)' : '(تومان)'} <span className="text-red-600">*</span>
                 </label>
+                {/* Percent stays a plain number box (a discount is
+                    1-100, commas would be meaningless); the Toman amount
+                    gets live thousands separators so "50,000" can't be
+                    mistyped as "500,000". */}
                 <input
-                  type="number"
-                  value={formValue}
-                  onChange={(e) => setFormValue(e.target.value)}
-                  placeholder={formType === 'percent' ? 'مثلاً: 20' : 'مثلاً: 50000'}
-                  min="1"
-                  max={formType === 'percent' ? '100' : undefined}
-                  className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono"
+                  type="text"
+                  inputMode="numeric"
+                  value={formType === 'percent' ? formValue : formatNumberString(formValue)}
+                  onChange={(e) => setFormValue(parseNumberString(e.target.value))}
+                  placeholder={formType === 'percent' ? 'مثلاً: 20' : 'مثلاً: 50,000'}
+                  className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono text-right"
+                  dir="ltr"
                 />
               </div>
 
@@ -600,11 +605,13 @@ export const CouponsPage: React.FC = () => {
                   حداقل مبلغ سفارش به تومان (اختیاری)
                 </label>
                 <input
-                  type="number"
-                  value={formMinOrderAmount}
-                  onChange={(e) => setFormMinOrderAmount(e.target.value)}
+                  type="text"
+                  inputMode="numeric"
+                  value={formatNumberString(formMinOrderAmount)}
+                  onChange={(e) => setFormMinOrderAmount(parseNumberString(e.target.value))}
                   placeholder="خالی بگذارید یعنی بدون حد کف سفارش"
-                  className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono"
+                  className="w-full bg-black/[0.03] border border-black/10 rounded-xl px-3.5 py-2.5 text-xs text-brand-navy outline-none focus:border-brand-teal font-mono text-right"
+                  dir="ltr"
                 />
               </div>
 

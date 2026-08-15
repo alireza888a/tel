@@ -1,12 +1,17 @@
 import React, { useState } from'react';
 import { ChevronRight, ChevronLeft } from'lucide-react';
 import { gregorianToJalali, jalaliToGregorian, jalaaliMonthLength, MONTH_NAMES, WEEK_DAYS } from'../../utils/jalaliCalendar';
+import { getDayInfo } from'../../utils/persianHolidays';
 
 interface PersianDatePickerProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (date: Date) => void;
   initialDate?: Date;
+  /** Hide the hour/minute row. Scheduling a broadcast needs a time; looking
+   *  up "what did I sell on this day" does not — showing a time picker
+   *  there just invites the question of what it even means. */
+  dateOnly?: boolean;
 }
 
 export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({
@@ -14,6 +19,7 @@ export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({
   onClose,
   onSelect,
   initialDate,
+  dateOnly = false,
 }) => {
   const validDate = (initialDate && !isNaN(initialDate.getTime())) ? initialDate : new Date();
 
@@ -40,9 +46,13 @@ export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({
     return days;
   };
 
+  const selectedInfo = getDayInfo(viewYear, viewMonth, selectedDay);
+
   const handleConfirm = () => {
     const gDate = jalaliToGregorian(viewYear, viewMonth, selectedDay);
-    const finalDate = new Date(gDate.gy, gDate.gm - 1, gDate.gd, selectedHour, selectedMinute);
+    const finalDate = dateOnly
+      ? new Date(gDate.gy, gDate.gm - 1, gDate.gd)
+      : new Date(gDate.gy, gDate.gm - 1, gDate.gd, selectedHour, selectedMinute);
     onSelect(finalDate);
     onClose();
   };
@@ -72,27 +82,54 @@ export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({
           {WEEK_DAYS.map(d => <div key={d}>{d}</div>)}
         </div>
         <div className="grid grid-cols-7 p-2 gap-1 content-start bg-white min-h-[240px]">
-          {generateDays().map((d, idx) => (
-            <div key={idx} className="aspect-square flex items-center justify-center">
-              {d ? (
-                <button
-                  onClick={() => setSelectedDay(d)}
-                  className={`w-8 h-8 rounded-full text-sm transition-all flex items-center justify-center
-                    ${selectedDay === d
-                      ?'bg-blue-500 text-slate-800 shadow-lg scale-110 font-bold'
-                      :'text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                    }
-                    ${(d === jDate.jd && viewMonth === jDate.jm && viewYear === jDate.jy) ?'border border-blue-500/50':''}
-                  `}
-                >
-                  {d}
-                </button>
-              ) : <span/>}
-            </div>
-          ))}
+          {generateDays().map((d, idx) => {
+            // Fridays come from the weekday position, not the dataset — the
+            // grid always starts on Saturday, so index 6 of each row is Friday.
+            const isFriday = idx % 7 === 6;
+            const info = d ? getDayInfo(viewYear, viewMonth, d) : null;
+            const isOffDay = isFriday || !!info?.isHoliday;
+            return (
+              <div key={idx} className="aspect-square flex items-center justify-center">
+                {d ? (
+                  <button
+                    onClick={() => setSelectedDay(d)}
+                    title={info?.title || undefined}
+                    className={`w-8 h-8 rounded-full text-sm transition-all flex items-center justify-center relative
+                      ${selectedDay === d
+                        ?'bg-blue-500 text-white shadow-lg scale-110 font-bold'
+                        : isOffDay
+                          ?'text-red-600 hover:bg-red-50 font-medium'
+                          :'text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                      }
+                      ${(d === jDate.jd && viewMonth === jDate.jm && viewYear === jDate.jy) ?'border border-blue-500/50':''}
+                    `}
+                  >
+                    {d}
+                    {info && selectedDay !== d && (
+                      <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${info.isHoliday ?'bg-red-500':'bg-amber-500'}`}/>
+                    )}
+                  </button>
+                ) : <span/>}
+              </div>
+            );
+          })}
         </div>
 
+        {/* Occasion label for the selected day. Only rendered when there is
+            something to say, so an ordinary day doesn't leave an empty strip. */}
+        {selectedInfo && (
+          <div className={`mx-3 mb-2 px-3 py-2 rounded-lg text-xs leading-relaxed ${
+            selectedInfo.isHoliday
+              ?'bg-red-50 text-red-700 border border-red-200'
+              :'bg-amber-50 text-amber-800 border border-amber-200'
+          }`}>
+            {selectedInfo.isHoliday && <span className="font-bold">تعطیل رسمی — </span>}
+            {selectedInfo.title}
+          </div>
+        )}
+
         {/* Time Picker */}
+        {!dateOnly && (
         <div className="border-t border-slate-200 p-4 bg-white flex items-center justify-center gap-4"dir="ltr">
           <div className="flex flex-col items-center">
             <label className="text-[10px] text-slate-500 mb-1">ساعت</label>
@@ -114,11 +151,12 @@ export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({
             />
           </div>
         </div>
+        )}
 
         {/* Actions */}
         <div className="p-3 flex gap-3 border-t border-slate-100 bg-white">
           <button onClick={onClose} className="flex-1 py-2.5 text-slate-500 hover:text-slate-900 text-sm hover:bg-slate-100 rounded-xl transition-colors font-medium">انصراف</button>
-          <button onClick={handleConfirm} className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-slate-800 rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 transition-all">تایید زمان</button>
+          <button onClick={handleConfirm} className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 transition-all">{dateOnly ?'تایید تاریخ':'تایید زمان'}</button>
         </div>
       </div>
     </div>

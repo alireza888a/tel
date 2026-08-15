@@ -425,7 +425,7 @@ export const Products: React.FC = () => {
  ))}
  </div>
 
- <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+ <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
  {filteredProducts.map(product => (
  <GlassCard key={product.id} className="relative flex flex-col justify-between overflow-hidden group">
  <div>

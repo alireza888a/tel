@@ -47,8 +47,8 @@ export const FormsTab: React.FC<FormsTabProps> = ({
   return (
     <div className="space-y-4 animate-fade-in max-w-lg mx-auto">
       {selectedForm ? (
-        <div className="bg-[#151c2c]/80 border border-white/10 rounded-2xl p-5 space-y-4 backdrop-blur-sm">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <div className="bg-white border border-slate-100 shadow-sm rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-50 pb-3">
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -57,24 +57,24 @@ export const FormsTab: React.FC<FormsTabProps> = ({
                   setFormSuccessMessage(null);
                   setFormValues({});
                 }}
-                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-xl text-slate-300 hover:text-white transition-colors"
+                className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 hover:text-slate-900 transition-colors"
                 title="بازگشت به لیست فرم‌ها"
               >
                 <ArrowRight size={18} />
               </button>
-              <h2 className="text-sm font-bold text-white line-clamp-1">
+              <h2 className="text-sm font-bold text-slate-800 line-clamp-1">
                 {selectedForm.title || 'فرم آنلاین'}
               </h2>
             </div>
-            <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-md border border-blue-500/20">
+            <span className="text-[10px] text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-100">
               {selectedForm.questions ? selectedForm.questions.length : 0} سوال
             </span>
           </div>
 
           {formSuccessMessage ? (
-            <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3 animate-fade-in">
-              <CheckCircle2 size={36} className="text-emerald-400 mx-auto" />
-              <p className="text-sm font-bold text-emerald-300">{formSuccessMessage}</p>
+            <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3 animate-fade-in">
+              <CheckCircle2 size={36} className="text-emerald-600 mx-auto" />
+              <p className="text-sm font-bold text-emerald-700">{formSuccessMessage}</p>
               <button
                 type="button"
                 onClick={() => {
@@ -90,8 +90,8 @@ export const FormsTab: React.FC<FormsTabProps> = ({
           ) : (
             <form onSubmit={handleFormSubmit} className="space-y-4">
               {(selectedForm.questions || []).map((q, i) => (
-                <div key={i} className="space-y-2 bg-black/20 border border-white/5 p-3.5 rounded-xl">
-                  <label className="block text-xs font-medium text-slate-200">
+                <div key={i} className="space-y-2 bg-slate-50 border border-slate-100 p-3.5 rounded-xl">
+                  <label className="block text-xs font-medium text-slate-700">
                     {i + 1}. {q.text}
                   </label>
 
@@ -101,7 +101,7 @@ export const FormsTab: React.FC<FormsTabProps> = ({
                       value={formValues[i] || ''}
                       onChange={(e) => setFormValues({ ...formValues, [i]: e.target.value })}
                       placeholder="پاسخ عددی..."
-                      className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500 transition-colors"
+                      className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400 transition-colors"
                       required
                     />
                   ) : q.type === 'date' ? (
@@ -109,19 +109,19 @@ export const FormsTab: React.FC<FormsTabProps> = ({
                       type="date"
                       value={formValues[i] || ''}
                       onChange={(e) => setFormValues({ ...formValues, [i]: e.target.value })}
-                      className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500 transition-colors"
+                      className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 outline-none focus:border-blue-400 transition-colors"
                       required
                     />
                   ) : q.type === 'select' ? (
                     <select
                       value={formValues[i] || ''}
                       onChange={(e) => setFormValues({ ...formValues, [i]: e.target.value })}
-                      className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500 transition-colors"
+                      className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 outline-none focus:border-blue-400 transition-colors"
                       required
                     >
                       <option value="">لطفاً یک گزینه انتخاب کنید...</option>
                       {(q.options || []).map((opt, oIdx) => (
-                        <option key={oIdx} value={opt} className="bg-slate-900 text-white">
+                        <option key={oIdx} value={opt}>
                           {opt}
                         </option>
                       ))}
@@ -134,7 +134,7 @@ export const FormsTab: React.FC<FormsTabProps> = ({
                         return (
                           <label
                             key={oIdx}
-                            className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer bg-black/30 p-2.5 rounded-xl border border-white/5 hover:border-white/20 transition-all"
+                            className="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer bg-slate-50 p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 transition-all"
                           >
                             <input
                               type="checkbox"
@@ -145,7 +145,7 @@ export const FormsTab: React.FC<FormsTabProps> = ({
                                   : currentArr.filter((item) => item !== opt);
                                 setFormValues({ ...formValues, [i]: next });
                               }}
-                              className="rounded text-blue-600 focus:ring-blue-500 bg-slate-900 border-white/20"
+                              className="rounded text-blue-600 focus:ring-blue-400 bg-white border-slate-300"
                             />
                             <span>{opt}</span>
                           </label>
@@ -158,7 +158,7 @@ export const FormsTab: React.FC<FormsTabProps> = ({
                       value={formValues[i] || ''}
                       onChange={(e) => setFormValues({ ...formValues, [i]: e.target.value })}
                       placeholder="پاسخ خود را بنویسید..."
-                      className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500 transition-colors"
+                      className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400 transition-colors"
                       required
                     />
                   )}
@@ -188,14 +188,14 @@ export const FormsTab: React.FC<FormsTabProps> = ({
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <FileText size={18} className="text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <FileText size={18} className="text-emerald-600" />
               <span>فرم‌های آنلاین</span>
             </h2>
             <button
               onClick={fetchForms}
               disabled={formsLoading}
-              className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white text-xs flex items-center gap-1 transition-colors"
+              className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 hover:text-slate-800 text-xs flex items-center gap-1 transition-colors"
             >
               <RefreshCw size={13} className={formsLoading ? 'animate-spin' : ''} />
               <span>بروزرسانی</span>
@@ -204,18 +204,18 @@ export const FormsTab: React.FC<FormsTabProps> = ({
 
           {formsLoading ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] text-center p-6 space-y-3">
-              <Loader2 size={32} className="text-emerald-500 animate-spin" />
-              <p className="text-xs text-slate-400">در حال دریافت فرم‌ها...</p>
+              <Loader2 size={32} className="text-emerald-600 animate-spin" />
+              <p className="text-xs text-slate-500">در حال دریافت فرم‌ها...</p>
             </div>
           ) : formsError ? (
-            <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-center space-y-2">
-              <AlertTriangle size={32} className="text-red-400 mx-auto" />
-              <p className="text-xs text-red-300">{formsError}</p>
+            <div className="p-6 rounded-2xl bg-red-50 border border-red-100 text-center space-y-2">
+              <AlertTriangle size={32} className="text-red-500 mx-auto" />
+              <p className="text-xs text-red-600">{formsError}</p>
             </div>
           ) : formsList.length === 0 ? (
-            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-center space-y-3 my-8">
-              <FileText size={44} className="text-slate-600 mx-auto" />
-              <p className="text-xs text-slate-400">فعلاً فرمی برای پر کردن نیست.</p>
+            <div className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm text-center space-y-3 my-8">
+              <FileText size={44} className="text-slate-300 mx-auto" />
+              <p className="text-xs text-slate-500">فعلاً فرمی برای پر کردن نیست.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -227,17 +227,17 @@ export const FormsTab: React.FC<FormsTabProps> = ({
                     setFormValues({});
                     setFormSuccessMessage(null);
                   }}
-                  className="bg-[#151c2c]/80 border border-white/10 hover:border-emerald-500/50 rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.01] backdrop-blur-sm flex items-center justify-between group"
+                  className="bg-white border border-slate-100 hover:border-emerald-300 shadow-sm rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.01] flex items-center justify-between group"
                 >
                   <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    <h3 className="text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">
                       {form.title || 'فرم بدون عنوان'}
                     </h3>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {form.questions ? `${form.questions.length} سوال` : 'بدون سوال'}
                     </p>
                   </div>
-                  <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-1 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                  <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-medium flex items-center gap-1 group-hover:bg-emerald-600 group-hover:text-white transition-all">
                     <span>پر کردن فرم</span>
                     <span>➔</span>
                   </div>

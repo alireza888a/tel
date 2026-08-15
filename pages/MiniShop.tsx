@@ -72,8 +72,9 @@ declare global {
 
 export const MiniShop: React.FC = () => {
   // Base height (px) of BottomNavigation before the device's safe area is added — matches
-  // its own icon+label+padding sizing, used to position CheckoutBar right above it.
-  const NAV_BASE_HEIGHT = 64;
+  // its own icon+label+padding sizing plus its floating bottom-3 margin, used to position
+  // CheckoutBar right above it.
+  const NAV_BASE_HEIGHT = 76;
 
   const [enabledModules, setEnabledModules] = useState<MiniAppModule[]>(() => {
     try {
@@ -166,12 +167,13 @@ export const MiniShop: React.FC = () => {
       // Older client without full-screen support — expand() already applied above.
     }
 
-    // Match Telegram's native chrome (status bar / bottom bar) to our dark brand colors
-    // instead of the client's default, so the app feels like one seamless surface.
+    // Match Telegram's native chrome (status bar / bottom bar) to our light
+    // brand colors instead of the client's default, so the app feels like
+    // one seamless surface.
     try {
-      webApp.setHeaderColor?.('#151c2c');
-      webApp.setBackgroundColor?.('#0e131f');
-      webApp.setBottomBarColor?.('#0e131f');
+      webApp.setHeaderColor?.('#ffffff');
+      webApp.setBackgroundColor?.('#f8fafc');
+      webApp.setBottomBarColor?.('#f8fafc');
     } catch {
       // Older client — colors simply stay default, no functional impact.
     }
@@ -193,65 +195,67 @@ export const MiniShop: React.FC = () => {
     };
   }, []);
 
-  // Fetch live stock counts (D1) for products with trackStock enabled
-  const fetchStockLevels = async () => {
-    if (!code) return;
-    try {
-      const res = await fetch('https://corepanel-api.tajikr450.workers.dev/api/products/stock/list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
-      });
-      const result = await res.json();
-      if (result.ok) setStockLevels(result.stock || {});
-    } catch (e) {
-      console.warn('MiniShop stock fetch error:', e);
-    }
-  };
-
-  // Fetch shop products & enabled modules from server
-  useEffect(() => {
+  // Fetch shop products & enabled modules from server. Hoisted (not just a
+  // useEffect-local const) so returning to the shop tab can re-run it too —
+  // that's what keeps stock numbers fresh if someone lingers on another tab
+  // for a while (see the tab-switch effect further down).
+  const fetchShopData = async () => {
     if (!code) {
       setError('کد لایسنس یا شناسه فروشگاه در آدرس یافت نشد.');
       setLoading(false);
       return;
     }
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`https://corepanel-api.tajikr450.workers.dev/api/shop/${encodeURIComponent(code)}/products`);
+      const data = await res.json();
 
-    const fetchShopData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`https://corepanel-api.tajikr450.workers.dev/api/shop/${encodeURIComponent(code)}/products`);
-        const data = await res.json();
-        
-        if (data.ok === false) {
-          setError(data.message || 'خطا در بارگیری اطلاعات فروشگاه.');
-        } else {
-          setShopEnabled(data.shop_enabled !== false);
-          setProducts(data.products || []);
-          if (Array.isArray(data.enabled_modules) && data.enabled_modules.length > 0) {
-            setEnabledModules(data.enabled_modules);
-            if (!data.enabled_modules.includes(activeTab)) {
-              setActiveTab(data.enabled_modules[0]);
-            }
+      if (data.ok === false) {
+        setError(data.message || 'خطا در بارگیری اطلاعات فروشگاه.');
+      } else {
+        setShopEnabled(data.shop_enabled !== false);
+        setProducts(data.products || []);
+        // FIX: this used to call a separate endpoint
+        // (/api/products/stock/list) with the Mini App's `code` param —
+        // but that endpoint is owner-only and expects the private license
+        // code, while the Mini App only ever holds the public, buyer-safe
+        // access_token (deliberately — the license code must never reach a
+        // buyer's browser). Every call there failed with "invalid" and
+        // stockLevels stayed permanently empty, which getStockInfo in
+        // ShopTab reads as 0 remaining for every trackStock product — so
+        // every tracked product showed as out of stock regardless of the
+        // real count. The actual fix: this /api/shop/:code/products
+        // response (which DOES accept the public token) already returns
+        // each product's live `stock` field — no second request needed.
+        const stocks: Record<string, number> = {};
+        for (const p of (data.products || [])) {
+          if (p.trackStock && typeof p.stock === 'number') stocks[p.id] = p.stock;
+        }
+        setStockLevels(stocks);
+        if (Array.isArray(data.enabled_modules) && data.enabled_modules.length > 0) {
+          setEnabledModules(data.enabled_modules);
+          if (!data.enabled_modules.includes(activeTab)) {
+            setActiveTab(data.enabled_modules[0]);
           }
         }
-        fetchStockLevels();
-      } catch (err) {
-        console.error('MiniShop API error:', err);
-        // Fallback to local storage
-        try {
-          const localProds = JSON.parse(localStorage.getItem('bot_products') || '[]');
-          setProducts(localProds);
-          setShopEnabled(true);
-        } catch {
-          setError('خطا در ارتباط با سرور. لطفاً مجدداً تلاش کنید.');
-        }
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error('MiniShop API error:', err);
+      // Fallback to local storage
+      try {
+        const localProds = JSON.parse(localStorage.getItem('bot_products') || '[]');
+        setProducts(localProds);
+        setShopEnabled(true);
+      } catch {
+        setError('خطا در ارتباط با سرور. لطفاً مجدداً تلاش کنید.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchShopData();
   }, [code]);
 
@@ -533,7 +537,7 @@ export const MiniShop: React.FC = () => {
     if (activeTab === 'booking') fetchBookingServices();
     if (activeTab === 'gallery') fetchGallery();
     if (activeTab === 'announcements') fetchAnnouncements();
-    if (activeTab === 'shop') fetchStockLevels();
+    if (activeTab === 'shop') fetchShopData();
   }, [activeTab, code]);
 
   // Quantity controls — respects live stock cap for products with trackStock enabled
@@ -683,17 +687,26 @@ export const MiniShop: React.FC = () => {
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-[#0e131f] text-white flex flex-col font-sans relative"
+      // FIX: full light-theme redesign — was a hardcoded dark shop
+      // (bg-[#0e131f], text-white throughout). Modeled after a storefront
+      // reference the merchant liked (rounded white product cards,
+      // circular category thumbnails, wishlist hearts). The
+      // `telegram-simulator` class that used to be here (to dodge the
+      // admin panel's dark-mode-preserving CSS override — see
+      // index.html) is no longer needed: this page now uses ordinary
+      // light-theme classes throughout (bg-white, text-slate-800, etc.),
+      // which that override doesn't touch in any harmful way.
+      className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans relative"
       style={{ paddingBottom: `calc(7rem + ${safeArea.bottom}px)` }}
     >
-      {/* Background Glow */}
-      <div className="fixed top-0 right-0 w-72 h-72 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="fixed bottom-0 left-0 w-72 h-72 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
+      {/* Background Glow — soft accent tint behind the header, not a full backdrop */}
+      <div className="fixed top-0 right-0 w-72 h-72 bg-blue-200/30 rounded-full blur-[100px] pointer-events-none" />
+      <div className="fixed bottom-0 left-0 w-72 h-72 bg-emerald-200/20 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Header */}
       <header
         ref={headerRef}
-        className="sticky top-0 z-30 bg-[#151c2c]/90 backdrop-blur-md border-b border-white/10 px-4 py-3.5 flex items-center justify-between shadow-lg"
+        className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 py-3.5 flex items-center justify-between shadow-sm"
         style={{ paddingTop: `calc(0.875rem + ${safeArea.top}px)` }}
       >
         <div className="flex items-center gap-2.5">
@@ -701,7 +714,7 @@ export const MiniShop: React.FC = () => {
             <Store size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white">فروشگاه آنلاین تلگرام</h1>
+            <h1 className="text-base font-bold text-slate-900">فروشگاه آنلاین تلگرام</h1>
             <p className="text-[11px] text-slate-400">
               {activeTab === 'shop' && 'انتخاب محصولات و سفارش مستقیم'}
               {activeTab === 'orders' && 'سوابق و پیگیری سفارش‌های قبلی'}
@@ -713,7 +726,7 @@ export const MiniShop: React.FC = () => {
           </div>
         </div>
         {activeTab === 'shop' && totalItems > 0 && (
-          <div className="bg-blue-600/20 border border-blue-500/30 px-2.5 py-1 rounded-full text-xs text-blue-400 font-medium flex items-center gap-1 animate-fade-in">
+          <div className="bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full text-xs text-blue-700 font-medium flex items-center gap-1 animate-fade-in">
             <ShoppingBag size={13} />
             <span>{totalItems} کالا</span>
           </div>
@@ -847,12 +860,12 @@ export const MiniShop: React.FC = () => {
       {/* Order-sent confirmation — shown instead of an unexplained blank frame on
           Telegram Desktop/web, where WebApp.close() often doesn't dismiss the panel cleanly. */}
       {checkoutDone && (
-        <div className="fixed inset-0 z-50 bg-[#0e131f]/98 backdrop-blur-md flex flex-col items-center justify-center text-center px-8 gap-4">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-3xl">
+        <div className="fixed inset-0 z-50 bg-white/98 backdrop-blur-md flex flex-col items-center justify-center text-center px-8 gap-4">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-3xl">
             ✅
           </div>
-          <h2 className="text-lg font-bold text-white">سفارش شما با موفقیت ثبت شد</h2>
-          <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
+          <h2 className="text-lg font-bold text-slate-900">سفارش شما با موفقیت ثبت شد</h2>
+          <p className="text-xs text-slate-500 leading-relaxed max-w-xs">
             جزئیات و پیگیری سفارش از طریق چت ربات براتون ارسال می‌شه. می‌تونید این پنجره رو ببندید.
           </p>
           <button

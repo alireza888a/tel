@@ -237,6 +237,11 @@ export interface Product {
   post_confirm_menu_id?: string;
   post_order_form_id?: string;
   trackStock?: boolean;
+  /** Live remaining stock, sent only by /api/shop/:code/products (Mini App
+   *  feed) for trackStock products — null when not tracked, undefined
+   *  everywhere else (e.g. the admin panel's own Product objects, which
+   *  get stock separately via /api/products/stock/list). */
+  stock?: number | null;
   /** Optional per-product cap on how many units one buyer can put in a
    *  single order. Overrides the shop-wide config.max_per_order when set;
    *  undefined means "follow the global setting" (which itself may be

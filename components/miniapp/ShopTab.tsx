@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ShoppingBag, Plus, Minus, AlertTriangle, Loader2, Share2, Search, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, Plus, Minus, AlertTriangle, Loader2, Share2, Search, X, Heart, Grid3x3 } from 'lucide-react';
 import { Product } from '../../types';
 import { ProductImageSlider } from './ProductImageSlider';
 import { getDisplayableImageUrl } from '../../utils/image';
@@ -18,7 +18,7 @@ export interface ShopTabProps {
   stockLevels?: Record<string, number>;
   /** Real rendered height (px) of the page header, so the category bar sticks right under it. */
   stickyTop?: number;
-  /** Shop's license code — needed only to lazily resolve the bot's username for product deep links when sharing. */
+  /** Shop's license code — needed only to lazily resolve the bot's username for product deep links when sharing, and to namespace the wishlist in localStorage per shop. */
   code: string;
 }
 
@@ -42,7 +42,37 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
+  // Wishlist ("علاقه‌مندی‌ها") — a lightweight, client-only favorites list. Kept
+  // entirely local to this tab (not lifted into MiniShop's own state, not
+  // synced to the server) since it's purely a per-device browsing aid, the
+  // same way a phone's own "saved items" would work — nothing here needs
+  // to survive a device change or show up in the admin panel. Namespaced
+  // by `code` so switching between shops (rare, but possible in testing)
+  // never mixes favorites across two different stores.
+  const wishlistKey = `miniapp_wishlist_${code}`;
+  const [wishlist, setWishlist] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem(wishlistKey);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
+  });
+  const [showWishlistOnly, setShowWishlistOnly] = useState(false);
+
+  useEffect(() => {
+    try { localStorage.setItem(wishlistKey, JSON.stringify([...wishlist])); } catch {}
+  }, [wishlist, wishlistKey]);
+
+  const toggleWishlist = (productId: string) => {
+    window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.('light');
+    setWishlist(prev => {
+      const next = new Set(prev);
+      if (next.has(productId)) next.delete(productId); else next.add(productId);
+      return next;
+    });
+  };
+
   const filteredProducts = products.filter(p => {
+    if (showWishlistOnly) return wishlist.has(p.id);
     const inCategory = selectedCategory === 'همه' || ((p.category || '').trim() || 'عمومی') === selectedCategory;
     if (!inCategory) return false;
     if (!normalizedQuery) return true;
@@ -133,7 +163,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     return !!displayUrl && !displayUrl.startsWith('data:');
   };
 
-  // Shared stock math, used by both the main grid and the "newest arrivals" strip below.
+  // Shared stock math, used by both the main grid and the category thumbnails below.
   const getStockInfo = (p: Product) => {
     const isTracked = !!p.trackStock;
     const available = isTracked ? Math.max(0, stockLevels[p.id] ?? 0) : Infinity;
@@ -148,54 +178,53 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     return {
       outOfStock: isTracked && available <= 0,
       atMax: (isTracked && inCart >= available) || inCart >= cap,
-      atOrderCap: inCart >= cap,
-      orderCap: cap,
       lowStock: isTracked && available > 0 && available <= 5,
       available
     };
   };
 
-  // How many products live in each category, so the person can tell what's inside before tapping
-  // (e.g. "میز عسلی (۶)") instead of a blind list of category names.
+  // How many products live in each category, so the person can tell what's inside before tapping.
   const categoryCounts: Record<string, number> = { 'همه': products.length };
+  // First product image per category, used as the circular thumbnail —
+  // approximates a real per-category image without needing a new admin
+  // field: whichever product in that category happens to have a photo.
+  const categoryThumb: Record<string, string | null> = {};
   for (const p of products) {
     const cat = (p.category || '').trim() || 'عمومی';
     categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    if (!categoryThumb[cat]) {
+      const img = getDisplayableImageUrl(p.imageUrls?.find(u => u && u.trim()) || p.imageUrl);
+      if (img) categoryThumb[cat] = img;
+    }
   }
-
-  // "Newest arrivals" teaser — the last few products in catalog order, shown up top so a
-  // first-time visitor immediately sees something curated instead of a wall to scroll through.
-  // Uses existing data only (no new admin field required): assumes products are appended in
-  // creation order, so the tail of the array is the most recently added.
-  const newestProducts = products.length > 4 ? [...products].slice(-6).reverse() : [];
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 space-y-3">
-        <Loader2 size={36} className="text-blue-500 animate-spin" />
-        <p className="text-sm text-slate-400">در حال دریافت کاتالوگ محصولات...</p>
+        <Loader2 size={36} className="text-blue-600 animate-spin" />
+        <p className="text-sm text-slate-500">در حال دریافت کاتالوگ محصولات...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="my-10 p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-center space-y-3">
-        <AlertTriangle size={36} className="text-red-400 mx-auto" />
-        <h3 className="text-base font-bold text-red-300">خطا در بارگیری</h3>
-        <p className="text-xs text-slate-300 leading-relaxed">{error}</p>
+      <div className="my-10 p-6 rounded-2xl bg-red-50 border border-red-100 text-center space-y-3">
+        <AlertTriangle size={36} className="text-red-500 mx-auto" />
+        <h3 className="text-base font-bold text-red-700">خطا در بارگیری</h3>
+        <p className="text-xs text-red-600/80 leading-relaxed">{error}</p>
       </div>
     );
   }
 
   if (!shopEnabled) {
     return (
-      <div className="my-12 p-8 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-center space-y-4">
-        <div className="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl">
+      <div className="my-12 p-8 rounded-3xl bg-amber-50 border border-amber-100 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-2xl">
           🛑
         </div>
-        <h2 className="text-lg font-bold text-amber-300">فروشگاه غیرفعال است</h2>
-        <p className="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto">
+        <h2 className="text-lg font-bold text-amber-700">فروشگاه غیرفعال است</h2>
+        <p className="text-xs text-amber-700/70 leading-relaxed max-w-sm mx-auto">
           فروشگاه در حال حاضر غیرفعال است. جهت اطلاع از وضعیت با مدیریت ربات تماس بگیرید.
         </p>
       </div>
@@ -204,10 +233,10 @@ export const ShopTab: React.FC<ShopTabProps> = ({
 
   if (products.length === 0) {
     return (
-      <div className="my-12 p-8 rounded-3xl bg-white/5 border border-white/10 text-center space-y-3">
-        <ShoppingBag size={40} className="text-slate-500 mx-auto" />
-        <h3 className="text-sm font-bold text-slate-300">محصولی یافت نشد</h3>
-        <p className="text-xs text-slate-400">هیچ محصولی در کاتالوگ فروشگاه قرار ندارد.</p>
+      <div className="my-12 p-8 rounded-3xl bg-slate-100 border border-slate-200 text-center space-y-3">
+        <ShoppingBag size={40} className="text-slate-400 mx-auto" />
+        <h3 className="text-sm font-bold text-slate-600">محصولی یافت نشد</h3>
+        <p className="text-xs text-slate-500">هیچ محصولی در کاتالوگ فروشگاه قرار ندارد.</p>
       </div>
     );
   }
@@ -215,193 +244,191 @@ export const ShopTab: React.FC<ShopTabProps> = ({
   return (
     <>
       {/* Search — filters the grid below in real time, no server round-trip */}
-      <div className="relative mb-3">
-        <Search size={15} className="absolute top-1/2 -translate-y-1/2 right-3 text-slate-500 pointer-events-none" />
+      <div className="relative mb-3.5">
+        <Search size={15} className="absolute top-1/2 -translate-y-1/2 right-3.5 text-slate-400 pointer-events-none" />
         <input
           type="text"
           inputMode="search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="جستجو در محصولات..."
-          className="w-full bg-[#151c2c]/80 border border-white/10 rounded-xl py-2.5 pr-9 pl-9 text-xs text-white placeholder:text-slate-500 outline-none focus:border-blue-500/50 transition-colors"
+          className="w-full bg-white border border-slate-200 rounded-2xl py-3 pr-10 pl-9 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-400 shadow-sm transition-colors"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="absolute top-1/2 -translate-y-1/2 left-3 text-slate-500 hover:text-white transition-colors"
+            className="absolute top-1/2 -translate-y-1/2 left-3.5 text-slate-400 hover:text-slate-700 transition-colors"
           >
             <X size={15} />
           </button>
         )}
       </div>
 
-      {/* Newest arrivals — quick horizontal teaser shown once, above the sticky category bar.
-          Hidden while actively searching, since it's just noise once the person is filtering. */}
-      {newestProducts.length > 0 && selectedCategory === 'همه' && !normalizedQuery && (
-        <div className="mb-4">
-          <h2 className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
-            ✨ <span>جدیدترین محصولات</span>
-          </h2>
-          <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-            {newestProducts.map((p) => {
-              const { outOfStock } = getStockInfo(p);
-              const img = getDisplayableImageUrl(p.imageUrls?.find(u => u && u.trim()) || p.imageUrl);
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => setSelectedCategory((p.category || '').trim() || 'عمومی')}
-                  className="w-28 shrink-0 text-right bg-[#151c2c]/80 border border-white/10 rounded-xl overflow-hidden active:scale-95 transition-all"
-                >
-                  <div className={`w-full aspect-square bg-black/40 flex items-center justify-center ${outOfStock ? 'grayscale opacity-50' : ''}`}>
-                    {img ? (
-                      <img src={img} alt={p.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <ShoppingBag size={20} className="text-blue-400/50" />
-                    )}
-                  </div>
-                  <div className="p-1.5">
-                    <div className="text-[10px] text-white line-clamp-1 font-medium">{p.name}</div>
-                    <div className="text-[10px] text-emerald-400 font-bold mt-0.5">
-                      {p.price.toLocaleString('fa-IR')} <span className="text-slate-500 font-normal">تومان</span>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+      {/* Category thumbnails — circular, Aradbot-style: a small photo per
+          category (from one of its own products) instead of a text pill,
+          so the store's structure reads at a glance before scrolling. */}
+      {!showWishlistOnly && categories.length > 2 && (
+        <div className="flex items-start gap-3.5 overflow-x-auto pb-1 mb-4 no-scrollbar">
+          {categories.map((cat) => {
+            const isAll = cat === 'همه';
+            const thumb = isAll ? null : categoryThumb[cat];
+            const isActive = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className="flex flex-col items-center gap-1.5 shrink-0 w-16"
+              >
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden transition-all ${
+                  isActive ? 'ring-2 ring-blue-500 ring-offset-2' : 'ring-1 ring-slate-200'
+                } ${thumb ? 'bg-slate-100' : 'bg-blue-50'}`}>
+                  {thumb ? (
+                    <img src={thumb} alt={cat} className="w-full h-full object-cover" />
+                  ) : (
+                    <Grid3x3 size={20} className="text-blue-400" />
+                  )}
+                </div>
+                <span className={`text-[10px] line-clamp-1 w-full text-center ${isActive ? 'text-blue-700 font-bold' : 'text-slate-500'}`}>
+                  {cat}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Categories filter tabs — sticky right under the header, with a per-category product
-          count, so store structure (e.g. ناهارخوری / میز عسلی / سرویس خواب) stays visible
-          and tappable no matter how far the person has scrolled into the grid. */}
-      {categories.length > 2 && (
-        <div
-          className="sticky z-20 -mx-4 px-4 bg-[#0e131f]/95 backdrop-blur-md flex items-center gap-2 overflow-x-auto py-2.5 mb-2 no-scrollbar border-b border-white/5"
-          style={{ top: `${stickyTop}px` }}
+      {/* Wishlist filter chip — only shown once something's actually been
+          favorited, so an empty heart row never clutters a first visit. */}
+      {wishlist.size > 0 && (
+        <button
+          onClick={() => setShowWishlistOnly(v => !v)}
+          className={`mb-3.5 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
+            showWishlistOnly
+              ? 'bg-rose-600 border-rose-600 text-white shadow-md shadow-rose-600/20'
+              : 'bg-rose-50 border-rose-100 text-rose-600'
+          }`}
         >
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border shrink-0 flex items-center gap-1 ${
-                selectedCategory === cat
-                  ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-600/30'
-                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <span>{cat}</span>
-              <span className={selectedCategory === cat ? 'text-blue-100/80' : 'text-slate-500'}>
-                ({(categoryCounts[cat] || 0).toLocaleString('fa-IR')})
-              </span>
-            </button>
-          ))}
-        </div>
+          <Heart size={14} fill={showWishlistOnly ? 'currentColor' : 'none'} />
+          <span>{showWishlistOnly ? 'بازگشت به همه‌ی محصولات' : `علاقه‌مندی‌های من (${wishlist.size.toLocaleString('fa-IR')})`}</span>
+        </button>
       )}
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="my-10 p-6 rounded-2xl bg-white/5 border border-white/10 text-center space-y-2">
-          <Search size={28} className="text-slate-500 mx-auto" />
-          <p className="text-xs text-slate-400">
-            {normalizedQuery ? `چیزی برای «${searchQuery}» پیدا نشد.` : 'محصولی تو این دسته پیدا نشد.'}
+        <div className="my-10 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm text-center space-y-2">
+          <Search size={28} className="text-slate-300 mx-auto" />
+          <p className="text-xs text-slate-500">
+            {showWishlistOnly
+              ? 'هنوز محصولی رو به علاقه‌مندی‌ها اضافه نکردید.'
+              : normalizedQuery ? `چیزی برای «${searchQuery}» پیدا نشد.` : 'محصولی تو این دسته پیدا نشد.'}
           </p>
         </div>
       ) : (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-2 gap-3">
         {filteredProducts.map((p) => {
           const qty = cartState[p.id] || 0;
           const { available, outOfStock, atMax, lowStock } = getStockInfo(p);
+          const isFavorite = wishlist.has(p.id);
 
           return (
             <div
               key={p.id}
-              className={`bg-[#151c2c]/80 border rounded-2xl p-3.5 flex flex-col justify-between transition-all backdrop-blur-sm ${
+              className={`bg-white rounded-2xl p-2.5 flex flex-col justify-between shadow-sm border transition-all ${
                 outOfStock
-                  ? 'border-white/5 opacity-60'
+                  ? 'border-slate-100 opacity-60'
                   : qty > 0
-                  ? 'border-blue-500/50 ring-1 ring-blue-500/30 shadow-lg shadow-blue-600/10'
-                  : 'border-white/10 hover:border-white/20'
+                  ? 'border-blue-300 ring-1 ring-blue-200'
+                  : 'border-slate-100'
               }`}
             >
               <div>
-                {/* Product Image Slider */}
-                <ProductImageSlider product={p} outOfStock={outOfStock} />
+                {/* Product Image + overlay actions (heart / out-of-stock / category) */}
+                <div className="relative">
+                  <ProductImageSlider product={p} outOfStock={outOfStock} />
+                  <button
+                    type="button"
+                    onClick={() => toggleWishlist(p.id)}
+                    title="افزودن به علاقه‌مندی‌ها"
+                    className="absolute top-2 left-2 z-10 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm shadow-sm flex items-center justify-center active:scale-90 transition-transform"
+                  >
+                    <Heart size={14} className={isFavorite ? 'text-rose-600' : 'text-slate-400'} fill={isFavorite ? 'currentColor' : 'none'} />
+                  </button>
+                </div>
 
-                {/* Title & Price */}
-                <div className="flex items-start justify-between gap-1.5 mb-1">
-                  <h3 className="text-sm font-bold text-white line-clamp-1 flex-1">{p.name}</h3>
+                {/* Title & share actions */}
+                <div className="flex items-start justify-between gap-1.5 mb-0.5 mt-1">
+                  <h3 className="text-xs font-bold text-slate-800 line-clamp-1 flex-1">{p.name}</h3>
                   <div className="flex items-center gap-1 shrink-0">
                     {canShareToStory(p) && (
                       <button
                         type="button"
                         onClick={() => shareProductToStory(p)}
                         title="اشتراک‌گذاری در استوری"
-                        className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors active:scale-90"
+                        className="w-5.5 h-5.5 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors active:scale-90"
                       >
-                        <div className="w-2.5 h-2.5 rounded-full border-2 border-current" />
+                        <div className="w-2 h-2 rounded-full border-[1.5px] border-current" />
                       </button>
                     )}
                     <button
                       type="button"
                       onClick={() => shareProductToChat(p)}
                       title="اشتراک‌گذاری در چت"
-                      className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors active:scale-90"
+                      className="w-5.5 h-5.5 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors active:scale-90"
                     >
-                      <Share2 size={12} />
+                      <Share2 size={11} />
                     </button>
                   </div>
                 </div>
                 {p.description && (
-                  <p className="text-[11px] text-slate-400 line-clamp-2 mb-2 leading-relaxed">
+                  <p className="text-[10px] text-slate-400 line-clamp-1 mb-1.5 leading-relaxed">
                     {p.description}
                   </p>
                 )}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs font-black text-emerald-400 dir-rtl">
-                    {p.price.toLocaleString('fa-IR')} <span className="text-[10px] font-normal text-slate-400">تومان</span>
+                <div className="flex items-center justify-between mb-2 gap-1 flex-wrap">
+                  <div className="text-[13px] font-black text-emerald-600 dir-rtl">
+                    {p.price.toLocaleString('fa-IR')} <span className="text-[9px] font-normal text-slate-400">تومان</span>
                   </div>
                   {lowStock && (
-                    <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                      فقط {available.toLocaleString('fa-IR')} عدد باقی مانده
+                    <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded-full">
+                      {available.toLocaleString('fa-IR')} عدد مونده
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Quantity Control Buttons */}
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+              <div className="pt-1.5 border-t border-slate-50">
                 {outOfStock ? (
                   <button
                     disabled
-                    className="w-full py-2 bg-white/5 border border-white/10 text-slate-500 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
+                    className="w-full py-2 bg-slate-50 border border-slate-100 text-slate-400 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
                   >
                     <span>ناموجود</span>
                   </button>
                 ) : qty === 0 ? (
                   <button
                     onClick={() => tapQty(p.id, 1)}
-                    className="w-full py-2 bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 hover:border-blue-500 text-blue-300 hover:text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
+                    className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-all shadow-sm shadow-blue-600/20 active:scale-95"
                   >
-                    <Plus size={14} />
-                    <span>افزودن به سبد</span>
+                    <Plus size={13} />
+                    <span>افزودن</span>
                   </button>
                 ) : (
-                  <div className="w-full flex items-center justify-between bg-blue-600/10 border border-blue-500/30 rounded-xl p-1">
+                  <div className="w-full flex items-center justify-between bg-blue-50 rounded-xl p-1">
                     <button
                       onClick={() => tapQty(p.id, -1)}
-                      className="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white flex items-center justify-center transition-colors active:scale-95"
+                      className="w-7 h-7 rounded-lg bg-white text-red-500 shadow-sm flex items-center justify-center transition-colors active:scale-95"
                     >
-                      <Minus size={14} />
+                      <Minus size={13} />
                     </button>
-                    <span className="text-sm font-black text-white px-2 font-mono">{qty}</span>
+                    <span className="text-sm font-black text-slate-800 px-1 font-mono">{qty}</span>
                     <button
                       onClick={() => tapQty(p.id, 1)}
                       disabled={atMax}
-                      className="w-8 h-8 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-emerald-500/20 disabled:cursor-not-allowed"
+                      className="w-7 h-7 rounded-lg bg-white text-emerald-600 shadow-sm flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      <Plus size={14} />
+                      <Plus size={13} />
                     </button>
                   </div>
                 )}

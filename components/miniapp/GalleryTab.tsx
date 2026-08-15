@@ -23,14 +23,14 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-bold text-white flex items-center gap-2">
-          <ImageIcon size={18} className="text-purple-400" />
+        <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+          <ImageIcon size={18} className="text-purple-600" />
           <span>گالری تصاویر</span>
         </h2>
         <button 
           onClick={fetchGallery} 
           disabled={galleryLoading}
-          className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white text-xs flex items-center gap-1 transition-colors"
+          className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 hover:text-slate-800 text-xs flex items-center gap-1 transition-colors"
         >
           <RefreshCw size={13} className={galleryLoading ? 'animate-spin' : ''} />
           <span>بروزرسانی</span>
@@ -39,19 +39,19 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 
       {galleryLoading ? (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-6 space-y-3">
-          <Loader2 size={32} className="text-purple-500 animate-spin" />
-          <p className="text-xs text-slate-400">در حال دریافت تصاویر گالری...</p>
+          <Loader2 size={32} className="text-purple-600 animate-spin" />
+          <p className="text-xs text-slate-500">در حال دریافت تصاویر گالری...</p>
         </div>
       ) : galleryError ? (
-        <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-center space-y-2">
-          <AlertTriangle size={32} className="text-red-400 mx-auto" />
-          <p className="text-xs text-red-300">{galleryError}</p>
+        <div className="p-6 rounded-2xl bg-red-50 border border-red-100 text-center space-y-2">
+          <AlertTriangle size={32} className="text-red-500 mx-auto" />
+          <p className="text-xs text-red-600">{galleryError}</p>
         </div>
       ) : galleryList.length === 0 ? (
-        <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-center space-y-3 my-8">
-          <ImageIcon size={44} className="text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-300">تصویری یافت نشد</h3>
-          <p className="text-xs text-slate-400">هنوز تصویری در گالری ثبت نشده است.</p>
+        <div className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm text-center space-y-3 my-8">
+          <ImageIcon size={44} className="text-slate-300 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-700">تصویری یافت نشد</h3>
+          <p className="text-xs text-slate-500">هنوز تصویری در گالری ثبت نشده است.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
@@ -59,9 +59,9 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
             <div
               key={img.id}
               onClick={() => setLightboxImage(img)}
-              className="bg-[#151c2c]/80 border border-white/10 hover:border-purple-500/50 rounded-2xl p-2 cursor-pointer transition-all hover:scale-[1.02] backdrop-blur-sm group"
+              className="bg-white border border-slate-100 hover:border-purple-300 shadow-sm rounded-2xl p-2 cursor-pointer transition-all hover:scale-[1.02] group"
             >
-              <div className="w-full h-36 rounded-xl bg-black/40 overflow-hidden relative flex items-center justify-center">
+              <div className="w-full h-36 rounded-xl bg-slate-100 overflow-hidden relative flex items-center justify-center">
                 <img src={getDisplayableImageUrl(img.imageUrl) || img.imageUrl} alt={img.caption || 'عکس گالری'} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
                 <div className="absolute top-2 left-2 p-1.5 bg-black/60 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-md">
@@ -69,7 +69,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
                 </div>
               </div>
               {img.caption && (
-                <p className="text-[11px] text-slate-300 mt-2 px-1 line-clamp-2 leading-relaxed">
+                <p className="text-[11px] text-slate-600 mt-2 px-1 line-clamp-2 leading-relaxed">
                   {img.caption}
                 </p>
               )}

@@ -10,6 +10,16 @@ export interface BottomNavigationProps {
   safeAreaBottom?: number;
 }
 
+const TAB_CONFIG: Record<MiniAppModule, { icon: React.ElementType; label: string }> = {
+  shop: { icon: ShoppingBag, label: 'فروشگاه' },
+  orders: { icon: Package, label: 'سفارش‌ها' },
+  support: { icon: MessageSquare, label: 'پشتیبانی' },
+  forms: { icon: FileText, label: 'فرم‌ها' },
+  gallery: { icon: ImageIcon, label: 'گالری' },
+  announcements: { icon: Bell, label: 'اعلانات' },
+  booking: { icon: Calendar, label: 'نوبت‌دهی' },
+};
+
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   enabledModules,
   activeTab,
@@ -20,107 +30,31 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-[#121826]/95 backdrop-blur-xl border-t border-white/10 px-2 pt-1.5 shadow-2xl"
-      style={{ paddingBottom: `calc(0.375rem + ${safeAreaBottom}px)` }}
+      // FIX: light-theme redesign — was a dark, edge-to-edge bar
+      // (bg-[#121826]). Now a floating white pill with its own shadow,
+      // matching the Aradbot reference the design is modeled on.
+      className="fixed bottom-3 left-3 right-3 z-40 bg-white rounded-3xl shadow-[0_4px_24px_rgba(15,23,42,0.12)] border border-slate-100 px-1.5 py-1.5"
+      style={{ marginBottom: `${safeAreaBottom}px` }}
     >
       <div className="max-w-2xl mx-auto flex items-center justify-around">
-        {enabledModules.includes('shop') && (
-          <button
-            onClick={() => setActiveTab('shop')}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-              activeTab === 'shop' 
-                ? 'text-blue-400 font-bold bg-blue-600/10' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ShoppingBag size={18} className={activeTab === 'shop' ? 'scale-110' : ''} />
-            <span className="text-[10px] mt-1">فروشگاه</span>
-          </button>
-        )}
-
-        {enabledModules.includes('orders') && (
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-              activeTab === 'orders' 
-                ? 'text-blue-400 font-bold bg-blue-600/10' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Package size={18} className={activeTab === 'orders' ? 'scale-110' : ''} />
-            <span className="text-[10px] mt-1">سفارش‌ها</span>
-          </button>
-        )}
-
-        {enabledModules.includes('support') && (
-          <button
-            onClick={() => setActiveTab('support')}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-              activeTab === 'support' 
-                ? 'text-blue-400 font-bold bg-blue-600/10' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <MessageSquare size={18} className={activeTab === 'support' ? 'scale-110' : ''} />
-            <span className="text-[10px] mt-1">پشتیبانی</span>
-          </button>
-        )}
-
-        {enabledModules.includes('forms') && (
-          <button
-            onClick={() => setActiveTab('forms')}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-              activeTab === 'forms' 
-                ? 'text-blue-400 font-bold bg-blue-600/10' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <FileText size={18} className={activeTab === 'forms' ? 'scale-110' : ''} />
-            <span className="text-[10px] mt-1">فرم‌ها</span>
-          </button>
-        )}
-
-        {enabledModules.includes('gallery') && (
-          <button
-            onClick={() => setActiveTab('gallery')}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-              activeTab === 'gallery' 
-                ? 'text-blue-400 font-bold bg-blue-600/10' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ImageIcon size={18} className={activeTab === 'gallery' ? 'scale-110' : ''} />
-            <span className="text-[10px] mt-1">گالری</span>
-          </button>
-        )}
-
-        {enabledModules.includes('announcements') && (
-          <button
-            onClick={() => setActiveTab('announcements')}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-              activeTab === 'announcements' 
-                ? 'text-blue-400 font-bold bg-blue-600/10' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Bell size={18} className={activeTab === 'announcements' ? 'scale-110' : ''} />
-            <span className="text-[10px] mt-1">اعلانات</span>
-          </button>
-        )}
-
-        {enabledModules.includes('booking') && (
-          <button
-            onClick={() => setActiveTab('booking')}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-              activeTab === 'booking' 
-                ? 'text-cyan-400 font-bold bg-cyan-600/10' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Calendar size={18} className={activeTab === 'booking' ? 'scale-110' : ''} />
-            <span className="text-[10px] mt-1">نوبت‌دهی</span>
-          </button>
-        )}
+        {enabledModules.map((mod) => {
+          const cfg = TAB_CONFIG[mod];
+          if (!cfg) return null;
+          const Icon = cfg.icon;
+          const isActive = activeTab === mod;
+          return (
+            <button
+              key={mod}
+              onClick={() => setActiveTab(mod)}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 rounded-2xl transition-all ${
+                isActive ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30' : 'text-slate-400'
+              }`}
+            >
+              <Icon size={18} className={isActive ? 'scale-105' : ''} />
+              <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>{cfg.label}</span>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );

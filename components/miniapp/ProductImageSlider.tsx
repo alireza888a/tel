@@ -12,9 +12,9 @@ export const ProductImageSlider: React.FC<{ product: Product; outOfStock?: boole
 
   if (images.length === 0) {
     return (
-      <div className="w-full aspect-[4/3] rounded-xl bg-black/40 border border-white/5 overflow-hidden flex flex-col items-center justify-center text-slate-500 gap-1.5 relative mb-3">
-        <ShoppingBag size={28} className="text-blue-400/60" />
-        <span className="text-[10px] text-slate-500">بدون تصویر</span>
+      <div className="w-full aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex flex-col items-center justify-center text-slate-400 gap-1.5 relative mb-2">
+        <ShoppingBag size={26} className="text-blue-400/70" />
+        <span className="text-[10px] text-slate-400">بدون تصویر</span>
         {product.category && (
           <span className="absolute top-2 right-2 bg-black/60 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-slate-300 backdrop-blur-md">
             {product.category}
@@ -33,7 +33,7 @@ export const ProductImageSlider: React.FC<{ product: Product; outOfStock?: boole
     const img = images[0];
     const displayUrl = getDisplayableImageUrl(img);
     return (
-      <div className="w-full aspect-[4/3] rounded-xl bg-black/40 border border-white/5 overflow-hidden flex items-center justify-center relative mb-3">
+      <div className="w-full aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center relative mb-2">
         {displayUrl ? (
           <img src={displayUrl} alt={product.name} className={`w-full h-full object-cover ${outOfStock ? 'grayscale opacity-50' : ''}`} />
         ) : (
@@ -70,7 +70,7 @@ export const ProductImageSlider: React.FC<{ product: Product; outOfStock?: boole
   const displayUrl = getDisplayableImageUrl(currentImg);
 
   return (
-    <div className="w-full aspect-[4/3] rounded-xl bg-black/40 border border-white/5 overflow-hidden relative mb-3 group">
+    <div className="w-full aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative mb-2 group">
       {displayUrl ? (
         <img src={displayUrl} alt={`${product.name} - ${activeIdx + 1}`} className={`w-full h-full object-cover transition-all duration-300 ${outOfStock ? 'grayscale opacity-50' : ''}`} />
       ) : (

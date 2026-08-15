@@ -6,17 +6,36 @@ import { MiniAppModule } from'../../types';
 interface MiniAppModulesCardProps {
   miniappModules: MiniAppModule[];
   toggleMiniAppModule: (mod: MiniAppModule) => void;
+  shopDisplayName: string;
+  setShopDisplayName: (val: string) => void;
 }
 
 export const MiniAppModulesCard: React.FC<MiniAppModulesCardProps> = ({
   miniappModules,
   toggleMiniAppModule,
+  shopDisplayName,
+  setShopDisplayName,
 }) => {
   return (
     <GlassCard className="border-t-4 border-t-indigo-500">
       <div className="flex items-center gap-2 mb-4">
         <AppWindow className="text-indigo-600"/>
         <h3 className="font-bold text-lg text-brand-navy">ماژول‌های اپلیکیشن فروشگاه (Mini App)</h3>
+      </div>
+
+      {/* NEW — shown at the top of the Mini App's own header, in place of
+          the generic "فروشگاه آنلاین تلگرام" label every AsanHub shop
+          otherwise shares. Optional: an empty field keeps that generic
+          label, exactly as before this setting existed. */}
+      <div className="mb-5">
+        <label className="block text-xs font-bold text-brand-navy/60 mb-1.5">نام فروشگاه (نمایش در بالای Mini App)</label>
+        <input
+          type="text"
+          value={shopDisplayName}
+          onChange={(e) => setShopDisplayName(e.target.value)}
+          placeholder="مثال: فروشگاه علی — یا خالی برای نام پیش‌فرض"
+          className="w-full bg-black/[0.03] border border-black/10 rounded-xl p-3 text-brand-navy outline-none focus:border-indigo-500 transition-colors"
+        />
       </div>
 
       <p className="text-xs text-brand-navy/60 mb-5 leading-relaxed bg-black/[0.03] p-3 rounded-lg border border-black/5">

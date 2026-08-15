@@ -92,6 +92,10 @@ export const MiniShop: React.FC = () => {
   // Shop state
   const [products, setProducts] = useState<Product[]>([]);
   const [shopEnabled, setShopEnabled] = useState<boolean>(true);
+  // NEW — merchant-configurable store name (Settings → shop name), shown
+  // in the header instead of a generic label. Falls back to that generic
+  // label until the fetch resolves (or if the merchant never set one).
+  const [shopName, setShopName] = useState<string>('فروشگاه آنلاین تلگرام');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [cartState, setCartState] = useState<Record<string, number>>({});
@@ -147,9 +151,10 @@ export const MiniShop: React.FC = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code') || '';
 
-  // Live safe-area insets (px) so fixed header/nav/bars don't sit under the notch, status bar
-  // or the device's home-indicator area when the Mini App is in full-screen mode.
-  const [safeArea, setSafeArea] = useState({ top: 0, bottom: 0 });
+  // Live safe-area insets (px) so fixed header/nav/bars don't sit under the notch, status bar,
+  // the device's home-indicator area, or — in fullscreen Mini Apps — Telegram's own native
+  // top-right chevron/menu controls (see the `right` use in the header below).
+  const [safeArea, setSafeArea] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
 
   // Initialize Telegram WebApp SDK on Mount: expand, go full-screen, match native chrome colors
   useEffect(() => {
@@ -181,7 +186,12 @@ export const MiniShop: React.FC = () => {
     const readSafeArea = () => {
       const s = webApp.safeAreaInset || { top: 0, bottom: 0, left: 0, right: 0 };
       const c = webApp.contentSafeAreaInset || { top: 0, bottom: 0, left: 0, right: 0 };
-      setSafeArea({ top: Math.max(s.top, c.top), bottom: Math.max(s.bottom, c.bottom) });
+      setSafeArea({
+        top: Math.max(s.top, c.top),
+        bottom: Math.max(s.bottom, c.bottom),
+        left: Math.max(s.left, c.left),
+        right: Math.max(s.right, c.right)
+      });
     };
     readSafeArea();
     webApp.onEvent?.('safeAreaChanged', readSafeArea);
@@ -215,6 +225,7 @@ export const MiniShop: React.FC = () => {
         setError(data.message || 'خطا در بارگیری اطلاعات فروشگاه.');
       } else {
         setShopEnabled(data.shop_enabled !== false);
+        if (data.shop_name && String(data.shop_name).trim()) setShopName(String(data.shop_name).trim());
         setProducts(data.products || []);
         // FIX: this used to call a separate endpoint
         // (/api/products/stock/list) with the Mini App's `code` param —
@@ -727,15 +738,22 @@ export const MiniShop: React.FC = () => {
       <header
         ref={headerRef}
         className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 py-3.5 flex items-center justify-between shadow-sm"
-        style={{ paddingTop: `calc(0.875rem + ${safeArea.top}px)` }}
+        style={{
+          paddingTop: `calc(0.875rem + ${safeArea.top}px)`,
+          // FIX: Telegram reserves physical top-right space for its own
+          // native chevron/menu controls in fullscreen Mini Apps
+          // (safeAreaInset.right) — our own RTL, right-aligned title was
+          // rendering straight underneath them, getting visually cut off.
+          paddingRight: `calc(1rem + ${safeArea.right}px)`
+        }}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shrink-0">
             <Store size={20} className="text-white" />
           </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-900">فروشگاه آنلاین تلگرام</h1>
-            <p className="text-[11px] text-slate-400">
+          <div className="min-w-0">
+            <h1 className="text-base font-bold text-slate-900 truncate">{shopName}</h1>
+            <p className="text-[11px] text-slate-400 truncate">
               {activeTab === 'shop' && 'انتخاب محصولات و سفارش مستقیم'}
               {activeTab === 'orders' && 'سوابق و پیگیری سفارش‌های قبلی'}
               {activeTab === 'support' && 'ارتباط و ارسال تیکت پشتیبانی'}
@@ -746,7 +764,7 @@ export const MiniShop: React.FC = () => {
           </div>
         </div>
         {activeTab === 'shop' && totalItems > 0 && (
-          <div className="bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full text-xs text-blue-700 font-medium flex items-center gap-1 animate-fade-in">
+          <div className="bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full text-xs text-blue-700 font-medium flex items-center gap-1 animate-fade-in shrink-0">
             <ShoppingBag size={13} />
             <span>{totalItems} کالا</span>
           </div>

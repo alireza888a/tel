@@ -58,6 +58,7 @@ export const saveToCloud = async (credential: StoredCredential): Promise<boolean
         booking_hours: JSON.parse(localStorage.getItem('booking_hours') || '{}'),
         admins: JSON.parse(localStorage.getItem('bot_admins') || '[]'),
         shipping_methods: JSON.parse(localStorage.getItem('shipping_methods') || '[]'),
+        shop_display_name: localStorage.getItem('shop_display_name'),
         auto_backup_enabled: localStorage.getItem('auto_backup_enabled') === 'true',
         auto_backup_frequency: localStorage.getItem('auto_backup_frequency') || 'daily',
         custom_texts: JSON.parse(localStorage.getItem('custom_texts') || '{}'),
@@ -140,6 +141,7 @@ export const loadFromCloud = async (credential: StoredCredential): Promise<boole
       localStorage.setItem('booking_hours', JSON.stringify(config.booking_hours || {}));
       localStorage.setItem('bot_admins', JSON.stringify(config.admins || []));
       localStorage.setItem('shipping_methods', JSON.stringify(config.shipping_methods || []));
+      localStorage.setItem('shop_display_name', config.shop_display_name || '');
       localStorage.setItem('auto_backup_enabled', String(!!config.auto_backup_enabled));
       localStorage.setItem('auto_backup_frequency', config.auto_backup_frequency || 'daily');
       localStorage.setItem('custom_texts', JSON.stringify(config.custom_texts || {}));

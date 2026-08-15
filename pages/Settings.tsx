@@ -54,6 +54,7 @@ export const Settings: React.FC = () => {
     const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>(() => {
         try { return JSON.parse(localStorage.getItem('shipping_methods') || '[]'); } catch { return []; }
     });
+    const [shopDisplayName, setShopDisplayName] = useState(localStorage.getItem('shop_display_name') || '');
 
     // Admin Chat ID State
     const [adminChatId, setAdminChatId] = useState(localStorage.getItem('admin_chat_id') || '');
@@ -200,6 +201,11 @@ export const Settings: React.FC = () => {
         localStorage.setItem('shipping_methods', JSON.stringify(shippingMethods));
         syncNow();
     }, [shippingMethods]);
+
+    useEffect(() => {
+        localStorage.setItem('shop_display_name', shopDisplayName);
+        syncNow();
+    }, [shopDisplayName]);
 
     useEffect(() => {
         localStorage.setItem('custom_texts', JSON.stringify(customTexts));
@@ -775,6 +781,8 @@ export const Settings: React.FC = () => {
                     <MiniAppModulesCard
                         miniappModules={miniappModules}
                         toggleMiniAppModule={toggleMiniAppModule}
+                        shopDisplayName={shopDisplayName}
+                        setShopDisplayName={setShopDisplayName}
                     />
                 )}
 

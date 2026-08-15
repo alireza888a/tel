@@ -529,7 +529,8 @@ export const Orders: React.FC = () => {
                     <h4 className="text-xs font-bold text-slate-400 mb-1.5">لیست اقلام سفارش:</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {(order.items || []).map((item, idx) => {
-                        const imgUrl = getProductImage(item.productId);
+                        const isShipping = item.productId?.startsWith('shipping::');
+                        const imgUrl = isShipping ? null : getProductImage(item.productId);
                         return (
                           <div
                             key={idx}
@@ -539,7 +540,7 @@ export const Orders: React.FC = () => {
                               {imgUrl ? (
                                 <img src={imgUrl} alt={item.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                               ) : (
-                                <span className="text-xl text-slate-600">📦</span>
+                                <span className="text-xl text-slate-600">{isShipping ? '🚚' : '📦'}</span>
                               )}
                             </div>
                             <div className="p-2 text-center">

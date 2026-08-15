@@ -7,6 +7,7 @@ import { MiniAppModule, GalleryImage } from '../types';
 import { DatabaseChannelCard } from '../components/settings/DatabaseChannelCard';
 import { BackupRestoreCard } from '../components/settings/BackupRestoreCard';
 import { PaymentSettingsCard } from '../components/settings/PaymentSettingsCard';
+import { ShippingMethodsCard, ShippingMethod } from '../components/settings/ShippingMethodsCard';
 import { PaymentSmsAutoConfirmCard } from '../components/settings/PaymentSmsAutoConfirmCard';
 import { AdminSupportCard } from '../components/settings/AdminSupportCard';
 import { TeamAccessCard } from '../components/settings/TeamAccessCard';
@@ -50,6 +51,9 @@ export const Settings: React.FC = () => {
     const [cardNumber, setCardNumber] = useState(localStorage.getItem('payment_card_number') || '');
     const [cardOwner, setCardOwner] = useState(localStorage.getItem('payment_card_owner') || '');
     const [maxPerOrder, setMaxPerOrder] = useState(localStorage.getItem('max_per_order') || '');
+    const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>(() => {
+        try { return JSON.parse(localStorage.getItem('shipping_methods') || '[]'); } catch { return []; }
+    });
 
     // Admin Chat ID State
     const [adminChatId, setAdminChatId] = useState(localStorage.getItem('admin_chat_id') || '');
@@ -191,6 +195,11 @@ export const Settings: React.FC = () => {
         localStorage.setItem('max_per_order', maxPerOrder);
         syncNow();
     }, [maxPerOrder]);
+
+    useEffect(() => {
+        localStorage.setItem('shipping_methods', JSON.stringify(shippingMethods));
+        syncNow();
+    }, [shippingMethods]);
 
     useEffect(() => {
         localStorage.setItem('custom_texts', JSON.stringify(customTexts));
@@ -713,6 +722,10 @@ export const Settings: React.FC = () => {
                         setCardOwner={setCardOwner}
                         maxPerOrder={maxPerOrder}
                         setMaxPerOrder={setMaxPerOrder}
+                    />
+                    <ShippingMethodsCard
+                        methods={shippingMethods}
+                        setMethods={setShippingMethods}
                     />
                     <PaymentSmsAutoConfirmCard />
                     </>

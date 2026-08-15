@@ -231,6 +231,15 @@ export const MiniShop: React.FC = () => {
         const stocks: Record<string, number> = {};
         for (const p of (data.products || [])) {
           if (p.trackStock && typeof p.stock === 'number') stocks[p.id] = p.stock;
+          // NEW — variant stock, keyed the same "<productId>::<variantId>"
+          // way the server itself resolves it (see resolveStockKey in
+          // worker.js), so ShopTab's cart/stock math can treat a variant
+          // exactly like a product with a longer id — no special-casing.
+          if (p.trackStock && Array.isArray(p.variants)) {
+            for (const v of p.variants) {
+              if (typeof v.stock === 'number') stocks[p.id + '::' + v.id] = v.stock;
+            }
+          }
         }
         setStockLevels(stocks);
         if (Array.isArray(data.enabled_modules) && data.enabled_modules.length > 0) {
@@ -540,19 +549,25 @@ export const MiniShop: React.FC = () => {
     if (activeTab === 'shop') fetchShopData();
   }, [activeTab, code]);
 
-  // Quantity controls — respects live stock cap for products with trackStock enabled
-  const updateQty = (productId: string, delta: number) => {
+  // Quantity controls — respects live stock cap for products with trackStock
+  // enabled. `productId` here is the CART KEY: a plain productId for a
+  // variant-less product, or "productId::variantId" for a specific
+  // variant — the same composite convention stockLevels and the server
+  // both use, so a variant behaves exactly like a product with a longer id
+  // everywhere in this function.
+  const updateQty = (cartKey: string, delta: number) => {
+    const productId = cartKey.split('::')[0];
     setCartState(prev => {
-      const current = prev[productId] || 0;
+      const current = prev[cartKey] || 0;
       const product = products.find(p => p.id === productId);
-      const cap = product?.trackStock ? Math.max(0, stockLevels[productId] ?? 0) : Infinity;
+      const cap = product?.trackStock ? Math.max(0, stockLevels[cartKey] ?? 0) : Infinity;
       const next = Math.min(cap, Math.max(0, current + delta));
       if (next === 0) {
         const copy = { ...prev };
-        delete copy[productId];
+        delete copy[cartKey];
         return copy;
       }
-      return { ...prev, [productId]: next };
+      return { ...prev, [cartKey]: next };
     });
   };
 
@@ -562,14 +577,15 @@ export const MiniShop: React.FC = () => {
     setCartState(prev => {
       let changed = false;
       const next = { ...prev };
-      for (const productId of Object.keys(next)) {
+      for (const cartKey of Object.keys(next)) {
+        const productId = cartKey.split('::')[0];
         const product = products.find(p => p.id === productId);
         if (product?.trackStock) {
-          const available = Math.max(0, stockLevels[productId] ?? 0);
-          if (next[productId] > available) {
+          const available = Math.max(0, stockLevels[cartKey] ?? 0);
+          if (next[cartKey] > available) {
             changed = true;
-            if (available <= 0) delete next[productId];
-            else next[productId] = available;
+            if (available <= 0) delete next[cartKey];
+            else next[cartKey] = available;
           }
         }
       }
@@ -579,8 +595,9 @@ export const MiniShop: React.FC = () => {
 
   // Cart summary calculations
   const totalItems = (Object.values(cartState) as number[]).reduce((sum: number, qty: number) => sum + qty, 0);
-  const totalPrice = (Object.entries(cartState) as [string, number][]).reduce((sum: number, [pId, qty]: [string, number]) => {
-    const prod = products.find(p => p.id === pId);
+  const totalPrice = (Object.entries(cartState) as [string, number][]).reduce((sum: number, [cartKey, qty]: [string, number]) => {
+    const productId = cartKey.split('::')[0];
+    const prod = products.find(p => p.id === productId);
     return sum + (prod ? prod.price * qty : 0);
   }, 0);
 
@@ -594,7 +611,10 @@ export const MiniShop: React.FC = () => {
   const handleCheckout = () => {
     const cart = (Object.entries(cartState) as [string, number][])
       .filter(([_, qty]) => qty > 0)
-      .map(([productId, qty]) => ({ productId, qty }));
+      .map(([cartKey, qty]) => {
+        const [productId, variantId] = cartKey.split('::');
+        return variantId ? { productId, variantId, qty } : { productId, qty };
+      });
 
     if (cart.length === 0) return;
 

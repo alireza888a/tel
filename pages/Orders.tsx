@@ -425,7 +425,9 @@ export const Orders: React.FC = () => {
                               )}
                             </div>
                             <div className="p-2 text-center">
-                              <div className="text-[11px] text-slate-800 font-medium truncate">{item.name}</div>
+                              <div className="text-[11px] text-slate-800 font-medium truncate">
+                                {item.name}{item.variantName ? ' (' + item.variantName + ')' : ''}
+                              </div>
                               <div className="text-[10px] text-slate-400 mt-0.5">
                                 ×{item.qty} — {(item.price * item.qty).toLocaleString('fa-IR')} تومان
                               </div>

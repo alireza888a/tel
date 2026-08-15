@@ -12,9 +12,14 @@ export interface ShopTabProps {
   categories: string[];
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
+  /** Keyed by cart key: a plain productId, or "productId::variantId" for a
+   *  specific variant. */
   cartState: Record<string, number>;
-  updateQty: (productId: string, delta: number) => void;
-  /** Live stock counts from D1, keyed by productId. Only meaningful for products with trackStock=true. */
+  /** cartKey is a plain productId, or "productId::variantId" for a variant. */
+  updateQty: (cartKey: string, delta: number) => void;
+  /** Live stock counts from D1. Keyed the same way as cartState — plain
+   *  productId for a variant-less trackStock product, "productId::variantId"
+   *  for one variant's own stock. */
   stockLevels?: Record<string, number>;
   /** Real rendered height (px) of the page header, so the category bar sticks right under it. */
   stickyTop?: number;
@@ -57,6 +62,9 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     } catch { return new Set(); }
   });
   const [showWishlistOnly, setShowWishlistOnly] = useState(false);
+  // Which product's variant picker (رنگ/سایز) is currently expanded inline
+  // in its card — at most one at a time, closed by default.
+  const [expandedVariantProduct, setExpandedVariantProduct] = useState<string | null>(null);
 
   useEffect(() => {
     try { localStorage.setItem(wishlistKey, JSON.stringify([...wishlist])); } catch {}
@@ -80,10 +88,12 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     return haystack.includes(normalizedQuery);
   });
 
-  // Wraps updateQty with Telegram's native haptic feedback for a more "app-like" tap feel.
-  const tapQty = (productId: string, delta: number) => {
+  // Wraps updateQty with Telegram's native haptic feedback for a more
+  // "app-like" tap feel. `cartKey` is the plain productId for a variant-less
+  // product, or "productId::variantId" for a specific variant.
+  const tapQty = (cartKey: string, delta: number) => {
     window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.(delta > 0 ? 'light' : 'soft');
-    updateQty(productId, delta);
+    updateQty(cartKey, delta);
   };
 
   // Bot username cache — resolved lazily (only the first time someone actually
@@ -163,11 +173,16 @@ export const ShopTab: React.FC<ShopTabProps> = ({
     return !!displayUrl && !displayUrl.startsWith('data:');
   };
 
-  // Shared stock math, used by both the main grid and the category thumbnails below.
-  const getStockInfo = (p: Product) => {
+  // Shared stock math, used by the main grid, category thumbnails, and the
+  // variant picker below. Pass `variantId` to get a specific variant's own
+  // stock/cart-quantity instead of the product's own (unused once a
+  // product has variants).
+  const getStockInfo = (p: Product, variantId?: string) => {
+    const cartKey = variantId ? (p.id + '::' + variantId) : p.id;
+    const stockKey = cartKey;
     const isTracked = !!p.trackStock;
-    const available = isTracked ? Math.max(0, stockLevels[p.id] ?? 0) : Infinity;
-    const inCart = cartState[p.id] || 0;
+    const available = isTracked ? Math.max(0, stockLevels[stockKey] ?? 0) : Infinity;
+    const inCart = cartState[cartKey] || 0;
     // Per-order cap resolved server-side (product override → shop default →
     // null for unlimited) and sent along with each product. Treated as a
     // second ceiling alongside stock: the + button stops at whichever
@@ -179,7 +194,9 @@ export const ShopTab: React.FC<ShopTabProps> = ({
       outOfStock: isTracked && available <= 0,
       atMax: (isTracked && inCart >= available) || inCart >= cap,
       lowStock: isTracked && available > 0 && available <= 5,
-      available
+      available,
+      inCart,
+      cartKey
     };
   };
 
@@ -327,9 +344,17 @@ export const ShopTab: React.FC<ShopTabProps> = ({
       ) : (
       <div className="grid grid-cols-2 gap-3">
         {filteredProducts.map((p) => {
-          const qty = cartState[p.id] || 0;
+          const hasVariants = !!p.variants && p.variants.length > 0;
+          // For a variant product, "qty in cart" for the card's own
+          // highlight border is the sum across all its variant lines —
+          // there's no single quantity once more than one variant can be
+          // in the cart at once.
+          const qty = hasVariants
+            ? (p.variants || []).reduce((sum, v) => sum + (cartState[p.id + '::' + v.id] || 0), 0)
+            : (cartState[p.id] || 0);
           const { available, outOfStock, atMax, lowStock } = getStockInfo(p);
           const isFavorite = wishlist.has(p.id);
+          const isExpanded = expandedVariantProduct === p.id;
 
           return (
             <div
@@ -389,7 +414,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                   <div className="text-[13px] font-black text-emerald-600 dir-rtl">
                     {p.price.toLocaleString('fa-IR')} <span className="text-[9px] font-normal text-slate-400">تومان</span>
                   </div>
-                  {lowStock && (
+                  {!hasVariants && lowStock && (
                     <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded-full">
                       {available.toLocaleString('fa-IR')} عدد مونده
                     </span>
@@ -399,7 +424,56 @@ export const ShopTab: React.FC<ShopTabProps> = ({
 
               {/* Quantity Control Buttons */}
               <div className="pt-1.5 border-t border-slate-50">
-                {outOfStock ? (
+                {hasVariants ? (
+                  isExpanded ? (
+                    <div className="space-y-1.5">
+                      {(p.variants || []).map((v) => {
+                        const vInfo = getStockInfo(p, v.id);
+                        return (
+                          <div key={v.id} className="flex items-center justify-between gap-1.5">
+                            <span className={`text-[10px] flex-1 line-clamp-1 ${vInfo.outOfStock ? 'text-slate-300' : 'text-slate-700'}`}>
+                              {v.name}
+                            </span>
+                            {vInfo.outOfStock ? (
+                              <span className="text-[9px] text-slate-400 shrink-0">ناموجود</span>
+                            ) : (
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  onClick={() => tapQty(vInfo.cartKey, -1)}
+                                  disabled={vInfo.inCart === 0}
+                                  className="w-6 h-6 rounded-md bg-slate-50 text-red-500 flex items-center justify-center active:scale-95 disabled:opacity-30"
+                                >
+                                  <Minus size={11} />
+                                </button>
+                                <span className="text-[11px] font-bold text-slate-800 w-4 text-center font-mono">{vInfo.inCart}</span>
+                                <button
+                                  onClick={() => tapQty(vInfo.cartKey, 1)}
+                                  disabled={vInfo.atMax}
+                                  className="w-6 h-6 rounded-md bg-slate-50 text-emerald-600 flex items-center justify-center active:scale-95 disabled:opacity-30"
+                                >
+                                  <Plus size={11} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                      <button
+                        onClick={() => setExpandedVariantProduct(null)}
+                        className="w-full pt-1 text-[10px] text-slate-400 text-center"
+                      >
+                        بستن
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setExpandedVariantProduct(p.id)}
+                      className="w-full py-2 bg-purple-50 hover:bg-purple-100 border border-purple-100 text-purple-700 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                    >
+                      <span>🎨 انتخاب نوع{qty > 0 ? ' (' + qty.toLocaleString('fa-IR') + ')' : ''}</span>
+                    </button>
+                  )
+                ) : outOfStock ? (
                   <button
                     disabled
                     className="w-full py-2 bg-slate-50 border border-slate-100 text-slate-400 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"

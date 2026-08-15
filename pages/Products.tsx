@@ -34,6 +34,7 @@ export const Products: React.FC = () => {
  const [trackStock, setTrackStock] = useState(false);
  const [maxPerOrder, setMaxPerOrder] = useState<number | ''>('');
  const [stockValue, setStockValue] = useState<number | ''>('');
+ const [variants, setVariants] = useState<{ id: string; name: string; stock: number | '' }[]>([]);
  const [categoryFilter, setCategoryFilter] = useState<string>('همه');
 
  // Stock levels from D1 server
@@ -179,6 +180,7 @@ export const Products: React.FC = () => {
  setTrackStock(false);
  setMaxPerOrder('');
  setStockValue('');
+ setVariants([]);
  setIsModalOpen(true);
  };
 
@@ -200,6 +202,11 @@ export const Products: React.FC = () => {
  setTrackStock(!!product.trackStock);
  setMaxPerOrder(product.maxPerOrder ?? '');
  setStockValue(product.trackStock ? (stockLevels[product.id] ?? 0) : '');
+ setVariants((product.variants || []).map(v => ({
+ id: v.id,
+ name: v.name,
+ stock: product.trackStock ? (stockLevels[product.id + '::' + v.id] ?? 0) : ''
+ })));
  setIsModalOpen(true);
  };
 
@@ -210,8 +217,26 @@ export const Products: React.FC = () => {
  return;
  }
 
+ // Drop any variant rows the admin left blank (e.g. added a row then
+ // changed their mind) — never save a nameless variant.
+ const cleanVariants = variants
+ .filter(v => v.name.trim())
+ .map(v => ({ id: v.id, name: v.name.trim() }));
+
  const finalImageUrls = imageUrls.length > 0 ? imageUrls : (imageUrl ? [imageUrl] : []);
  const primaryImageUrl = finalImageUrls[0] || undefined;
+
+ // Pushes each variant's own stock count to the server, using the same
+ // composite "<productId>::<variantId>" key the worker resolves stock
+ // with — no new endpoint needed, this is just how a variant's row is
+ // addressed in the existing product_stock table.
+ const saveVariantStocks = (productId: string) => {
+ if (!trackStock) return;
+ for (const v of variants) {
+ if (!v.name.trim()) continue;
+ saveStockToServer(productId + '::' + v.id, Number(v.stock) || 0);
+ }
+ };
 
  if (editingProduct) {
  // Edit existing
@@ -228,12 +253,14 @@ export const Products: React.FC = () => {
  post_confirm_menu_id: postConfirmMenuId || undefined,
  post_order_form_id: postOrderFormId || undefined,
  trackStock,
- maxPerOrder: maxPerOrder === '' ? undefined : Number(maxPerOrder)
+ maxPerOrder: maxPerOrder === '' ? undefined : Number(maxPerOrder),
+ variants: cleanVariants.length > 0 ? cleanVariants : undefined
  } : p));
 
  if (trackStock) {
  saveStockToServer(productId, Number(stockValue) || 0);
  }
+ saveVariantStocks(productId);
  } else {
  // Create new
  const newId = 'prod_' + Math.random().toString(36).substr(2, 9);
@@ -249,13 +276,15 @@ export const Products: React.FC = () => {
  post_confirm_menu_id: postConfirmMenuId || undefined,
  post_order_form_id: postOrderFormId || undefined,
  trackStock,
- maxPerOrder: maxPerOrder === '' ? undefined : Number(maxPerOrder)
+ maxPerOrder: maxPerOrder === '' ? undefined : Number(maxPerOrder),
+ variants: cleanVariants.length > 0 ? cleanVariants : undefined
  };
  setProducts([...products, newProduct]);
 
  if (trackStock) {
  saveStockToServer(newId, Number(stockValue) || 0);
  }
+ saveVariantStocks(newId);
  }
  setIsModalOpen(false);
  };
@@ -456,12 +485,16 @@ export const Products: React.FC = () => {
  {/* Product Metadata */}
  <div className="space-y-1.5">
  <h3 className="text-base font-bold text-brand-navy line-clamp-1">{product.name}</h3>
- <div className="flex items-center justify-between gap-2">
+ <div className="flex items-center justify-between gap-2 flex-wrap">
  <div className="flex items-center gap-1 text-brand-teal font-bold text-xs">
  <DollarSign size={14} />
  <span>{product.price.toLocaleString('fa-IR')} تومان</span>
  </div>
- {product.trackStock && (
+ {product.variants && product.variants.length > 0 ? (
+ <span className="px-2 py-0.5 rounded-full text-[9px] font-bold border shrink-0 bg-purple-50 text-purple-600 border-purple-200">
+ 🎨 {product.variants.length.toLocaleString('fa-IR')} ترکیب
+ </span>
+ ) : product.trackStock && (
  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border shrink-0 ${
  (stockLevels[product.id] ?? 0) > 0
  ? 'bg-green-50 text-green-600 border-green-200'
@@ -704,6 +737,60 @@ export const Products: React.FC = () => {
  />
  </div>
  )}
+ </div>
+
+ {/* Product Variants (رنگ/سایز/...) */}
+ <div className="p-3 bg-black/[0.03] rounded-xl border border-black/5 space-y-3">
+ <div>
+ <h4 className="text-sm font-bold text-brand-navy">ویژگی محصول (رنگ، سایز و غیره)</h4>
+ <p className="text-[10px] text-brand-navy/50 mt-0.5">
+ اختیاریه. هر ترکیب رو یه ردیف جدا با اسم خودش تعریف کنید — مثلاً «قرمز - سایز M» و «آبی - سایز L» به‌جای دو تا محصول جدا. اگه «مدیریت موجودی» بالا فعال باشه، هر ترکیب موجودی جدای خودشو داره.
+ </p>
+ </div>
+
+ {variants.length > 0 && (
+ <div className="space-y-2">
+ {variants.map((v, idx) => (
+ <div key={v.id} className="flex items-center gap-2">
+ <input
+ type="text"
+ value={v.name}
+ onChange={e => setVariants(variants.map((vv, i) => i === idx ? { ...vv, name: e.target.value } : vv))}
+ placeholder="مثال: قرمز - سایز M"
+ className="flex-1 bg-white border border-black/10 text-brand-navy rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-teal transition-colors"
+ />
+ {trackStock && (
+ <input
+ type="text"
+ inputMode="numeric"
+ value={formatNumberInput(v.stock)}
+ onChange={e => setVariants(variants.map((vv, i) => i === idx ? { ...vv, stock: parseFormattedNumber(e.target.value) } : vv))}
+ placeholder="موجودی"
+ className="w-20 bg-white border border-black/10 text-brand-navy rounded-xl px-2 py-2 text-xs outline-none focus:border-brand-teal transition-colors text-center"
+ dir="ltr"
+ />
+ )}
+ <button
+ type="button"
+ onClick={() => setVariants(variants.filter((_, i) => i !== idx))}
+ className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+ title="حذف این ترکیب"
+ >
+ <Trash2 size={15} />
+ </button>
+ </div>
+ ))}
+ </div>
+ )}
+
+ <button
+ type="button"
+ onClick={() => setVariants([...variants, { id: 'var_' + Math.random().toString(36).substr(2, 9), name: '', stock: '' }])}
+ className="w-full py-2 bg-brand-teal/10 hover:bg-brand-teal/20 text-brand-teal border border-brand-teal/20 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+ >
+ <Plus size={14} />
+ <span>افزودن ترکیب جدید</span>
+ </button>
  </div>
 
  {/* Per-order quantity cap (product-level override) */}

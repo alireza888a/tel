@@ -247,6 +247,26 @@ export interface Product {
    *  undefined means "follow the global setting" (which itself may be
    *  unset, meaning unlimited). */
   maxPerOrder?: number;
+  /** Optional list of purchasable variations of this product (e.g. "قرمز -
+   *  سایز M", "آبی - سایز L"). Each variant is a flat, independently-named
+   *  option rather than a combinatorial color×size matrix — simpler to set
+   *  up and to reason about, at the cost of the admin typing each
+   *  combination's name out once. When present and trackStock is on, stock
+   *  is tracked PER VARIANT instead of for the product as a whole (the
+   *  product's own top-level stock is unused in that case). A product with
+   *  no variants (or an empty array) behaves exactly as before this
+   *  feature existed. */
+  variants?: ProductVariant[];
+}
+
+export interface ProductVariant {
+  id: string;
+  /** Display name, e.g. "قرمز - سایز M" */
+  name: string;
+  /** Live remaining stock for this specific variant — same null/undefined
+   *  convention as Product.stock (null = not tracked, undefined = not
+   *  applicable/not sent by this endpoint). */
+  stock?: number | null;
 }
 
 export interface CartItem {
@@ -258,7 +278,7 @@ export interface Order {
   id: string;
   userId: string; // آیدی عددی کاربر تلگرام
   userFirstName: string;
-  items: { productId: string; name: string; price: number; qty: number }[];
+  items: { productId: string; variantId?: string; variantName?: string; name: string; price: number; qty: number }[];
   total: number;
   status: 'pending' | 'confirmed' | 'rejected';
   createdAt: number;

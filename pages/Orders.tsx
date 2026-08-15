@@ -27,6 +27,10 @@ export const Orders: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [nextBefore, setNextBefore] = useState<number | null>(null);
+  // Bulk confirm/reject — only pending orders are selectable, since that's
+  // the only status this action makes sense on.
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
+  const [bulkProcessing, setBulkProcessing] = useState(false);
 
   const [products] = useState<Product[]>(() => {
     try {
@@ -207,6 +211,67 @@ export const Orders: React.FC = () => {
     await refreshOrders();
   };
 
+  const toggleOrderSelection = (orderId: string) => {
+    setSelectedOrderIds(prev => {
+      const next = new Set(prev);
+      if (next.has(orderId)) next.delete(orderId); else next.add(orderId);
+      return next;
+    });
+  };
+
+  const pendingOrderIds = orders.filter(o => o.status === 'pending').map(o => o.id);
+  const allPendingSelected = pendingOrderIds.length > 0 && pendingOrderIds.every(id => selectedOrderIds.has(id));
+
+  const toggleSelectAllPending = () => {
+    setSelectedOrderIds(allPendingSelected ? new Set() : new Set(pendingOrderIds));
+  };
+
+  // Confirms/rejects every selected order one call at a time (not
+  // Promise.all) — these endpoints share the same public rate limiter as
+  // the buyer-facing checkout routes, and firing a dozen+ requests at once
+  // from one IP risks tripping it partway through a batch. A small delay
+  // between calls keeps a large selection reliable at the cost of being a
+  // bit slower than instantaneous.
+  const handleBulkAction = async (action: 'confirm' | 'reject') => {
+    const ids = [...selectedOrderIds];
+    if (ids.length === 0) return;
+
+    const verb = action === 'confirm' ? 'تایید' : 'رد';
+    if (!window.confirm(`آیا از ${verb} گروهی ${ids.length.toLocaleString('fa-IR')} سفارش مطمئن هستید؟`)) return;
+
+    const credential = getStoredCredential();
+    if (!credential) return;
+
+    setBulkProcessing(true);
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const orderId of ids) {
+      try {
+        const res = await fetch(`https://corepanel-api.tajikr450.workers.dev/api/order/${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...credential, orderId })
+        });
+        const result = await res.json();
+        if (result.ok) succeeded++; else failed++;
+      } catch (e) {
+        failed++;
+      }
+      // Small stagger between requests — see note above.
+      await new Promise(r => setTimeout(r, 200));
+    }
+
+    setBulkProcessing(false);
+    setSelectedOrderIds(new Set());
+    alert(
+      failed === 0
+        ? `${succeeded.toLocaleString('fa-IR')} سفارش با موفقیت ${verb} شد.`
+        : `${succeeded.toLocaleString('fa-IR')} سفارش ${verb} شد، ${failed.toLocaleString('fa-IR')} مورد با خطا مواجه شد.`
+    );
+    await refreshOrders();
+  };
+
   // Helper to format date in Persian friendly format
   const formatDateTime = (timestamp: number) => {
     return new Date(timestamp).toLocaleString('fa-IR', {
@@ -347,6 +412,50 @@ export const Orders: React.FC = () => {
         </div>
       )}
 
+      {/* Bulk confirm/reject bar — only appears once at least one pending
+          order is selected, so it never crowds the screen for someone who
+          just wants to browse. */}
+      {pendingOrderIds.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2.5 px-4 py-2.5 bg-blue-500/5 border border-blue-500/20 rounded-xl">
+          <button
+            onClick={toggleSelectAllPending}
+            className="text-xs font-bold text-blue-700 hover:text-blue-900 transition-colors"
+          >
+            {allPendingSelected ? '✕ لغو انتخاب همه' : `☑ انتخاب همه‌ی در انتظار (${pendingOrderIds.length.toLocaleString('fa-IR')})`}
+          </button>
+          {selectedOrderIds.size > 0 && (
+            <>
+              <span className="text-xs text-brand-navy/50">{selectedOrderIds.size.toLocaleString('fa-IR')} سفارش انتخاب شده</span>
+              <div className="flex items-center gap-2 mr-auto">
+                <button
+                  onClick={() => handleBulkAction('confirm')}
+                  disabled={bulkProcessing}
+                  className="px-3.5 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-50"
+                >
+                  {bulkProcessing ? <RefreshCw size={13} className="animate-spin" /> : <Check size={13} />}
+                  <span>تایید گروهی</span>
+                </button>
+                <button
+                  onClick={() => handleBulkAction('reject')}
+                  disabled={bulkProcessing}
+                  className="px-3.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 border border-red-500/20 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-50"
+                >
+                  <X size={13} />
+                  <span>رد گروهی</span>
+                </button>
+                <button
+                  onClick={() => setSelectedOrderIds(new Set())}
+                  disabled={bulkProcessing}
+                  className="px-2 py-1.5 text-brand-navy/40 hover:text-brand-navy text-xs transition-colors"
+                >
+                  انصراف
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {!orders || orders.length === 0 ? (
         <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-12 text-center flex flex-col items-center gap-4">
           <ShoppingCart size={64} className="text-slate-400 opacity-40 animate-pulse" />
@@ -359,12 +468,21 @@ export const Orders: React.FC = () => {
         <div className="space-y-6">
           <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
             {orders.map(order => (
-              <GlassCard key={order.id} className="relative overflow-hidden flex flex-col justify-between p-4">
+              <GlassCard key={order.id} className={`relative overflow-hidden flex flex-col justify-between p-4 ${selectedOrderIds.has(order.id) ? 'ring-2 ring-blue-400' : ''}`}>
                 <div>
                   {/* Order Header */}
                   <div className="flex justify-between items-start pb-3 border-b border-black/5 mb-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
+                        {order.status === 'pending' && (
+                          <input
+                            type="checkbox"
+                            checked={selectedOrderIds.has(order.id)}
+                            onChange={() => toggleOrderSelection(order.id)}
+                            className="w-4 h-4 rounded accent-blue-600 cursor-pointer shrink-0"
+                            title="انتخاب برای عملیات گروهی"
+                          />
+                        )}
                         <span className="font-bold text-sm text-slate-800">سفارش #{order.id.slice(-6)}</span>
                         <span
                           className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${

@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export interface MenuItem {
@@ -283,6 +282,8 @@ export interface Order {
   status: 'pending' | 'confirmed' | 'rejected';
   createdAt: number;
   fulfillment?: { q?: string; a?: string; question?: string; answer?: string }[] | Record<string, string>;
+  /** True when the buyer's payment receipt photo was saved on this order — use with /api/order/receipt-image to actually display it. */
+  hasReceipt?: boolean;
 }
 
 export interface BotTicket {
@@ -319,5 +320,3 @@ export interface Coupon {
   expiresAt?: number;                    // timestamp میلی‌ثانیه، اختیاری
   createdAt: number;
 }
-
-

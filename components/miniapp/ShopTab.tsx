@@ -294,7 +294,12 @@ export const ShopTab: React.FC<ShopTabProps> = ({
           category (from one of its own products) instead of a text pill,
           so the store's structure reads at a glance before scrolling. */}
       {!showWishlistOnly && categories.length > 2 && (
-        <div className="flex items-start gap-3.5 overflow-x-auto pb-1 mb-4 no-scrollbar">
+        // FIX: overflow-x-auto on this row implicitly constrains
+        // overflow-y too (a well-known CSS quirk — setting only one axis
+        // forces the other off "visible"), which was cropping the top of
+        // the active circle's ring-offset since the row had no padding-top
+        // to give it room to render. pt-2 clears that.
+        <div className="flex items-start gap-3.5 overflow-x-auto pt-2 pb-1 mb-4 no-scrollbar">
           {categories.map((cat) => {
             const isActive = selectedCategory === cat;
             const thumb = categoryThumb[cat];
@@ -305,7 +310,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                 className="flex flex-col items-center gap-1.5 shrink-0 w-16"
               >
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden transition-all ${
-                  isActive ? 'ring-2 ring-blue-500 ring-offset-2' : 'ring-1 ring-slate-200'
+                  isActive ? 'ring-2 ring-emerald-500 ring-offset-2' : 'ring-1 ring-slate-200'
                 } ${thumb ? 'bg-slate-100' : 'bg-blue-50'}`}>
                   {thumb ? (
                     <img src={thumb} alt={cat} className="w-full h-full object-cover" />
@@ -313,7 +318,7 @@ export const ShopTab: React.FC<ShopTabProps> = ({
                     <Grid3x3 size={20} className="text-blue-400" />
                   )}
                 </div>
-                <span className={`text-[10px] line-clamp-1 w-full text-center ${isActive ? 'text-blue-700 font-bold' : 'text-slate-500'}`}>
+                <span className={`text-[10px] line-clamp-1 w-full text-center ${isActive ? 'text-emerald-700 font-bold' : 'text-slate-500'}`}>
                   {cat}
                 </span>
               </button>

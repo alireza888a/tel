@@ -35,6 +35,7 @@ const STATUS_LABELS: Record<string, { text: string; color: string }> = {
   over_cap: { text: '💰 مبلغ بالا (دستی)', color: 'text-blue-600' },
   parse_failed: { text: '❓ مبلغ تشخیص داده نشد', color: 'text-brand-navy/40' },
   untrusted_sender: { text: '🚨 فرستنده نامعتبر — نادیده گرفته شد', color: 'text-red-600' },
+  no_sender_field: { text: '⚠️ فرستنده مشخص نشد — نیاز به بررسی دستی', color: 'text-amber-600' },
   processing: { text: '⏳ در حال بررسی', color: 'text-brand-navy/40' },
 };
 

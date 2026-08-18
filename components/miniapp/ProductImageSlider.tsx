@@ -21,7 +21,7 @@ export const ProductImageSlider: React.FC<{ product: Product; outOfStock?: boole
         <ShoppingBag size={26} className="text-blue-400/70" />
         <span className="text-[10px] text-slate-400">بدون تصویر</span>
         {product.category && (
-          <span className="absolute top-2 right-2 bg-black/60 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-slate-300 backdrop-blur-md">
+          <span className="absolute top-2 right-2 bg-white/90 border border-black/5 px-2 py-0.5 rounded-md text-[10px] text-slate-700 font-medium backdrop-blur-md shadow-sm">
             {product.category}
           </span>
         )}
@@ -74,7 +74,7 @@ export const ProductImageSlider: React.FC<{ product: Product; outOfStock?: boole
             </div>
           )}
           {product.category && (
-            <span className="absolute top-2 right-2 bg-black/60 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-slate-300 backdrop-blur-md">
+            <span className="absolute top-2 right-2 bg-white/90 border border-black/5 px-2 py-0.5 rounded-md text-[10px] text-slate-700 font-medium backdrop-blur-md shadow-sm">
               {product.category}
             </span>
           )}
@@ -112,7 +112,7 @@ export const ProductImageSlider: React.FC<{ product: Product; outOfStock?: boole
         )}
 
         {product.category && (
-          <span className="absolute top-2 right-2 bg-black/60 border border-white/10 px-2 py-0.5 rounded-md text-[10px] text-slate-300 backdrop-blur-md z-10">
+          <span className="absolute top-2 right-2 bg-white/90 border border-black/5 px-2 py-0.5 rounded-md text-[10px] text-slate-700 font-medium backdrop-blur-md shadow-sm z-10">
             {product.category}
           </span>
         )}

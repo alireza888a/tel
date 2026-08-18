@@ -214,6 +214,14 @@ export const ShopTab: React.FC<ShopTabProps> = ({
       if (img) categoryThumb[cat] = img;
     }
   }
+  // FIX: "همه" (All) always fell back to a plain grid icon, since it isn't
+  // one real category with its own products to pull a photo from — next
+  // to every other circle showing an actual product photo, that made it
+  // look conspicuously empty. Reuse whichever category's thumbnail came
+  // first (i.e. some real product photo) instead, purely for visual
+  // consistency — it doesn't need to represent "all" meaningfully, just
+  // not look bare.
+  categoryThumb['همه'] = Object.values(categoryThumb).find(Boolean) || null;
 
   if (loading) {
     return (
@@ -288,9 +296,8 @@ export const ShopTab: React.FC<ShopTabProps> = ({
       {!showWishlistOnly && categories.length > 2 && (
         <div className="flex items-start gap-3.5 overflow-x-auto pb-1 mb-4 no-scrollbar">
           {categories.map((cat) => {
-            const isAll = cat === 'همه';
-            const thumb = isAll ? null : categoryThumb[cat];
             const isActive = selectedCategory === cat;
+            const thumb = categoryThumb[cat];
             return (
               <button
                 key={cat}

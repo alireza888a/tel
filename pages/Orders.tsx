@@ -31,6 +31,8 @@ export const Orders: React.FC = () => {
   // the only status this action makes sense on.
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  // Full-size receipt photo viewer — holds the order id currently zoomed in, or null when closed.
+  const [receiptLightboxOrderId, setReceiptLightboxOrderId] = useState<string | null>(null);
 
   const [products] = useState<Product[]>(() => {
     try {
@@ -270,6 +272,19 @@ export const Orders: React.FC = () => {
         : `${succeeded.toLocaleString('fa-IR')} سفارش ${verb} شد، ${failed.toLocaleString('fa-IR')} مورد با خطا مواجه شد.`
     );
     await refreshOrders();
+  };
+
+  // Builds the receipt-image URL for one order, carrying whichever
+  // credential this device has (owner code or assistant access_token) —
+  // same query-param pattern /api/bot/photo already uses, since this has
+  // to work as a plain <img src>.
+  const getReceiptImageUrl = (orderId: string): string | null => {
+    const credential = getStoredCredential();
+    if (!credential) return null;
+    const params = new URLSearchParams({ orderId });
+    if (credential.code) params.set('code', credential.code);
+    if (credential.access_token) params.set('access_token', credential.access_token);
+    return `https://corepanel-api.tajikr450.workers.dev/api/order/receipt-image?${params.toString()}`;
   };
 
   // Helper to format date in Persian friendly format
@@ -579,7 +594,7 @@ export const Orders: React.FC = () => {
 
                       return (
                         <div className="mt-3 bg-blue-500/5 border border-blue-500/10 rounded-xl p-2.5 space-y-1.5 text-xs">
-                          <h4 className="font-bold text-blue-400 flex items-center gap-1.5">
+                          <h4 className="font-bold text-blue-700 flex items-center gap-1.5">
                             <span>📋 اطلاعات تکمیلی</span>
                           </h4>
                           <div className="space-y-1.5">
@@ -593,6 +608,32 @@ export const Orders: React.FC = () => {
                         </div>
                       );
                     })()
+                  )}
+
+                  {/* Payment receipt photo — the image the buyer sent when
+                      paying. Only rendered once the order actually has one
+                      (older orders from before this existed won't). Click
+                      to zoom, so the admin can actually read the bank
+                      app's confirmation text/amount clearly instead of
+                      squinting at a small thumbnail. */}
+                  {order.hasReceipt && (
+                    <div className="mt-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-2.5">
+                      <h4 className="font-bold text-emerald-700 flex items-center gap-1.5 mb-2 text-xs">
+                        <span>🧾 فیش پرداخت ارسالی</span>
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setReceiptLightboxOrderId(order.id)}
+                        className="block w-full max-w-[180px] rounded-lg overflow-hidden border border-black/10 hover:border-emerald-400 transition-colors cursor-zoom-in"
+                        title="برای بزرگ‌نمایی کلیک کنید"
+                      >
+                        <img
+                          src={getReceiptImageUrl(order.id) || ''}
+                          alt="فیش پرداخت"
+                          className="w-full h-28 object-cover"
+                        />
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -631,6 +672,29 @@ export const Orders: React.FC = () => {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Fullscreen receipt-photo viewer — opened by clicking a receipt
+          thumbnail above. Own overlay (not reusing anything from the Mini
+          App) since this is the admin panel, a different app entirely. */}
+      {receiptLightboxOrderId && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4"
+          onClick={() => setReceiptLightboxOrderId(null)}
+        >
+          <button
+            onClick={() => setReceiptLightboxOrderId(null)}
+            className="absolute top-4 left-4 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10"
+          >
+            <X size={20} />
+          </button>
+          <img
+            src={getReceiptImageUrl(receiptLightboxOrderId) || ''}
+            alt="فیش پرداخت"
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+          />
         </div>
       )}
     </div>

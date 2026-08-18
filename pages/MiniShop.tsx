@@ -744,7 +744,14 @@ export const MiniShop: React.FC = () => {
           // native chevron/menu controls in fullscreen Mini Apps
           // (safeAreaInset.right) — our own RTL, right-aligned title was
           // rendering straight underneath them, getting visually cut off.
-          paddingRight: `calc(1rem + ${safeArea.right}px)`
+          // FIX: safeAreaInset.right alone wasn't enough — it reports 0 in
+          // Telegram's normal (non-fullscreen) Mini App view, where the
+          // native chevron+menu controls still float over the top-right
+          // corner regardless. Guaranteeing a fixed minimum buffer here
+          // (on top of whatever the API does report) clears them
+          // reliably across display modes instead of trusting a value
+          // that isn't always populated.
+          paddingRight: `calc(4.5rem + ${safeArea.right}px)`
         }}
       >
         {/* FIX: this content used to span the full viewport edge-to-edge

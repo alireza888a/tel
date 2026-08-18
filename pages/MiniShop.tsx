@@ -751,7 +751,7 @@ export const MiniShop: React.FC = () => {
           // (on top of whatever the API does report) clears them
           // reliably across display modes instead of trusting a value
           // that isn't always populated.
-          paddingRight: `calc(4.5rem + ${safeArea.right}px)`
+          paddingRight: `calc(6rem + ${safeArea.right}px)`
         }}
       >
         {/* FIX: this content used to span the full viewport edge-to-edge

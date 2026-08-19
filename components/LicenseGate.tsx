@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, AlertCircle, Loader2, Lock, RefreshCw, Smartphone, MessageCircle, Gift } from 'lucide-react';
+import { Key, ShieldCheck, AlertCircle, Loader2, Lock, RefreshCw, Smartphone } from 'lucide-react';
 import { loadFromCloud } from '../services/cloudSync';
-import { LOGO_ICON_DATA_URI } from '../assets/logoIcon';
-import { LOGO_WORDMARK_DATA_URI } from '../assets/logoWordmark';
 
 interface LicenseCache {
   code: string;
@@ -15,12 +13,6 @@ interface LicenseGateProps {
 }
 
 const API_URL = 'https://corepanel-api.tajikr450.workers.dev/api/auth';
-const PUBLIC_SETTINGS_URL = 'https://corepanel-api.tajikr450.workers.dev/api/public/settings';
-
-interface PublicSettings {
-  support_bot_username?: string;
-  sales_bot_username?: string;
-}
 
 export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   const isMiniApp = new URLSearchParams(window.location.search).has('code') && window.location.pathname.includes('miniapp');
@@ -35,11 +27,6 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   const [licenseCode, setLicenseCode] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [networkError, setNetworkError] = useState<boolean>(false);
-  // NEW — support-bot / trial-bot links, driven entirely by server-side
-  // settings (see /api/public/settings) rather than hardcoded here. Empty
-  // until Ali fills them in from the admin console — no redeploy needed
-  // later when the support bot actually exists.
-  const [publicSettings, setPublicSettings] = useState<PublicSettings>({});
 
   // Initialize Device ID
   useEffect(() => {
@@ -57,12 +44,6 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
 
     // Initial check for cache
     checkLicenseCache(id);
-
-    // Best-effort — never blocks the license form if it fails or is slow.
-    fetch(PUBLIC_SETTINGS_URL)
-      .then((res) => res.json())
-      .then((data) => { if (data && data.ok) setPublicSettings(data.settings || {}); })
-      .catch(() => {});
   }, []);
 
   const checkLicenseCache = async (currentDeviceId: string) => {
@@ -243,17 +224,18 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
         
         {/* Header decoration */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="bg-white rounded-2xl shadow-xl flex items-center justify-center gap-2.5 px-5 py-4 mb-4">
-            <img src={LOGO_ICON_DATA_URI} alt="AsanHub" className="w-9 h-9 object-contain shrink-0" />
-            <img src={LOGO_WORDMARK_DATA_URI} alt="AsanHub" className="h-7 w-auto object-contain" />
+          <div className="relative mb-4">
+            <div className="w-16 h-16 bg-gradient-to-tr from-purple-600/80 to-blue-600/80 rounded-2xl flex items-center justify-center shadow-xl border dark:border-white/10 border-slate-200">
+              <Key size={28} className="dark:text-white text-slate-800" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center text-[10px] text-black font-bold border-2 border-[#151c2c]">
+              🔑
+            </div>
           </div>
-
+          
           <h1 className="text-2xl font-black bg-gradient-to-r from-white via-slate-100 to-purple-300 bg-clip-text text-transparent mb-2">
             فعالسازی پنل مدیریت
           </h1>
-          <p className="text-xs dark:text-slate-400 text-slate-500 max-w-sm leading-relaxed mb-1">
-            مدیریت هوشمند فروشگاه تلگرامی شما
-          </p>
           <p className="text-xs dark:text-slate-400 text-slate-500 max-w-sm leading-relaxed">
             جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.
           </p>
@@ -316,45 +298,6 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
             )}
           </div>
         </form>
-
-        {/* NEW — support-bot / free-trial links. Each hides itself unless
-            the server-side setting is actually configured (see
-            /api/public/settings) — so this never shows a dead/placeholder
-            link to a real visitor before Ali sets the real bot username. */}
-        <div className="mt-6 pt-6 border-t dark:border-white/5 border-slate-100 flex flex-col gap-2">
-          {publicSettings.support_bot_username ? (
-            <a
-              href={`https://t.me/${publicSettings.support_bot_username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-2.5 dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 border dark:border-white/10 border-slate-200 dark:text-slate-200 text-slate-700 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition-colors"
-            >
-              <MessageCircle size={14} />
-              پشتیبانی
-            </a>
-          ) : (
-            <button
-              type="button"
-              disabled
-              className="w-full py-2.5 dark:bg-white/5 bg-slate-100 border dark:border-white/10 border-slate-200 dark:text-slate-500 text-slate-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
-            >
-              <MessageCircle size={14} />
-              پشتیبانی <span className="text-[10px]">(به‌زودی)</span>
-            </button>
-          )}
-
-          {publicSettings.sales_bot_username && (
-            <a
-              href={`https://t.me/${publicSettings.sales_bot_username}?start=trial`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-500 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition-colors"
-            >
-              <Gift size={14} />
-              دریافت پنل آزمایشی رایگان
-            </a>
-          )}
-        </div>
 
         {/* Device Information section */}
         <div className="mt-8 pt-6 border-t dark:border-white/5 border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-mono">

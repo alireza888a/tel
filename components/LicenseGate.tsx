@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Key, ShieldCheck, AlertCircle, Loader2, Lock, RefreshCw, Smartphone, UserCog } from 'lucide-react';
+import { ShieldCheck, AlertCircle, Loader2, Lock, RefreshCw, Smartphone, MessageCircle, Gift } from 'lucide-react';
 import { loadFromCloud } from '../services/cloudSync';
+import { LOGO_ICON_DATA_URI } from '../assets/logoIcon';
+import { LOGO_WORDMARK_DATA_URI } from '../assets/logoWordmark';
 
 interface LicenseCache {
   code: string;
-  checkedAt: number;
-  validUntil: string;
-}
-
-interface AssistantCache {
-  access_token: string;
-  slug: string;
   checkedAt: number;
   validUntil: string;
 }
@@ -20,22 +15,18 @@ interface LicenseGateProps {
 }
 
 const API_URL = 'https://corepanel-api.tajikr450.workers.dev/api/auth';
-const ADMIN_AUTH_URL = 'https://corepanel-api.tajikr450.workers.dev/api/auth/admin';
-const VOUCHER_API_URL = 'https://corepanel-api.tajikr450.workers.dev/api/license/redeem-voucher';
+const PUBLIC_SETTINGS_URL = 'https://corepanel-api.tajikr450.workers.dev/api/public/settings';
+
+interface PublicSettings {
+  support_bot_username?: string;
+  sales_bot_username?: string;
+}
 
 export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   const isMiniApp = new URLSearchParams(window.location.search).has('code') && window.location.pathname.includes('miniapp');
   if (isMiniApp) {
     return <>{children}</>;
   }
-
-  // Assistant mode is entirely URL-driven: the owner shares a link like
-  // panel.example.com/?admin=<slug>, and whoever opens that link only ever
-  // sees the assistant login (username + password) — never the owner's
-  // license-code field. No mode toggle to confuse anyone with; someone who
-  // just visits the plain URL always gets the normal owner screen.
-  const adminSlug = new URLSearchParams(window.location.search).get('admin');
-  const isAssistantMode = !!adminSlug;
 
   const [deviceId, setDeviceId] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -44,17 +35,11 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   const [licenseCode, setLicenseCode] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [networkError, setNetworkError] = useState<boolean>(false);
-  // Assistant-mode fields
-  const [assistantUsername, setAssistantUsername] = useState<string>('');
-  const [assistantPassword, setAssistantPassword] = useState<string>('');
-  // NEW — self-service renewal, so a customer whose license already expired
-  // isn't stuck: this screen never got past /api/auth's "expired" rejection
-  // before, and the existing voucher-redeem field only lives inside the
-  // dashboard (which requires being past that same rejection) — a dead end.
-  const [showVoucherField, setShowVoucherField] = useState<boolean>(false);
-  const [voucherCode, setVoucherCode] = useState<string>('');
-  const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
-  const [redeemMsg, setRedeemMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  // NEW — support-bot / trial-bot links, driven entirely by server-side
+  // settings (see /api/public/settings) rather than hardcoded here. Empty
+  // until Ali fills them in from the admin console — no redeploy needed
+  // later when the support bot actually exists.
+  const [publicSettings, setPublicSettings] = useState<PublicSettings>({});
 
   // Initialize Device ID
   useEffect(() => {
@@ -71,44 +56,14 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
     setDeviceId(id);
 
     // Initial check for cache
-    if (isAssistantMode && adminSlug) {
-      checkAssistantCache(adminSlug, id);
-    } else {
-      checkLicenseCache(id);
-    }
-  }, []);
+    checkLicenseCache(id);
 
-  const checkAssistantCache = async (slug: string, currentDeviceId: string) => {
-    try {
-      const cachedStr = localStorage.getItem('assistant_session_cache');
-      if (cachedStr) {
-        const cache: AssistantCache = JSON.parse(cachedStr);
-        const now = Date.now();
-        const oneDayMs = 24 * 60 * 60 * 1000;
-        // Only reuse the cached session if it's for this exact shop's link —
-        // a device that was an assistant for shop A must re-enter
-        // credentials if it opens shop B's assistant link.
-        if (cache.access_token && cache.slug === slug && cache.checkedAt && (now - cache.checkedAt < oneDayMs)) {
-          setIsLoading(true);
-          let loaded = false;
-          try {
-            loaded = await loadFromCloud({ access_token: cache.access_token });
-          } catch (e) {
-            console.warn('loadFromCloud error during assistant cached check:', e);
-          }
-          if (loaded) {
-            setIsAuthenticated(true);
-            setIsLoading(false);
-            return;
-          }
-          localStorage.removeItem('assistant_session_cache');
-        }
-      }
-    } catch (e) {
-      console.error('Failed to read assistant session cache', e);
-    }
-    setIsLoading(false);
-  };
+    // Best-effort — never blocks the license form if it fails or is slow.
+    fetch(PUBLIC_SETTINGS_URL)
+      .then((res) => res.json())
+      .then((data) => { if (data && data.ok) setPublicSettings(data.settings || {}); })
+      .catch(() => {});
+  }, []);
 
   const checkLicenseCache = async (currentDeviceId: string) => {
     try {
@@ -127,12 +82,11 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           setIsLoading(true);
           let loaded = false;
           try {
-            loaded = await loadFromCloud({ code: cache.code });
+            loaded = await loadFromCloud(cache.code);
           } catch (e) {
             console.warn('loadFromCloud error during cached check:', e);
           }
           if (loaded) {
-              localStorage.removeItem('assistant_session_cache');
               setIsAuthenticated(true);
               setIsLoading(false);
               return;
@@ -199,15 +153,11 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           validUntil: data.expires_at || '',
         };
         localStorage.setItem('license_cache', JSON.stringify(newCache));
-        // A device is only ever one role at a time — clear any stale
-        // assistant session so Settings.tsx (and anything else checking
-        // role) never gets confused by leftover state from an earlier test.
-        localStorage.removeItem('assistant_session_cache');
         
         // Load state from cloud before showing children
         setIsLoading(true);
         try {
-          await loadFromCloud({ code: code.trim() });
+          await loadFromCloud(code.trim());
         } catch (e) {
           console.warn('loadFromCloud error during validate:', e);
         }
@@ -240,74 +190,6 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
     }
   };
 
-  // Assistant login — same shape of flow as validateLicense, but hits
-  // /api/auth/admin with slug+username+password instead of a license code.
-  const validateAssistantLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!adminSlug) return;
-    if (!assistantUsername.trim() || !assistantPassword.trim()) {
-      setErrorMsg('لطفاً نام‌کاربری و رمز عبور را وارد کنید.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrorMsg(null);
-    setNetworkError(false);
-
-    try {
-      const response = await fetch(ADMIN_AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          slug: adminSlug,
-          username: assistantUsername.trim(),
-          password: assistantPassword,
-          device_id: deviceId,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.status === 429 || data.reason === 'rate_limited') {
-        setErrorMsg('⏳ تعداد تلاش بیش از حد مجاز بود. لطفاً یک دقیقه صبر کنید و دوباره امتحان کنید.');
-      } else if (data.ok && data.access_token) {
-        const newCache: AssistantCache = {
-          access_token: data.access_token,
-          slug: adminSlug,
-          checkedAt: Date.now(),
-          validUntil: data.expires_at || '',
-        };
-        localStorage.setItem('assistant_session_cache', JSON.stringify(newCache));
-        // Same reasoning as the owner path above, in reverse.
-        localStorage.removeItem('license_cache');
-
-        setIsLoading(true);
-        try {
-          await loadFromCloud({ access_token: data.access_token });
-        } catch (e) {
-          console.warn('loadFromCloud error during assistant validate:', e);
-        }
-
-        setIsAuthenticated(true);
-        setErrorMsg(null);
-      } else {
-        let message = 'نام‌کاربری یا رمز عبور اشتباه است.';
-        if (data.reason === 'revoked') message = 'این فروشگاه غیرفعال شده.';
-        else if (data.reason === 'expired') message = 'اعتبار لایسنس این فروشگاه تموم شده.';
-        else if (data.reason === 'requires_multi_device_license') message = 'دسترسی دستیار برای این فروشگاه فعال نیست.';
-        else if (data.reason === 'device_limit') message = 'ظرفیت دستگاه‌های این لایسنس پره.';
-        setErrorMsg(message);
-      }
-    } catch (e) {
-      console.error('Assistant login failed', e);
-      setNetworkError(true);
-      setErrorMsg('اتصال به سرور برقرار نشد، دوباره تلاش کن.');
-    } finally {
-      setIsSubmitting(false);
-      setIsLoading(false);
-    }
-  };
-
   const handleActivate = (e: React.FormEvent) => {
     e.preventDefault();
     validateLicense(licenseCode, deviceId);
@@ -325,59 +207,23 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
     validateLicense(codeToUse || licenseCode, deviceId);
   };
 
-  // NEW — lets a customer stuck on an "expired" (or device-limit) error
-  // redeem a renewal/top-up voucher right here, without ever needing to
-  // get past /api/auth first. Reuses whatever license code is already
-  // typed in the field above. On success, immediately retries the normal
-  // login so they land straight in the dashboard.
-  const handleRedeemVoucher = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!licenseCode.trim() || !voucherCode.trim()) return;
-
-    setIsRedeeming(true);
-    setRedeemMsg(null);
-
-    try {
-      const response = await fetch(VOUCHER_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: licenseCode.trim(), voucherCode: voucherCode.trim() }),
-      });
-      const data = await response.json();
-
-      if (data.ok) {
-        setRedeemMsg({ text: '✅ کد با موفقیت اعمال شد! در حال ورود...', ok: true });
-        setVoucherCode('');
-        // Re-run the normal login flow now that the license is extended —
-        // this also clears the old "expired" errorMsg on success.
-        await validateLicense(licenseCode, deviceId);
-      } else {
-        let msg = 'کد تمدید نامعتبر است.';
-        if (data.reason === 'voucher_invalid') msg = 'این کد تمدید پیدا نشد.';
-        else if (data.reason === 'voucher_already_used') msg = 'این کد تمدید قبلاً استفاده شده.';
-        else if (data.reason === 'invalid') msg = 'لایسنس‌کدی که بالا نوشتید نامعتبره.';
-        else if (data.reason === 'revoked') msg = 'این لایسنس غیرفعال شده — امکان تمدید خودکار نیست، با پشتیبانی تماس بگیرید.';
-        setRedeemMsg({ text: '❌ ' + msg, ok: false });
-      }
-    } catch (e) {
-      setRedeemMsg({ text: '❌ اتصال به سرور برقرار نشد، دوباره تلاش کنید.', ok: false });
-    } finally {
-      setIsRedeeming(false);
-    }
-  };
-
   if (isLoading) {
     return (
-      <div dir="rtl" className="min-h-screen bg-[#F4F6F7] text-brand-navy flex flex-col items-center justify-center p-4">
-        <div className="relative text-center max-w-md w-full bg-white border border-black/5 rounded-3xl p-8 shadow-lg flex flex-col items-center">
+      <div dir="rtl" className="min-h-screen dark:bg-[#0f172a] bg-white dark:text-white text-slate-800 flex flex-col items-center justify-center p-4">
+        {/* Background blobs */}
+        <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="fixed bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+        
+        <div className="relative text-center max-w-md w-full dark:bg-white/5 bg-slate-100 border dark:border-white/10 border-slate-200 rounded-3xl p-8 backdrop-blur-2xl shadow-2xl flex flex-col items-center">
           <div className="relative mb-6">
-            <div className="w-20 h-20 bg-brand-teal rounded-2xl flex items-center justify-center shadow-lg">
-              <Lock size={36} className="text-white" />
+            <div className="w-20 h-20 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
+              <Lock size={36} className="dark:text-white text-slate-800 animate-bounce" />
             </div>
+            <div className="absolute inset-0 bg-purple-500/30 rounded-2xl blur-lg -z-10" />
           </div>
-          <h2 className="text-xl font-bold mb-2 text-brand-navy">در حال تایید لایسنس...</h2>
-          <p className="text-sm text-brand-navy/50 mb-6">لطفاً چند لحظه منتظر بمانید تا وضعیت لایسنس شما بررسی شود.</p>
-          <Loader2 size={32} className="text-brand-teal animate-spin" />
+          <h2 className="text-xl font-bold mb-2">در حال تایید لایسنس...</h2>
+          <p className="text-sm dark:text-slate-400 text-slate-500 mb-6">لطفاً چند لحظه منتظر بمانید تا وضعیت لایسنس شما بررسی شود.</p>
+          <Loader2 size={32} className="dark:text-purple-400 text-purple-600 animate-spin" />
         </div>
       </div>
     );
@@ -388,97 +234,43 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F4F6F7] text-brand-navy flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
-      {/* Background Decor — soft brand-colored blobs, kept light enough to stay readable */}
-      <div className="fixed -top-24 -right-24 w-[420px] h-[420px] bg-gradient-to-br from-brand-teal to-brand-light rounded-[40%_60%_65%_35%/45%_45%_55%_55%] opacity-40 blur-[40px] pointer-events-none" />
-      <div className="fixed -bottom-32 -left-24 w-[460px] h-[460px] bg-gradient-to-tr from-brand-amber to-brand-orange rounded-[55%_45%_35%_65%/55%_35%_65%_45%] opacity-30 blur-[50px] pointer-events-none" />
-      <div className="fixed top-1/3 -left-16 w-[220px] h-[220px] bg-brand-navy rounded-full opacity-[0.05] blur-[30px] pointer-events-none" />
+    <div dir="rtl" className="min-h-screen bg-[#0e131f] dark:text-white text-slate-800 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="relative max-w-md w-full bg-white border border-black/5 rounded-3xl shadow-xl z-10 overflow-hidden transform hover:scale-[1.015] transition-transform duration-300">
-
-        {/* Colored header band — separates the brand identity from the plain form below */}
-        <div className="bg-gradient-to-l from-brand-teal to-brand-light px-8 pt-8 pb-8 text-center relative">
-          <div className="relative inline-block">
-            <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg">
-              {isAssistantMode ? <UserCog size={28} className="text-brand-teal" /> : <Key size={28} className="text-brand-teal" />}
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-amber rounded-full flex items-center justify-center text-[10px] text-brand-navy font-bold border-2 border-white">
-              🔑
-            </div>
+      <div className="relative max-w-md w-full bg-[#151c2c]/80 border dark:border-white/10 border-slate-200 rounded-3xl p-8 backdrop-blur-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)] z-10 transform hover:scale-[1.01] transition-transform duration-300">
+        
+        {/* Header decoration */}
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="bg-white rounded-2xl shadow-xl flex items-center justify-center gap-2.5 px-5 py-4 mb-4">
+            <img src={LOGO_ICON_DATA_URI} alt="AsanHub" className="w-9 h-9 object-contain shrink-0" />
+            <img src={LOGO_WORDMARK_DATA_URI} alt="AsanHub" className="h-7 w-auto object-contain" />
           </div>
-          <h1 className="text-2xl font-black text-white mt-4">
-            {isAssistantMode ? 'ورود دستیار' : 'فعالسازی پنل مدیریت'}
-          </h1>
-        </div>
 
-        <div className="px-8 pb-8 pt-6">
-          <p className="text-sm text-brand-navy/80 leading-relaxed text-center mb-6">
-            {isAssistantMode
-              ? 'نام‌کاربری و رمز عبوری که مدیر فروشگاه در اختیارتان گذاشته را وارد کنید.'
-              : 'جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.'}
+          <h1 className="text-2xl font-black bg-gradient-to-r from-white via-slate-100 to-purple-300 bg-clip-text text-transparent mb-2">
+            فعالسازی پنل مدیریت
+          </h1>
+          <p className="text-xs dark:text-slate-400 text-slate-500 max-w-sm leading-relaxed mb-1">
+            مدیریت هوشمند فروشگاه تلگرامی شما
           </p>
+          <p className="text-xs dark:text-slate-400 text-slate-500 max-w-sm leading-relaxed">
+            جهت دسترسی به خدمات و بخش‌های مختلف پنل هوشمند مدیریت بات، لطفاً لایسنس‌کد معتبر خود را وارد نمایید.
+          </p>
+        </div>
 
         {/* Status Messages */}
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-start gap-2.5 animate-slide-up">
-            <AlertCircle size={16} className="shrink-0 text-red-600 mt-0.5" />
+          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 dark:text-red-300 text-red-600 text-xs flex items-start gap-2.5 animate-slide-up">
+            <AlertCircle size={16} className="shrink-0 dark:text-red-400 text-red-600 mt-0.5" />
             <div className="flex-1 leading-normal">{errorMsg}</div>
           </div>
         )}
 
-        {/* Assistant login form — shown only when opened via the shop's
-            assistant link (?admin=<slug>); no license-code field, no
-            voucher-renewal field, nothing owner-only visible here at all. */}
-        {isAssistantMode ? (
-          <form onSubmit={validateAssistantLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm text-brand-navy mb-2 font-bold">نام‌کاربری:</label>
-              <input
-                type="text"
-                required
-                value={assistantUsername}
-                onChange={(e) => setAssistantUsername(e.target.value)}
-                className="w-full bg-black/[0.03] border border-black/10 focus:border-brand-teal focus:ring-1 focus:ring-brand-teal rounded-xl px-4 py-3 text-sm text-center text-brand-navy outline-none transition-all duration-200"
-                disabled={isSubmitting}
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-brand-navy mb-2 font-bold">رمز عبور:</label>
-              <input
-                type="password"
-                required
-                value={assistantPassword}
-                onChange={(e) => setAssistantPassword(e.target.value)}
-                className="w-full bg-black/[0.03] border border-black/10 focus:border-brand-teal focus:ring-1 focus:ring-brand-teal rounded-xl px-4 py-3 text-sm text-center text-brand-navy outline-none transition-all duration-200"
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isSubmitting || !assistantUsername.trim() || !assistantPassword.trim()}
-                className="w-full py-3.5 bg-brand-teal hover:bg-brand-teal/90 text-white disabled:opacity-50 disabled:pointer-events-none rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    <span>در حال ورود...</span>
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck size={18} />
-                    <span>ورود</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        ) : (
-        <>
         {/* Main form */}
         <form onSubmit={handleActivate} className="space-y-5">
           <div>
-            <label className="block text-sm text-brand-navy mb-2 font-bold">لایسنس‌کد:</label>
+            <label className="block text-xs dark:text-slate-400 text-slate-500 mb-2 font-medium">لایسنس‌کد:</label>
             <div className="relative">
               <input
                 type="text"
@@ -486,7 +278,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
                 value={licenseCode}
                 onChange={(e) => setLicenseCode(e.target.value)}
                 placeholder="مثال: XXXX-XXXX-XXXX-XXXX"
-                className="w-full bg-black/[0.03] border border-black/10 focus:border-brand-teal focus:ring-1 focus:ring-brand-teal rounded-xl px-4 py-3 text-sm text-center text-brand-navy placeholder-brand-navy/30 outline-none transition-all duration-200 font-mono"
+                className="w-full dark:bg-black/30 bg-slate-100 border dark:border-white/10 border-slate-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl px-4 py-3 text-sm text-center dark:text-white text-slate-800 placeholder-slate-600 outline-none transition-all duration-200 font-mono"
                 disabled={isSubmitting}
               />
             </div>
@@ -498,7 +290,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
                 type="button"
                 onClick={handleRetry}
                 disabled={isSubmitting}
-                className="w-full py-3.5 bg-brand-amber hover:bg-brand-amber/90 text-brand-navy rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="w-full py-3.5 bg-gradient-to-l from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 dark:text-white text-slate-800 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-yellow-600/20"
               >
                 <RefreshCw size={18} className={isSubmitting ? 'animate-spin' : ''} />
                 تلاش مجدد
@@ -507,7 +299,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
               <button
                 type="submit"
                 disabled={isSubmitting || !licenseCode.trim()}
-                className="w-full py-3.5 bg-brand-teal hover:bg-brand-teal/90 text-white disabled:opacity-50 disabled:pointer-events-none rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="w-full py-3.5 bg-gradient-to-l from-purple-600 via-blue-600 to-indigo-600 hover:opacity-95 dark:text-white text-slate-800 disabled:opacity-50 disabled:pointer-events-none rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-600/20"
               >
                 {isSubmitting ? (
                   <>
@@ -525,74 +317,54 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
           </div>
         </form>
 
-        {/* NEW — self-service renewal, only surfaced once there's already an
-            error above (expired / device limit / etc). Reuses whatever
-            license code is already typed in the field above. */}
-        {errorMsg && !networkError && (
-          <div className="mt-4">
-            {!showVoucherField ? (
-              <button
-                type="button"
-                onClick={() => setShowVoucherField(true)}
-                className="w-full text-xs text-brand-teal hover:underline text-center py-1"
-              >
-                🎟 کد تمدید یا شارژ دارید؟
-              </button>
-            ) : (
-              <div className="p-4 rounded-xl bg-black/[0.02] border border-black/5 space-y-3 animate-slide-up">
-                <label className="block text-xs text-brand-navy/50 font-medium">کد تمدید / شارژ:</label>
-                <input
-                  type="text"
-                  value={voucherCode}
-                  onChange={(e) => setVoucherCode(e.target.value)}
-                  placeholder="مثال: RNW-XXXX-XXXX"
-                  disabled={isRedeeming}
-                  className="w-full bg-white border border-black/10 focus:border-brand-teal focus:ring-1 focus:ring-brand-teal rounded-xl px-4 py-2.5 text-sm text-center text-brand-navy placeholder-brand-navy/30 outline-none transition-all duration-200 font-mono"
-                />
-                {redeemMsg && (
-                  <div className={`text-xs leading-relaxed ${redeemMsg.ok ? 'text-green-600' : 'text-red-600'}`}>
-                    {redeemMsg.text}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleRedeemVoucher}
-                    disabled={isRedeeming || !licenseCode.trim() || !voucherCode.trim()}
-                    className="flex-1 py-2.5 bg-brand-teal hover:bg-brand-teal/90 text-white disabled:opacity-50 disabled:pointer-events-none rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all"
-                  >
-                    {isRedeeming ? <Loader2 size={15} className="animate-spin" /> : '✅'}
-                    اعمال کد و ورود
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowVoucherField(false); setRedeemMsg(null); }}
-                    disabled={isRedeeming}
-                    className="px-4 py-2.5 bg-black/5 hover:bg-black/10 rounded-xl text-xs text-brand-navy/70"
-                  >
-                    انصراف
-                  </button>
-                </div>
-                {!licenseCode.trim() && (
-                  <p className="text-[11px] text-brand-orange">⚠️ اول لایسنس‌کد خودتون رو توی فیلد بالا وارد کنید.</p>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-        </>
-        )}
+        {/* NEW — support-bot / free-trial links. Each hides itself unless
+            the server-side setting is actually configured (see
+            /api/public/settings) — so this never shows a dead/placeholder
+            link to a real visitor before Ali sets the real bot username. */}
+        <div className="mt-6 pt-6 border-t dark:border-white/5 border-slate-100 flex flex-col gap-2">
+          {publicSettings.support_bot_username ? (
+            <a
+              href={`https://t.me/${publicSettings.support_bot_username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 border dark:border-white/10 border-slate-200 dark:text-slate-200 text-slate-700 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition-colors"
+            >
+              <MessageCircle size={14} />
+              پشتیبانی
+            </a>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="w-full py-2.5 dark:bg-white/5 bg-slate-100 border dark:border-white/10 border-slate-200 dark:text-slate-500 text-slate-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
+            >
+              <MessageCircle size={14} />
+              پشتیبانی <span className="text-[10px]">(به‌زودی)</span>
+            </button>
+          )}
+
+          {publicSettings.sales_bot_username && (
+            <a
+              href={`https://t.me/${publicSettings.sales_bot_username}?start=trial`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-500 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition-colors"
+            >
+              <Gift size={14} />
+              دریافت پنل آزمایشی رایگان
+            </a>
+          )}
+        </div>
 
         {/* Device Information section */}
-        <div className="mt-8 pt-6 border-t border-black/5 flex items-center justify-between text-[10px] text-brand-navy/60 font-mono">
+        <div className="mt-8 pt-6 border-t dark:border-white/5 border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-mono">
           <div className="flex items-center gap-1.5">
-            <Smartphone size={12} className="text-brand-navy/60" />
+            <Smartphone size={12} className="dark:text-slate-400 text-slate-500" />
             <span>دستگاه شما:</span>
           </div>
-          <span className="bg-black/[0.03] px-2 py-1 rounded border border-black/5 max-w-[200px] truncate" title={deviceId}>
+          <span className="dark:bg-white/5 bg-slate-100 px-2 py-1 rounded border dark:border-white/5 border-slate-100 max-w-[200px] truncate" title={deviceId}>
             {deviceId}
           </span>
-        </div>
         </div>
 
       </div>

@@ -417,19 +417,27 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({ children }) => {
 
         {/* Colored header band — separates the brand identity from the plain form below */}
         <div className="bg-gradient-to-l from-brand-teal to-brand-light px-8 pt-8 pb-8 text-center relative">
-          <div className="relative inline-block">
-            <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
-              {isAssistantMode ? <UserCog size={28} className="text-brand-teal" /> : (
-                <img src={LOGO_ICON_DATA_URI} alt="AsanHub" className="w-10 h-10 object-contain" />
-              )}
+          {isAssistantMode ? (
+            <div className="relative inline-block">
+              <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
+                <UserCog size={28} className="text-brand-teal" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-amber rounded-full flex items-center justify-center text-[10px] text-brand-navy font-bold border-2 border-white">
+                🔑
+              </div>
             </div>
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-amber rounded-full flex items-center justify-center text-[10px] text-brand-navy font-bold border-2 border-white">
-              🔑
+          ) : (
+            <div className="mx-auto bg-white rounded-2xl shadow-lg px-5 py-3 inline-flex items-center gap-2.5">
+              <img src={LOGO_ICON_DATA_URI} alt="AsanHub" className="w-9 h-9 object-contain shrink-0" />
+              <img src={LOGO_WORDMARK_DATA_URI} alt="AsanHub" className="h-7 w-auto object-contain" />
             </div>
-          </div>
+          )}
           <h1 className="text-2xl font-black text-white mt-4">
             {isAssistantMode ? 'ورود دستیار' : 'فعالسازی پنل مدیریت'}
           </h1>
+          {!isAssistantMode && (
+            <p className="text-xs text-white/85 mt-1.5">مدیریت هوشمند فروشگاه تلگرامی شما</p>
+          )}
         </div>
 
         <div className="px-8 pb-8 pt-6">
